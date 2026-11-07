@@ -1019,6 +1019,7 @@
     role: null,
     connected: false,
     connecting: false,
+    leaving: false,
     roomCode: '',
     myChar: loadout.playerChar,
     myWeapon: loadout.playerWeapon,
@@ -1656,6 +1657,7 @@
 
     net.peer = new Peer();
     net.peer.on('error', function (err) {
+      if (net.leaving) return;
       net.connecting = false;
       hostRoomBtn.disabled = false;
       hostRoomBtn.textContent = '创建房间';
@@ -1678,13 +1680,19 @@
 
     conn.on('data', handleNetData);
     conn.on('close', function () {
+      if (net.conn !== conn) return;
       if (net.connectTimer) {
         clearTimeout(net.connectTimer);
         net.connectTimer = null;
       }
+      if (net.leaving) {
+        net.leaving = false;
+        return;
+      }
       onlineDisconnected();
     });
     conn.on('error', function (err) {
+      if (net.conn !== conn || net.leaving) return;
       net.connecting = false;
       if (net.connectTimer) {
         clearTimeout(net.connectTimer);
@@ -1719,6 +1727,7 @@
 
   function createRoom() {
     if (net.connected || net.connecting) return;
+    net.leaving = false;
     net.role = 'host';
     var peer = ensurePeer();
     if (!peer) return;
@@ -1737,6 +1746,7 @@
 
   function joinRoom() {
     if (net.connected || net.connecting) return;
+    net.leaving = false;
     var code = joinCodeInput.value.trim();
     if (!code) {
       setOnlineStatus('请输入房间码。');
@@ -1878,6 +1888,7 @@
   }
 
   function leaveOnline() {
+    net.leaving = true;
     if (net.conn) sendNet({ type: 'leave' });
     if (net.conn) { try { net.conn.close(); } catch (err) { /* ignore */ } }
     if (net.peer) { try { net.peer.destroy(); } catch (err) { /* ignore */ } }
