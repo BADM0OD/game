@@ -323,6 +323,9 @@
   }
   .settingsHint { margin: 10px 0 0; color: #7f899b; font-size: 12px; line-height: 1.7; }
   .keybindRow { display: flex; gap: 10px; }
+  .keybindGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  #settingsScreen .card { max-height: calc(100vh - 32px); overflow-y: auto; }
+  @media (max-width: 560px) { .keybindGrid { grid-template-columns: 1fr; } }
   .keyButton {
     flex: 1;
     display: flex;
@@ -516,7 +519,7 @@
 
         <button type="button" class="homeCard cardButton" id="settingsCard">
           <span class="cardIcon">⚙️</span>
-          <span class="cardText"><strong>设置</strong><small>游戏内灵敏度与技能键位</small></span>
+          <span class="cardText"><strong>设置</strong><small>灵敏度、按键与鼠标绑定</small></span>
           <span class="chevron">→</span>
         </button>
       </div>
@@ -727,7 +730,7 @@
         <span class="stepBadge">设置</span>
       </div>
       <h1 class="screenTitle">设置</h1>
-      <p class="screenSub">调整游戏内鼠标灵敏度与技能键位，设置会自动保存在本浏览器。</p>
+      <p class="screenSub">调整游戏内鼠标灵敏度、键盘按键和鼠标绑定，设置会自动保存在本浏览器。</p>
 
       <section class="settingsGroup">
         <h3>游戏内灵敏度</h3>
@@ -739,12 +742,18 @@
       </section>
 
       <section class="settingsGroup">
-        <h3>技能键位</h3>
-        <div class="keybindRow">
-          <button type="button" class="keyButton" id="bindE"><span>小招键</span><b id="bindELabel">E</b></button>
-          <button type="button" class="keyButton" id="bindQ"><span>大招键</span><b id="bindQLabel">Q</b></button>
+        <h3>按键与鼠标绑定</h3>
+        <div class="keybindGrid">
+          <button type="button" class="keyButton" data-bind-action="left"><span>向左移动</span><b data-bind-label="left">A</b></button>
+          <button type="button" class="keyButton" data-bind-action="right"><span>向右移动</span><b data-bind-label="right">D</b></button>
+          <button type="button" class="keyButton" data-bind-action="jump"><span>跳跃</span><b data-bind-label="jump">空格</b></button>
+          <button type="button" class="keyButton" data-bind-action="drop"><span>下平台</span><b data-bind-label="drop">S</b></button>
+          <button type="button" class="keyButton" data-bind-action="reload"><span>换弹</span><b data-bind-label="reload">R</b></button>
+          <button type="button" class="keyButton" data-bind-action="shoot"><span>射击</span><b data-bind-label="shoot">左键</b></button>
+          <button type="button" class="keyButton" data-bind-action="skillE"><span>小招</span><b data-bind-label="skillE">E</b></button>
+          <button type="button" class="keyButton" data-bind-action="skillQ"><span>大招</span><b data-bind-label="skillQ">Q</b></button>
         </div>
-        <p class="settingsHint">点击后按下新按键。W / A / S / D、R、空格、Esc、Tab 和其他技能键不可用。</p>
+        <p class="settingsHint">点击按钮后按下键盘按键；要绑定鼠标按键，请在设置界面的空白处点击或滚动滚轮。支持左键、右键、中键/滚轮、侧键和滚轮上/下；Esc 取消绑定。</p>
         <div id="settingsError" class="settingsError" hidden></div>
       </section>
 
@@ -768,13 +777,14 @@
         <section class="tutSection">
           <h3>操控方式</h3>
           <ul>
-            <li><b>A / D</b>：左右移动</li>
-            <li><b>W / 空格</b>：跳跃</li>
-            <li><b>S</b>：从当前平台向下落</li>
+            <li><b>A / D</b>：左右移动（默认，可在设置中修改）</li>
+            <li><b>空格</b>：跳跃（默认，可在设置中修改）</li>
+            <li><b>S</b>：从当前平台向下落（默认，可在设置中修改）</li>
             <li><b>鼠标</b>：瞄准，枪支朝向准心</li>
-            <li><b>左键</b>：射击</li>
-            <li><b>小招 / 大招</b>：默认 <b>E</b> / <b>Q</b>，可在设置中修改键位</li>
-            <li><b>R</b>：换弹，耗时 2.5 秒</li>
+            <li><b>左键</b>：射击（默认，可在设置中修改）</li>
+            <li><b>小招 / 大招</b>：默认 <b>E</b> / <b>Q</b>，可在设置中修改</li>
+            <li><b>R</b>：换弹，耗时 2.5 秒（默认，可在设置中修改）</li>
+            <li>移动、跳跃、下平台、换弹、射击、小招、大招都可以绑定键盘按键或鼠标按键，包括左键、右键、中键/滚轮、侧键和滚轮上/下。</li>
           </ul>
         </section>
 
@@ -810,7 +820,7 @@
             <h4>😡 超级生气暴怒</h4>
             <ul>
               <li><b>小招 充能疾驰</b>：10 秒内移动速度 +20%，跳跃高度 +100%。</li>
-              <li><b>大招 晚安焰火</b>：装备一发火箭，左键发射，150 伤害；不受射速降低影响。</li>
+              <li><b>大招 晚安焰火</b>：装备一发火箭，按射击键发射，150 伤害；不受射速降低影响。</li>
             </ul>
           </div>
           <div class="tutChar">
@@ -846,7 +856,7 @@
           <ul>
             <li>AK 与 M4 的子弹飞行速度相同，均为 1850；AK 伤害更高但射速更慢。</li>
             <li>两把枪都只有 3 个弹夹，即 2 个备用弹夹。</li>
-            <li>弹夹打空自动换弹；也可以按 R 手动换弹。</li>
+            <li>弹夹打空自动换弹；也可以按换弹键手动换弹（默认 R）。</li>
             <li>手动换弹会丢弃当前弹夹里剩余的子弹。</li>
           </ul>
         </section>
@@ -966,10 +976,12 @@
   var settingsBackBottomBtn = document.getElementById('settingsBackBottom');
   var sensitivityRange = document.getElementById('sensitivityRange');
   var sensitivityValue = document.getElementById('sensitivityValue');
-  var bindEBtn = document.getElementById('bindE');
-  var bindQBtn = document.getElementById('bindQ');
-  var bindELabel = document.getElementById('bindELabel');
-  var bindQLabel = document.getElementById('bindQLabel');
+  var bindButtons = Array.prototype.slice.call(document.querySelectorAll('[data-bind-action]'));
+  var bindLabels = {};
+  bindButtons.forEach(function (btn) {
+    var action = btn.dataset.bindAction;
+    bindLabels[action] = btn.querySelector('[data-bind-label]');
+  });
   var settingsErrorEl = document.getElementById('settingsError');
   var resetSettingsBtn = document.getElementById('resetSettings');
   var pauseOverlay = document.getElementById('pauseOverlay');
@@ -1079,12 +1091,60 @@
   var selectedMatch = { opponent: 'ai', mode: 'duel', map: 'training' };
 
   var SETTINGS_KEY = 'emojishot.settings.v1';
-  var DEFAULT_SETTINGS = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
-  var settings = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
+  var ACTION_LABELS = {
+    left: '向左移动',
+    right: '向右移动',
+    jump: '跳跃',
+    drop: '下平台',
+    reload: '换弹',
+    shoot: '射击',
+    skillE: '小招',
+    skillQ: '大招'
+  };
+  var DEFAULT_BINDINGS = {
+    left: 'KeyA',
+    right: 'KeyD',
+    jump: 'Space',
+    drop: 'KeyS',
+    reload: 'KeyR',
+    shoot: 'Mouse0',
+    skillE: 'KeyE',
+    skillQ: 'KeyQ'
+  };
+  var DEFAULT_SETTINGS = {
+    sensitivity: 1,
+    bindings: {
+      left: 'KeyA',
+      right: 'KeyD',
+      jump: 'Space',
+      drop: 'KeyS',
+      reload: 'KeyR',
+      shoot: 'Mouse0',
+      skillE: 'KeyE',
+      skillQ: 'KeyQ'
+    }
+  };
+  var settings = {
+    sensitivity: 1,
+    bindings: {
+      left: 'KeyA',
+      right: 'KeyD',
+      jump: 'Space',
+      drop: 'KeyS',
+      reload: 'KeyR',
+      shoot: 'Mouse0',
+      skillE: 'KeyE',
+      skillQ: 'KeyQ'
+    }
+  };
   var bindCapture = null;
-  var RESERVED_KEYS = {
-    KeyW: true, KeyA: true, KeyS: true, KeyD: true, KeyR: true, Space: true,
-    Escape: true, Tab: true
+  var RESERVED_KEYS = { Escape: true, Tab: true };
+  var MOUSE_CODES = {
+    Mouse0: true, Mouse1: true, Mouse2: true, Mouse3: true, Mouse4: true,
+    WheelUp: true, WheelDown: true
+  };
+  var MOUSE_BUTTON_CODE = {
+    0: 'Mouse0', 1: 'Mouse1', 2: 'Mouse2', 3: 'Mouse3', 4: 'Mouse4'
   };
 
   var game = {
@@ -1110,6 +1170,11 @@
     absoluteAim: false,
     mouse: { x: W * 0.5, y: H * 0.5, down: false, inside: false },
     keys: {},
+    held: {
+      left: false, right: false, jump: false, drop: false,
+      reload: false, shoot: false, skillE: false, skillQ: false
+    },
+    wheelHoldUntil: { left: 0, right: 0, shoot: 0 },
     jumpBuffer: 0,
     promptDeadline: 0,
     promptReason: '',
@@ -1290,9 +1355,20 @@
     return MAPS[validMapKey(key)].name;
   }
 
-  function isValidSkillCode(code, otherCode) {
-    return typeof code === 'string' && code.length > 0 &&
-      !RESERVED_KEYS[code] && code !== otherCode;
+  function isValidBindingCode(code) {
+    return typeof code === 'string' && code.length > 0 && !RESERVED_KEYS[code];
+  }
+
+  function bindingOwner(code) {
+    var actions = Object.keys(DEFAULT_BINDINGS);
+    for (var i = 0; i < actions.length; i++) {
+      if (settings.bindings[actions[i]] === code) return actions[i];
+    }
+    return null;
+  }
+
+  function actionForCode(code) {
+    return bindingOwner(code);
   }
 
   function loadSettings() {
@@ -1303,16 +1379,30 @@
       var sens = Number(saved.sensitivity);
       if (Number.isFinite(sens)) settings.sensitivity = clamp(sens, 0.1, 3);
 
-      var e = saved.skillE;
-      var q = saved.skillQ;
-      if (!isValidSkillCode(e, q)) e = DEFAULT_SETTINGS.skillE;
-      if (!isValidSkillCode(q, e)) q = DEFAULT_SETTINGS.skillQ;
-      if (e === q) {
-        e = DEFAULT_SETTINGS.skillE;
-        q = DEFAULT_SETTINGS.skillQ;
+      var incoming = saved.bindings || {};
+      if (!saved.bindings) {
+        incoming.skillE = saved.skillE;
+        incoming.skillQ = saved.skillQ;
       }
-      settings.skillE = e;
-      settings.skillQ = q;
+
+      var actions = Object.keys(DEFAULT_BINDINGS);
+      var used = {};
+      var fallbackKeys = ['KeyW', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'KeyM'];
+      var fallbackIndex = 0;
+
+      for (var i = 0; i < actions.length; i++) {
+        var action = actions[i];
+        var candidate = incoming[action];
+        if (!isValidBindingCode(candidate) || used[candidate]) {
+          candidate = DEFAULT_BINDINGS[action];
+        }
+        while (used[candidate]) {
+          candidate = fallbackKeys[fallbackIndex % fallbackKeys.length];
+          fallbackIndex++;
+        }
+        settings.bindings[action] = candidate;
+        used[candidate] = true;
+      }
     } catch (err) { /* ignore invalid storage */ }
   }
 
@@ -1329,7 +1419,9 @@
       ShiftLeft: 'Shift', ShiftRight: 'Shift', ControlLeft: 'Ctrl', ControlRight: 'Ctrl',
       AltLeft: 'Alt', AltRight: 'Alt', MetaLeft: 'Win', MetaRight: 'Win',
       ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
-      Delete: 'Del', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn'
+      Delete: 'Del', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn',
+      Mouse0: '左键', Mouse1: '中键', Mouse2: '右键', Mouse3: '侧键1', Mouse4: '侧键2',
+      WheelUp: '滚轮↑', WheelDown: '滚轮↓'
     };
     if (map[code]) return map[code];
     if (code.indexOf('Key') === 0) return code.slice(3);
@@ -1549,8 +1641,7 @@
     game.promptDeadline = 0;
     game.notice = null;
     game.winner = null;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.paused = false;
     game.pointerLocked = document.pointerLockElement === canvas;
     game.absoluteAim = game.absoluteAim || !canUsePointerLock();
@@ -1721,10 +1812,12 @@
   function syncSettingsUI() {
     sensitivityRange.value = String(settings.sensitivity);
     sensitivityValue.textContent = settings.sensitivity.toFixed(2) + '×';
-    bindELabel.textContent = keyLabel(settings.skillE);
-    bindQLabel.textContent = keyLabel(settings.skillQ);
-    bindEBtn.classList.remove('listening');
-    bindQBtn.classList.remove('listening');
+    for (var i = 0; i < bindButtons.length; i++) {
+      var btn = bindButtons[i];
+      var action = btn.dataset.bindAction;
+      if (bindLabels[action]) bindLabels[action].textContent = keyLabel(settings.bindings[action]);
+      btn.classList.remove('listening');
+    }
   }
 
   function showSettingsScreen() {
@@ -1734,28 +1827,24 @@
     gameOverEl.hidden = true;
     reviveOverlay.hidden = true;
     bindCapture = null;
-    bindEBtn.classList.remove('listening');
-    bindQBtn.classList.remove('listening');
     settingsErrorEl.hidden = true;
     syncSettingsUI();
   }
 
-  function beginBind(which) {
+  function beginBind(action) {
     syncSettingsUI();
-    bindCapture = which;
+    bindCapture = action;
     settingsErrorEl.hidden = true;
-    bindEBtn.classList.toggle('listening', which === 'E');
-    bindQBtn.classList.toggle('listening', which === 'Q');
-    if (which === 'E') {
-      bindELabel.textContent = '按键…';
-    } else {
-      bindQLabel.textContent = '按键…';
+    for (var i = 0; i < bindButtons.length; i++) {
+      var btn = bindButtons[i];
+      var active = btn.dataset.bindAction === action;
+      btn.classList.toggle('listening', active);
+      if (active && bindLabels[action]) bindLabels[action].textContent = '输入…';
     }
   }
 
-  function handleBindKey(code) {
-    if (!bindCapture) return;
-    var which = bindCapture;
+  function handleBindCode(code) {
+    if (!bindCapture || !code) return;
 
     if (code === 'Escape') {
       bindCapture = null;
@@ -1764,25 +1853,99 @@
       return;
     }
 
-    var otherCode = which === 'E' ? settings.skillQ : settings.skillE;
-    if (RESERVED_KEYS[code] || code === otherCode) {
-      settingsErrorEl.textContent = code === otherCode
-        ? '小招和大招不能使用同一个按键。'
-        : '该按键已被移动、换弹、暂停或焦点操作占用。';
-      settingsErrorEl.hidden = false;
-      bindCapture = null;
-      syncSettingsUI();
+    if (!isValidBindingCode(code)) {
+      settingsErrorEl.textContent = '该按键被系统占用，请换一个。';
       settingsErrorEl.hidden = false;
       return;
     }
 
-    if (which === 'E') settings.skillE = code;
-    else settings.skillQ = code;
+    var action = bindCapture;
+    var owner = bindingOwner(code);
+    if (owner && owner !== action) {
+      settingsErrorEl.textContent = '该按键已绑定到「' + ACTION_LABELS[owner] + '」。';
+      settingsErrorEl.hidden = false;
+      return;
+    }
 
+    settings.bindings[action] = code;
     bindCapture = null;
     saveSettings();
     syncSettingsUI();
     settingsErrorEl.hidden = true;
+  }
+
+  function isHoldAction(action) {
+    return action === 'left' || action === 'right' || action === 'shoot';
+  }
+
+  function actionIsHeld(action) {
+    if (game.held[action]) return true;
+    return (game.wheelHoldUntil[action] || 0) > performance.now();
+  }
+
+  function triggerAction(action) {
+    if (game.mode !== 'playing' || game.paused) return;
+
+    if (game.onlineMode && game.onlineRole === 'guest') {
+      if (action === 'jump') sendGuestAction('jump');
+      else if (action === 'drop') sendGuestAction('drop');
+      else if (action === 'reload') sendGuestAction('reload');
+      else if (action === 'skillE') sendGuestAction('E');
+      else if (action === 'skillQ') {
+        var gp = game.players.player;
+        if (gp && isBullMatch() && gp.char !== '😇' && !gp.qUsed && (gp.ultPoints || 0) < ultCost(gp)) {
+          notify('大招点不足：' + (gp.ultPoints || 0) + '/' + ultCost(gp), '#ffd166', 1.2);
+        } else {
+          sendGuestAction('Q');
+        }
+      }
+      return;
+    }
+
+    var p = game.players.player;
+    if (!p || !p.alive) return;
+
+    if (action === 'jump') game.jumpBuffer = 0.14;
+    else if (action === 'drop') {
+      if (!isRooted(p)) dropFighter(p);
+    } else if (action === 'reload') startReload(p);
+    else if (action === 'skillE') usePlayerE();
+    else if (action === 'skillQ') usePlayerQ();
+  }
+
+  function pressAction(action, fromWheel) {
+    if (game.mode !== 'playing' || game.paused) return;
+
+    if (fromWheel) {
+      if (isHoldAction(action)) {
+        game.wheelHoldUntil[action] = performance.now() + 140;
+      } else {
+        triggerAction(action);
+      }
+      return;
+    }
+
+    if (game.held[action]) return;
+    game.held[action] = true;
+    if (!isHoldAction(action)) triggerAction(action);
+  }
+
+  function releaseAction(action) {
+    if (!action) return;
+    game.held[action] = false;
+  }
+
+  function releaseAllActions() {
+    for (var key in game.held) game.held[key] = false;
+    game.wheelHoldUntil.left = 0;
+    game.wheelHoldUntil.right = 0;
+    game.wheelHoldUntil.shoot = 0;
+    game.mouse.down = false;
+    game.keys = {};
+    game.jumpBuffer = 0;
+    net.input.left = false;
+    net.input.right = false;
+    net.input.shoot = false;
   }
 
   function validChar(c) {
@@ -2040,8 +2203,7 @@
     game.promptDeadline = 0;
     game.notice = null;
     game.winner = null;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.mouse.x = W / 2;
     game.mouse.y = H / 2;
     game.mouse.inside = true;
@@ -2074,6 +2236,7 @@
     game.bull = null;
     game.onlineMode = false;
     game.onlineRole = null;
+    releaseAllActions();
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -2114,6 +2277,7 @@
     game.matchType = 'duel';
     game.opponentType = 'ai';
     game.bull = null;
+    releaseAllActions();
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -2152,6 +2316,7 @@
     game.matchType = 'duel';
     game.opponentType = 'ai';
     game.bull = null;
+    releaseAllActions();
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -2174,8 +2339,7 @@
 
   function showOnlineWait(text) {
     game.paused = true;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     pauseMessage.textContent = text || '等待对手…';
     pauseOverlay.hidden = false;
     resumeGameBtn.hidden = true;
@@ -2417,12 +2581,18 @@
     var g = game.players.player;
     if (!g) return;
     var aim = Math.atan2(game.aim.y - g.y, game.aim.x - g.x);
+    var left = actionIsHeld('left');
+    var right = actionIsHeld('right');
+    var shoot = actionIsHeld('shoot');
     net.input.aim = aim;
+    net.input.left = left;
+    net.input.right = right;
+    net.input.shoot = shoot;
     sendNet({
       type: 'input',
-      left: !!net.input.left,
-      right: !!net.input.right,
-      shoot: !!game.mouse.down,
+      left: left,
+      right: right,
+      shoot: shoot,
       aim: aim
     });
   }
@@ -2632,8 +2802,7 @@
     game.onlineMode = false;
     game.onlineRole = null;
     net.onlineGame = false;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -2650,6 +2819,7 @@
   }
 
   function showPauseOverlay(message) {
+    releaseAllActions();
     pauseMessage.textContent = message || '点击继续以锁定鼠标';
     resumeGameBtn.hidden = false;
     pauseOverlay.hidden = false;
@@ -2833,7 +3003,7 @@
 
     var rolling = isRolling(p);
     var rooted = isRooted(p);
-    var dir = (game.keys['KeyD'] ? 1 : 0) - (game.keys['KeyA'] ? 1 : 0);
+    var dir = (actionIsHeld('right') ? 1 : 0) - (actionIsHeld('left') ? 1 : 0);
     if (rooted) dir = 0;
 
     var maxSpeed = BASE_SPEED * (rolling ? 2 : 1) * (p.buffUntil > game.gameTime ? 1.2 : 1);
@@ -2849,7 +3019,7 @@
 
     p.aim = Math.atan2(game.aim.y - p.y, game.aim.x - p.x);
 
-    if (game.mouse.down && p.fireCd <= 0 && !rolling) {
+    if (actionIsHeld('shoot') && p.fireCd <= 0 && !rolling) {
       if (p.rocketMode) fireRocket(p);
       else fireBullet(p);
     }
@@ -3362,7 +3532,7 @@
   function openRevivePrompt() {
     game.mode = 'revivePrompt';
     game.promptDeadline = performance.now() + 3000;
-    game.mouse.down = false;
+    releaseAllActions();
     game.paused = false;
     hidePauseOverlay();
     exitGameLock();
@@ -3536,8 +3706,7 @@
     game.bull.phase = 'roundEnd';
     game.bull.transitionUntil = performance.now() + 2600;
     game.mode = 'bullRoundEnd';
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.paused = false;
     reviveOverlay.hidden = true;
     hideOnlineWait();
@@ -3572,8 +3741,7 @@
 
     game.mode = 'gameover';
     game.winner = win ? game.players.player : game.players.ai;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.paused = false;
     hidePauseOverlay();
     exitGameLock();
@@ -3663,8 +3831,7 @@
     game.bull.lastReason = data.reason || '';
     game.bull.transitionUntil = performance.now() + (Number(data.nextIn) || 2600);
     game.mode = 'bullRoundEnd';
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.paused = false;
     reviveOverlay.hidden = true;
     hideOnlineWait();
@@ -3710,8 +3877,7 @@
 
     game.mode = 'gameover';
     game.winner = winner;
-    game.mouse.down = false;
-    game.keys = {};
+    releaseAllActions();
     game.paused = false;
     hidePauseOverlay();
     exitGameLock();
@@ -4144,62 +4310,74 @@
 
     if (bindCapture) {
       e.preventDefault();
-      handleBindKey(code);
+      handleBindCode(code);
       return;
     }
 
     if (game.mode !== 'playing' || game.paused) return;
 
-    if (code === 'KeyA' || code === 'KeyD' || code === 'KeyW' || code === 'KeyS' ||
-        code === 'KeyR' || code === 'Space' || code === settings.skillE || code === settings.skillQ) {
-      e.preventDefault();
-    }
+    var action = actionForCode(code);
+    if (!action) return;
 
-    if (game.onlineMode && game.onlineRole === 'guest') {
-      if (code === 'KeyA') net.input.left = true;
-      if (code === 'KeyD') net.input.right = true;
-      if ((code === 'KeyW' || code === 'Space') && !e.repeat) sendGuestAction('jump');
-      if (code === 'KeyS' && !e.repeat) sendGuestAction('drop');
-      if (code === 'KeyR' && !e.repeat) sendGuestAction('reload');
-      if (code === settings.skillE && !e.repeat) sendGuestAction('E');
-      if (code === settings.skillQ && !e.repeat) {
-        var gp = game.players.player;
-        if (gp && isBullMatch() && gp.char !== '😇' && !gp.qUsed && (gp.ultPoints || 0) < ultCost(gp)) {
-          notify('大招点不足：' + (gp.ultPoints || 0) + '/' + ultCost(gp), '#ffd166', 1.2);
-        } else {
-          sendGuestAction('Q');
-        }
-      }
-      return;
-    }
-
-    var p = game.players.player;
-    if (!p || !p.alive) return;
-
-    if (code === 'KeyA') game.keys['KeyA'] = true;
-    if (code === 'KeyD') game.keys['KeyD'] = true;
-
-    if ((code === 'KeyW' || code === 'Space') && !e.repeat) game.jumpBuffer = 0.14;
-    if (code === 'KeyS' && !e.repeat && !isRooted(p)) dropFighter(p);
-    if (code === 'KeyR' && !e.repeat) startReload(p);
-    if (code === settings.skillE && !e.repeat) usePlayerE();
-    if (code === settings.skillQ && !e.repeat) usePlayerQ();
+    e.preventDefault();
+    pressAction(action, false);
   });
 
   window.addEventListener('keyup', function (e) {
-    if (e.code === 'KeyA' || e.code === 'KeyD') game.keys[e.code] = false;
-    if (game.onlineMode && game.onlineRole === 'guest') {
-      if (e.code === 'KeyA') net.input.left = false;
-      if (e.code === 'KeyD') net.input.right = false;
-    }
+    if (bindCapture) return;
+    var action = actionForCode(e.code);
+    if (action) releaseAction(action);
   });
 
+  window.addEventListener('mousedown', function (e) {
+    var code = MOUSE_BUTTON_CODE[e.button];
+    if (bindCapture) {
+      if (e.target && e.target.closest && e.target.closest('button, input, a')) return;
+      if (code) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleBindCode(code);
+      }
+      return;
+    }
+    if (!code) return;
+    if (game.mode !== 'playing' || game.paused) return;
+
+    var action = actionForCode(code);
+    if (!action) return;
+
+    e.preventDefault();
+    pressAction(action, false);
+  });
+
+  window.addEventListener('mouseup', function (e) {
+    if (bindCapture) return;
+    var code = MOUSE_BUTTON_CODE[e.button];
+    if (!code) return;
+    var action = actionForCode(code);
+    if (!action) return;
+    if (game.mode === 'playing') e.preventDefault();
+    releaseAction(action);
+  });
+
+  window.addEventListener('wheel', function (e) {
+    var code = e.deltaY < 0 ? 'WheelUp' : 'WheelDown';
+    if (bindCapture) {
+      e.preventDefault();
+      handleBindCode(code);
+      return;
+    }
+    if (game.mode !== 'playing' || game.paused) return;
+
+    var action = actionForCode(code);
+    if (!action) return;
+
+    e.preventDefault();
+    pressAction(action, true);
+  }, { passive: false });
+
   window.addEventListener('blur', function () {
-    game.keys = {};
-    game.mouse.down = false;
-    net.input.left = false;
-    net.input.right = false;
-    net.input.shoot = false;
+    releaseAllActions();
   });
 
   function onGameMouseMove(e) {
@@ -4219,18 +4397,14 @@
     onGameMouseMove(e);
   });
 
-  canvas.addEventListener('mousedown', function (e) {
-    if (e.button === 0) {
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  window.addEventListener('contextmenu', function (e) {
+    if (bindCapture || !settingsScreen.hidden ||
+        (game.mode === 'playing' && actionForCode('Mouse2'))) {
       e.preventDefault();
-      if (game.mode === 'playing' && !game.paused) game.mouse.down = true;
     }
   });
-
-  window.addEventListener('mouseup', function (e) {
-    if (e.button === 0) game.mouse.down = false;
-  });
-
-  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
   document.addEventListener('pointerlockchange', function () {
     var locked = document.pointerLockElement === canvas;
@@ -4243,8 +4417,7 @@
       }
     } else if (game.mode === 'playing' && !game.absoluteAim) {
       game.paused = true;
-      game.mouse.down = false;
-      game.keys = {};
+      releaseAllActions();
       showPauseOverlay('鼠标已解锁，点击继续');
     }
   });
@@ -4397,18 +4570,24 @@
     saveSettings();
   });
 
-  bindEBtn.addEventListener('click', function () {
-    beginBind('E');
-  });
-
-  bindQBtn.addEventListener('click', function () {
-    beginBind('Q');
+  bindButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      beginBind(btn.dataset.bindAction);
+    });
   });
 
   resetSettingsBtn.addEventListener('click', function () {
     settings.sensitivity = DEFAULT_SETTINGS.sensitivity;
-    settings.skillE = DEFAULT_SETTINGS.skillE;
-    settings.skillQ = DEFAULT_SETTINGS.skillQ;
+    settings.bindings = {
+      left: DEFAULT_BINDINGS.left,
+      right: DEFAULT_BINDINGS.right,
+      jump: DEFAULT_BINDINGS.jump,
+      drop: DEFAULT_BINDINGS.drop,
+      reload: DEFAULT_BINDINGS.reload,
+      shoot: DEFAULT_BINDINGS.shoot,
+      skillE: DEFAULT_BINDINGS.skillE,
+      skillQ: DEFAULT_BINDINGS.skillQ
+    };
     saveSettings();
     bindCapture = null;
     syncSettingsUI();
@@ -5359,11 +5538,11 @@
       else e = '已使用';
       var q;
       if (isBullMatch()) {
-        if (f.rocketMode) q = '已装备 · 左键发射';
+        if (f.rocketMode) q = '已装备 · 射击键发射';
         else q = bullQStatus(f, '火箭准备');
       } else {
         if (!f.qUsed) q = '火箭筒 1 发';
-        else if (f.rocketMode) q = '已装备 · 左键发射';
+        else if (f.rocketMode) q = '已装备 · 射击键发射';
         else q = '已使用';
       }
       return { e: e, q: q };
@@ -5535,8 +5714,8 @@
       qDisabled = isBullMatch() ? (p.qUsed || !ultReady(p)) : p.qUsed;
     }
 
-    drawAbilityCard(W / 2 - 228, 78, settings.skillE, eTitle, st.e, p.eUsed && !eActive, eActive);
-    drawAbilityCard(W / 2 + 8, 78, settings.skillQ, qTitle, st.q, qDisabled, qActive);
+    drawAbilityCard(W / 2 - 228, 78, settings.bindings.skillE, eTitle, st.e, p.eUsed && !eActive, eActive);
+    drawAbilityCard(W / 2 + 8, 78, settings.bindings.skillQ, qTitle, st.q, qDisabled, qActive);
 
     var centerY = 150;
     if (p.reviveDeadline && p.alive) {
