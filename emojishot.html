@@ -517,7 +517,7 @@
           <input type="range" id="sensitivityRange" min="0.1" max="3" step="0.05" value="1">
           <output id="sensitivityValue">1.00×</output>
         </div>
-        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。</p>
+        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。鼠标锁定不可用时会回退为鼠标位置瞄准，此时灵敏度不生效。</p>
       </section>
 
       <section class="settingsGroup">
@@ -765,6 +765,7 @@
     lastTs: 0,
     paused: false,
     pointerLocked: false,
+    absoluteAim: false,
     mouse: { x: W * 0.5, y: H * 0.5, down: false, inside: false },
     keys: {},
     jumpBuffer: 0,
@@ -1031,6 +1032,7 @@
     game.keys = {};
     game.paused = false;
     game.pointerLocked = false;
+    game.absoluteAim = game.absoluteAim || !canUsePointerLock();
     game.mouse.x = W / 2;
     game.mouse.y = H / 2;
     game.mouse.inside = true;
@@ -1181,23 +1183,47 @@
     pauseOverlay.hidden = true;
   }
 
+  function canUsePointerLock() {
+    try {
+      return window.top === window.self;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function enableAbsoluteAim() {
+    game.absoluteAim = true;
+    game.paused = false;
+    game.pointerLocked = false;
+    hidePauseOverlay();
+    if (game.mode === 'playing') {
+      notify('当前环境不支持鼠标锁定，已切换为鼠标位置瞄准', '#ffcf70', 3);
+    }
+  }
+
   function requestGameLock() {
-    if (!canvas.requestPointerLock) {
-      showPauseOverlay('当前浏览器不支持鼠标锁定，请点击重试');
+    if (!canvas.requestPointerLock || !canUsePointerLock()) {
+      enableAbsoluteAim();
       return;
     }
     try {
       var p = canvas.requestPointerLock({ unadjustedMovement: true });
       if (p && typeof p.catch === 'function') {
         p.catch(function () {
-          try { canvas.requestPointerLock(); } catch (err) {
-            showPauseOverlay('无法锁定鼠标，请点击重试');
+          try {
+            var p2 = canvas.requestPointerLock();
+            if (p2 && typeof p2.catch === 'function') p2.catch(enableAbsoluteAim);
+          } catch (err) {
+            enableAbsoluteAim();
           }
         });
       }
     } catch (err) {
-      try { canvas.requestPointerLock(); } catch (err2) {
-        showPauseOverlay('无法锁定鼠标，请点击重试');
+      try {
+        var p2 = canvas.requestPointerLock();
+        if (p2 && typeof p2.catch === 'function') p2.catch(enableAbsoluteAim);
+      } catch (err2) {
+        enableAbsoluteAim();
       }
     }
   }
@@ -1208,6 +1234,11 @@
 
   function resumeGame() {
     if (game.mode !== 'playing') return;
+    if (game.absoluteAim) {
+      game.paused = false;
+      hidePauseOverlay();
+      return;
+    }
     game.paused = true;
     game.mouse.down = false;
     game.keys = {};
@@ -2336,7 +2367,14 @@
     game.mouse.inside = true;
   }
 
-  canvas.addEventListener('mousemove', onGameMouseMove);
+  canvas.addEventListener('mousemove', function (e) {
+    if (game.mode !== 'playing' || game.paused) return;
+    if (game.absoluteAim) {
+      setMouse(e);
+      return;
+    }
+    onGameMouseMove(e);
+  });
 
   canvas.addEventListener('mousedown', function (e) {
     if (e.button === 0) {
@@ -2355,11 +2393,12 @@
     var locked = document.pointerLockElement === canvas;
     game.pointerLocked = locked;
     if (locked) {
+      game.absoluteAim = false;
       if (game.mode === 'playing') {
         game.paused = false;
         hidePauseOverlay();
       }
-    } else if (game.mode === 'playing') {
+    } else if (game.mode === 'playing' && !game.absoluteAim) {
       game.paused = true;
       game.mouse.down = false;
       game.keys = {};
@@ -2368,9 +2407,8 @@
   });
 
   document.addEventListener('pointerlockerror', function () {
-    if (game.mode === 'playing') {
-      game.paused = true;
-      showPauseOverlay('无法锁定鼠标，请点击重试');
+    if (game.mode === 'playing' && !game.absoluteAim) {
+      enableAbsoluteAim();
     }
   });
 
