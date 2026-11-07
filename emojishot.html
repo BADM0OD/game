@@ -470,7 +470,7 @@
           <ul>
             <li>1v1 单命对战，双方 150 HP，先击败对手者获胜。</li>
             <li>😇 的大招可以在死亡后复活，属于额外一条命。</li>
-            <li>每条命 E、Q 各只能使用一次。</li>
+            <li>E、Q 每局各只能使用一次；😇 复活不会重置 E 的使用次数。</li>
             <li>每把枪有 3 个弹夹：1 个已装填 + 2 个备用。</li>
             <li>换弹 2.5 秒，会丢弃当前弹夹剩余子弹；弹夹打空会自动换弹。</li>
             <li>双方主武器弹药都耗尽后，剩余血量高者获胜；血量相同则平局。火箭筒不计入该判定。</li>
@@ -1424,7 +1424,6 @@
     f.dropTimer = 0;
     f.revived = true;
     f.qUsed = true;
-    f.eUsed = false;
     f.buffUntil = 0;
     f.rootUntil = 0;
     f.rollingUntil = 0;
@@ -2399,7 +2398,7 @@
     ctx.textBaseline = 'middle';
     ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#5c6879';
-    ctx.fillText('单命对战 · 每条命 E / Q 各一次', W / 2, 30);
+    ctx.fillText('单命对战 · E / Q 每局各一次', W / 2, 30);
     ctx.restore();
 
     var w1 = WEAPONS[p.weapon];
