@@ -293,6 +293,48 @@
   .tutorialCard .primary { margin-top: 24px; }
   @media (max-width: 600px) { .tutWeapons { grid-template-columns: 1fr; } }
 
+  .pauseOverlay { z-index: 15; }
+
+  .settingsGroup {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .settingsGroup:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+  .settingsGroup h3 { margin: 0 0 12px; color: #fff; font-size: 15px; }
+  .sensitivityRow { display: flex; align-items: center; gap: 14px; }
+  .sensitivityRow input[type="range"] { flex: 1; accent-color: #ff4655; }
+  .sensitivityRow output {
+    min-width: 68px;
+    text-align: right;
+    color: #ffcf70;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .settingsHint { margin: 10px 0 0; color: #7f899b; font-size: 12px; line-height: 1.7; }
+  .keybindRow { display: flex; gap: 10px; }
+  .keyButton {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid rgba(105, 130, 180, 0.3);
+    border-radius: 9px;
+    background: rgba(14, 19, 30, 0.9);
+    color: #cfd7e5;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .keyButton:hover { border-color: rgba(120, 180, 255, 0.6); }
+  .keyButton.listening { border-color: #ff4655; background: rgba(255, 70, 85, 0.12); color: #fff; }
+  .keyButton b { color: #ffcf70; font-size: 16px; min-width: 24px; text-align: right; }
+  .settingsError { margin-top: 10px; color: #ff8f95; font-size: 12.5px; }
+  .settingsActions { display: flex; gap: 12px; margin-top: 24px; }
+  .settingsActions .primary.small { flex: 1; margin: 0; }
+
   .promptCard {
     width: min(520px, 92vw);
     padding: 34px 30px 30px;
@@ -350,6 +392,16 @@
 <body>
 <canvas id="game"></canvas>
 
+<div id="pauseOverlay" class="overlay pauseOverlay" hidden>
+  <div class="promptCard">
+    <h2>已暂停</h2>
+    <p id="pauseMessage">点击继续以锁定鼠标</p>
+    <div class="actions">
+      <button type="button" id="resumeGameBtn" class="primary small">继续游戏</button>
+    </div>
+  </div>
+</div>
+
 <div id="menu" class="overlay">
   <div id="homeScreen" class="screen">
     <div class="homeWrap">
@@ -376,6 +428,12 @@
           <span class="cardText"><strong>教程</strong><small>操控、规则、角色技能与枪械</small></span>
           <span class="chevron">→</span>
         </button>
+
+        <button type="button" class="homeCard cardButton" id="settingsCard">
+          <span class="cardIcon">⚙️</span>
+          <span class="cardText"><strong>设置</strong><small>游戏内灵敏度与技能键位</small></span>
+          <span class="chevron">→</span>
+        </button>
       </div>
 
       <div class="homeFoot">EMOJISHOT · 1V1 DEATHMATCH</div>
@@ -394,20 +452,20 @@
       <section class="team">
         <h2><span class="dot playerDot"></span>你</h2>
         <div class="choices" data-group="playerChar">
-          <button type="button" class="choice selected" data-value="😡">😡 愤怒<small>加速 / 火箭筒</small></button>
-          <button type="button" class="choice" data-value="😇">😇 天使<small>回血 / 复活</small></button>
-          <button type="button" class="choice" data-value="🤣">🤣 狂笑<small>激光 / 无敌滚动</small></button>
-          <button type="button" class="choice" data-value="🦷">🦷 牙齿<small>反弹 / 金色弹幕</small></button>
+          <button type="button" class="choice selected" data-value="😡">😡 超级生气暴怒<small>充能疾驰 / 晚安焰火</small></button>
+          <button type="button" class="choice" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
+          <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
+          <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
         </div>
       </section>
 
       <section class="team">
         <h2><span class="dot aiDot"></span>AI</h2>
         <div class="choices" data-group="aiChar">
-          <button type="button" class="choice selected" data-value="😇">😇 天使<small>回血 / 复活</small></button>
-          <button type="button" class="choice" data-value="😡">😡 愤怒<small>加速 / 火箭筒</small></button>
-          <button type="button" class="choice" data-value="🤣">🤣 狂笑<small>激光 / 无敌滚动</small></button>
-          <button type="button" class="choice" data-value="🦷">🦷 牙齿<small>反弹 / 金色弹幕</small></button>
+          <button type="button" class="choice selected" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
+          <button type="button" class="choice" data-value="😡">😡 超级生气暴怒<small>充能疾驰 / 晚安焰火</small></button>
+          <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
+          <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
         </div>
       </section>
 
@@ -444,6 +502,41 @@
     </div>
   </div>
 
+  <div id="settingsScreen" class="screen" hidden>
+    <div class="card narrow">
+      <div class="stepTop">
+        <button type="button" class="backBtn" id="settingsBack">← 返回首页</button>
+        <span class="stepBadge">设置</span>
+      </div>
+      <h1 class="screenTitle">设置</h1>
+      <p class="screenSub">调整游戏内鼠标灵敏度与技能键位，设置会自动保存在本浏览器。</p>
+
+      <section class="settingsGroup">
+        <h3>游戏内灵敏度</h3>
+        <div class="sensitivityRow">
+          <input type="range" id="sensitivityRange" min="0.1" max="3" step="0.05" value="1">
+          <output id="sensitivityValue">1.00×</output>
+        </div>
+        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。</p>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>技能键位</h3>
+        <div class="keybindRow">
+          <button type="button" class="keyButton" id="bindE"><span>小招键</span><b id="bindELabel">E</b></button>
+          <button type="button" class="keyButton" id="bindQ"><span>大招键</span><b id="bindQLabel">Q</b></button>
+        </div>
+        <p class="settingsHint">点击后按下新按键。W / A / S / D、R、空格、Esc、Tab 和其他技能键不可用。</p>
+        <div id="settingsError" class="settingsError" hidden></div>
+      </section>
+
+      <div class="settingsActions">
+        <button type="button" id="resetSettings" class="ghost">恢复默认</button>
+        <button type="button" id="settingsBackBottom" class="primary small">返回首页</button>
+      </div>
+    </div>
+  </div>
+
   <div id="tutorialScreen" class="screen tutorialScreen" hidden>
     <div class="card tutorialCard">
       <div class="stepTop">
@@ -462,7 +555,7 @@
             <li><b>S</b>：从当前平台向下落</li>
             <li><b>鼠标</b>：瞄准，枪支朝向准心</li>
             <li><b>左键</b>：射击</li>
-            <li><b>E</b>：小技能　<b>Q</b>：大招</li>
+            <li><b>小招 / 大招</b>：默认 <b>E</b> / <b>Q</b>，可在设置中修改键位</li>
             <li><b>R</b>：换弹，耗时 2.5 秒</li>
           </ul>
         </section>
@@ -471,8 +564,8 @@
           <h3>游戏规则</h3>
           <ul>
             <li>1v1 单命对战，双方 150 HP，先击败对手者获胜。</li>
-            <li>😇 的大招可以在死亡后复活，属于额外一条命。</li>
-            <li>E、Q 每局各只能使用一次；😇 复活不会重置 E 的使用次数。</li>
+            <li>😇 的「化蝶」可以在死亡后复活，属于额外一条命。</li>
+            <li>小招、大招每局各只能使用一次；😇 复活不会重置小招的使用次数。</li>
             <li>每把枪有 3 个弹夹：1 个已装填 + 2 个备用。</li>
             <li>换弹 2.5 秒，会丢弃当前弹夹剩余子弹；弹夹打空会自动换弹。</li>
             <li>双方主武器弹药都耗尽后，剩余血量高者获胜；血量相同则平局。火箭筒不计入该判定。</li>
@@ -482,32 +575,32 @@
         <section class="tutSection">
           <h3>角色技能</h3>
           <div class="tutChar">
-            <h4>😡 愤怒</h4>
+            <h4>😡 超级生气暴怒</h4>
             <ul>
-              <li><b>E 加速</b>：10 秒内移动速度 +20%，跳跃高度 +100%。</li>
-              <li><b>Q 火箭筒</b>：装备一发火箭，左键发射，150 伤害；不受射速降低影响。</li>
+              <li><b>小招 充能疾驰</b>：10 秒内移动速度 +20%，跳跃高度 +100%。</li>
+              <li><b>大招 晚安焰火</b>：装备一发火箭，左键发射，150 伤害；不受射速降低影响。</li>
             </ul>
           </div>
           <div class="tutChar">
-            <h4>😇 天使</h4>
+            <h4>😇 头顶游泳圈</h4>
             <ul>
-              <li><b>E 治疗</b>：最多回复 100 点生命，不超过 150。</li>
-              <li><b>Q 复活</b>：死亡后 3 秒内可选择释放；满血复活，并在 10 秒内造成击杀，否则再次死亡。</li>
+              <li><b>小招 逢春</b>：最多回复 100 点生命，不超过 150。</li>
+              <li><b>大招 化蝶</b>：死亡后 3 秒内可选择释放；满血复活，并在 10 秒内造成击杀，否则再次死亡。</li>
             </ul>
           </div>
           <div class="tutChar">
-            <h4>🤣 狂笑</h4>
+            <h4>🤣 乐子</h4>
             <ul>
-              <li><b>E 穿墙激光</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 3 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
-              <li><b>Q 无敌滚动</b>：持续 6 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用 E 和射击；释放时立即解除定身。</li>
+              <li><b>小招 招笑</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 3 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
+              <li><b>大招 大运来了</b>：持续 6 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
               <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，6 秒最多 6 次；滚动会被墙和平台阻挡。</li>
             </ul>
           </div>
           <div class="tutChar">
-            <h4>🦷 牙齿</h4>
+            <h4>🦷 獠牙</h4>
             <ul>
-              <li><b>E 反弹弹</b>：发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
-              <li><b>Q 金色弹幕</b>：以自身为圆心发射 10 颗金色子弹，速度 1900；子弹穿墙，每颗命中造成 20 伤害并消失，多颗命中伤害叠加；飞出屏幕边界后消失。</li>
+              <li><b>小招 回旋爪弹</b>：发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
+              <li><b>大招 黄金回旋</b>：以自身为圆心发射 10 颗金色子弹，速度 1900；子弹穿墙，每颗命中造成 20 伤害并消失，多颗命中伤害叠加；飞出屏幕边界后消失。</li>
             </ul>
           </div>
         </section>
@@ -543,11 +636,11 @@
 <div id="reviveOverlay" class="overlay" hidden>
   <div class="promptCard">
     <div class="promptEmoji">😇</div>
-    <h2>是否释放大招复活？</h2>
+    <h2>是否释放「化蝶」？</h2>
     <p>满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。</p>
     <div id="reviveCountdown" class="reviveCountdown">3.0</div>
     <div class="actions">
-      <button type="button" id="reviveYes" class="primary small">释放复活</button>
+      <button type="button" id="reviveYes" class="primary small">释放化蝶</button>
       <button type="button" id="reviveNo" class="ghost">放弃</button>
     </div>
   </div>
@@ -591,6 +684,21 @@
   var charConfirmBtn = document.getElementById('charConfirm');
   var weaponBackBtn = document.getElementById('weaponBack');
   var weaponConfirmBtn = document.getElementById('weaponConfirm');
+  var settingsScreen = document.getElementById('settingsScreen');
+  var settingsCard = document.getElementById('settingsCard');
+  var settingsBackBtn = document.getElementById('settingsBack');
+  var settingsBackBottomBtn = document.getElementById('settingsBackBottom');
+  var sensitivityRange = document.getElementById('sensitivityRange');
+  var sensitivityValue = document.getElementById('sensitivityValue');
+  var bindEBtn = document.getElementById('bindE');
+  var bindQBtn = document.getElementById('bindQ');
+  var bindELabel = document.getElementById('bindELabel');
+  var bindQLabel = document.getElementById('bindQLabel');
+  var settingsErrorEl = document.getElementById('settingsError');
+  var resetSettingsBtn = document.getElementById('resetSettings');
+  var pauseOverlay = document.getElementById('pauseOverlay');
+  var pauseMessage = document.getElementById('pauseMessage');
+  var resumeGameBtn = document.getElementById('resumeGameBtn');
 
   var W = 1280;
   var H = 720;
@@ -624,10 +732,10 @@
   };
 
   var CHARS = {
-    '😡': { name: '愤怒', color: '#ff5a5f', glow: 'rgba(255, 90, 95, 0.55)' },
-    '😇': { name: '天使', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
-    '🤣': { name: '狂笑', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
-    '🦷': { name: '牙齿', color: '#e879f9', glow: 'rgba(232, 121, 249, 0.55)' }
+    '😡': { name: '超级生气暴怒', color: '#ff5a5f', glow: 'rgba(255, 90, 95, 0.55)' },
+    '😇': { name: '头顶游泳圈', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
+    '🤣': { name: '乐子', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
+    '🦷': { name: '獠牙', color: '#e879f9', glow: 'rgba(232, 121, 249, 0.55)' }
   };
 
   var loadout = {
@@ -635,6 +743,15 @@
     playerWeapon: 'AK',
     aiChar: '😇',
     aiWeapon: 'M4'
+  };
+
+  var SETTINGS_KEY = 'emojishot.settings.v1';
+  var DEFAULT_SETTINGS = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
+  var settings = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
+  var bindCapture = null;
+  var RESERVED_KEYS = {
+    KeyW: true, KeyA: true, KeyS: true, KeyD: true, KeyR: true, Space: true,
+    Escape: true, Tab: true
   };
 
   var game = {
@@ -646,6 +763,8 @@
     explosions: [],
     gameTime: 0,
     lastTs: 0,
+    paused: false,
+    pointerLocked: false,
     mouse: { x: W * 0.5, y: H * 0.5, down: false, inside: false },
     keys: {},
     jumpBuffer: 0,
@@ -667,6 +786,55 @@
   function isRolling(f) { return !!(f && f.rollingUntil > game.gameTime); }
   function isRooted(f) { return !!(f && f.rootUntil > game.gameTime && !isRolling(f)); }
   function isInvincible(f) { return isRolling(f); }
+
+  function isValidSkillCode(code, otherCode) {
+    return typeof code === 'string' && code.length > 0 &&
+      !RESERVED_KEYS[code] && code !== otherCode;
+  }
+
+  function loadSettings() {
+    try {
+      var raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      var sens = Number(saved.sensitivity);
+      if (Number.isFinite(sens)) settings.sensitivity = clamp(sens, 0.1, 3);
+
+      var e = saved.skillE;
+      var q = saved.skillQ;
+      if (!isValidSkillCode(e, q)) e = DEFAULT_SETTINGS.skillE;
+      if (!isValidSkillCode(q, e)) q = DEFAULT_SETTINGS.skillQ;
+      if (e === q) {
+        e = DEFAULT_SETTINGS.skillE;
+        q = DEFAULT_SETTINGS.skillQ;
+      }
+      settings.skillE = e;
+      settings.skillQ = q;
+    } catch (err) { /* ignore invalid storage */ }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (err) { /* ignore storage errors */ }
+  }
+
+  function keyLabel(code) {
+    if (!code) return '?';
+    var map = {
+      Space: '空格', Escape: 'Esc', Tab: 'Tab', Enter: 'Enter', Backspace: '退格',
+      ShiftLeft: 'Shift', ShiftRight: 'Shift', ControlLeft: 'Ctrl', ControlRight: 'Ctrl',
+      AltLeft: 'Alt', AltRight: 'Alt', MetaLeft: 'Win', MetaRight: 'Win',
+      ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
+      Delete: 'Del', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn'
+    };
+    if (map[code]) return map[code];
+    if (code.indexOf('Key') === 0) return code.slice(3);
+    if (code.indexOf('Digit') === 0) return code.slice(5);
+    if (code.indexOf('Numpad') === 0) return '小键盘' + code.slice(6);
+    if (/^F\d+$/.test(code)) return code;
+    return code;
+  }
 
   function segmentRectT(x1, y1, x2, y2, r) {
     var dx = x2 - x1;
@@ -861,11 +1029,14 @@
     game.winner = null;
     game.mouse.down = false;
     game.keys = {};
-    game.mouse.x = W * 0.58;
-    game.mouse.y = H * 0.5;
+    game.paused = false;
+    game.pointerLocked = false;
+    game.mouse.x = W / 2;
+    game.mouse.y = H / 2;
     game.mouse.inside = true;
 
     document.body.classList.add('playing');
+    resumeGame();
   }
 
   function hideMenuScreens() {
@@ -873,6 +1044,7 @@
     charScreen.hidden = true;
     weaponScreen.hidden = true;
     tutorialScreen.hidden = true;
+    settingsScreen.hidden = true;
   }
 
   function showHomeScreen() {
@@ -881,6 +1053,8 @@
     menuEl.hidden = false;
     gameOverEl.hidden = true;
     reviveOverlay.hidden = true;
+    bindCapture = null;
+    if (settingsErrorEl) settingsErrorEl.hidden = true;
     modeOptions.hidden = true;
     modeToggle.setAttribute('aria-expanded', 'false');
     modeCard.removeAttribute('data-open');
@@ -908,7 +1082,75 @@
     menuEl.hidden = false;
     gameOverEl.hidden = true;
     reviveOverlay.hidden = true;
+    bindCapture = null;
     tutorialCardEl.scrollTop = 0;
+  }
+
+  function syncSettingsUI() {
+    sensitivityRange.value = String(settings.sensitivity);
+    sensitivityValue.textContent = settings.sensitivity.toFixed(2) + '×';
+    bindELabel.textContent = keyLabel(settings.skillE);
+    bindQLabel.textContent = keyLabel(settings.skillQ);
+    bindEBtn.classList.remove('listening');
+    bindQBtn.classList.remove('listening');
+  }
+
+  function showSettingsScreen() {
+    hideMenuScreens();
+    settingsScreen.hidden = false;
+    menuEl.hidden = false;
+    gameOverEl.hidden = true;
+    reviveOverlay.hidden = true;
+    bindCapture = null;
+    bindEBtn.classList.remove('listening');
+    bindQBtn.classList.remove('listening');
+    settingsErrorEl.hidden = true;
+    syncSettingsUI();
+  }
+
+  function beginBind(which) {
+    syncSettingsUI();
+    bindCapture = which;
+    settingsErrorEl.hidden = true;
+    bindEBtn.classList.toggle('listening', which === 'E');
+    bindQBtn.classList.toggle('listening', which === 'Q');
+    if (which === 'E') {
+      bindELabel.textContent = '按键…';
+    } else {
+      bindQLabel.textContent = '按键…';
+    }
+  }
+
+  function handleBindKey(code) {
+    if (!bindCapture) return;
+    var which = bindCapture;
+
+    if (code === 'Escape') {
+      bindCapture = null;
+      syncSettingsUI();
+      settingsErrorEl.hidden = true;
+      return;
+    }
+
+    var otherCode = which === 'E' ? settings.skillQ : settings.skillE;
+    if (RESERVED_KEYS[code] || code === otherCode) {
+      settingsErrorEl.textContent = code === otherCode
+        ? '小招和大招不能使用同一个按键。'
+        : '该按键已被移动、换弹、暂停或焦点操作占用。';
+      settingsErrorEl.hidden = false;
+      bindCapture = null;
+      syncSettingsUI();
+      settingsErrorEl.hidden = false;
+      return;
+    }
+
+    if (which === 'E') settings.skillE = code;
+    else settings.skillQ = code;
+
+    bindCapture = null;
+    saveSettings();
+    syncSettingsUI();
+    settingsErrorEl.hidden = true;
   }
 
   function returnToCharSelect() {
@@ -923,8 +1165,54 @@
     game.explosions = [];
     game.winner = null;
     game.notice = null;
+    game.paused = false;
+    exitGameLock();
+    hidePauseOverlay();
     document.body.classList.remove('playing');
     showCharScreen();
+  }
+
+  function showPauseOverlay(message) {
+    pauseMessage.textContent = message || '点击继续以锁定鼠标';
+    pauseOverlay.hidden = false;
+  }
+
+  function hidePauseOverlay() {
+    pauseOverlay.hidden = true;
+  }
+
+  function requestGameLock() {
+    if (!canvas.requestPointerLock) {
+      showPauseOverlay('当前浏览器不支持鼠标锁定，请点击重试');
+      return;
+    }
+    try {
+      var p = canvas.requestPointerLock({ unadjustedMovement: true });
+      if (p && typeof p.catch === 'function') {
+        p.catch(function () {
+          try { canvas.requestPointerLock(); } catch (err) {
+            showPauseOverlay('无法锁定鼠标，请点击重试');
+          }
+        });
+      }
+    } catch (err) {
+      try { canvas.requestPointerLock(); } catch (err2) {
+        showPauseOverlay('无法锁定鼠标，请点击重试');
+      }
+    }
+  }
+
+  function exitGameLock() {
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
+  }
+
+  function resumeGame() {
+    if (game.mode !== 'playing') return;
+    game.paused = true;
+    game.mouse.down = false;
+    game.keys = {};
+    showPauseOverlay('正在锁定鼠标…');
+    requestGameLock();
   }
 
   /* ---------------- 物理与移动 ---------------- */
@@ -1263,7 +1551,7 @@
     f.qUsed = true;
     f.rocketMode = true;
     f.rocketAmmo = 1;
-    addText(f.x, f.y - 50, '火箭筒就绪', '#ffb02e');
+    addText(f.x, f.y - 50, '晚安焰火就绪', '#ffb02e');
   }
 
   function useLaser(f) {
@@ -1301,7 +1589,7 @@
     f.rollTouching = false;
     f.lastRollHit = -999;
     spawnParticles(f.x, f.y, '#c084fc', 30, 240, 0.7);
-    addText(f.x, f.y - 52, '无敌滚动 6s', '#c084fc');
+    addText(f.x, f.y - 52, '大运来了', '#c084fc');
     return true;
   }
 
@@ -1501,7 +1789,7 @@
     if (victim.char === '😇' && !victim.revived) {
       if (victim.isAI) {
         victim.reviveAt = game.gameTime + 1.0;
-        notify('AI 天使触发大招，即将复活', '#67e8f9', 2.2);
+        notify('AI 头顶游泳圈触发「化蝶」，即将复活', '#67e8f9', 2.2);
       } else {
         openRevivePrompt();
       }
@@ -1515,6 +1803,9 @@
     game.mode = 'revivePrompt';
     game.promptDeadline = performance.now() + 3000;
     game.mouse.down = false;
+    game.paused = false;
+    hidePauseOverlay();
+    exitGameLock();
     reviveCountdownEl.textContent = '3.0';
     reviveOverlay.hidden = false;
   }
@@ -1525,13 +1816,14 @@
     game.mode = 'playing';
     game.lastTs = 0;
     reviveFighter(game.players.player);
+    resumeGame();
   }
 
   function declineRevive(reason) {
     if (game.mode !== 'revivePrompt') return;
     reviveOverlay.hidden = true;
     game.mode = 'playing';
-    endRound(game.players.ai, game.players.player, reason || '你放弃了大招复活');
+    endRound(game.players.ai, game.players.player, reason || '你放弃了「化蝶」');
   }
 
   function reviveFighter(f) {
@@ -1570,7 +1862,7 @@
       f.ai.airTargetX = null;
     }
     spawnParticles(f.x, f.y, '#67e8f9', 38, 260, 0.8);
-    notify(f.isAI ? 'AI 天使已复活：10 秒内需造成击杀' : '你已复活：10 秒内造成击杀', '#67e8f9', 2.6);
+    notify(f.isAI ? 'AI 头顶游泳圈已复活：10 秒内需造成击杀' : '你已复活：10 秒内造成击杀', '#67e8f9', 2.6);
   }
 
   function hasMainAmmo(f) {
@@ -1619,6 +1911,9 @@
     game.winner = winner;
     game.mouse.down = false;
     game.keys = {};
+    game.paused = false;
+    hidePauseOverlay();
+    exitGameLock();
 
     var draw = !winner;
     var win = winner === game.players.player;
@@ -1990,17 +2285,27 @@
   function updatePrompt() {
     var left = (game.promptDeadline - performance.now()) / 1000;
     reviveCountdownEl.textContent = Math.max(0, left).toFixed(1);
-    if (left <= 0) declineRevive('3 秒内未选择释放大招');
+    if (left <= 0) declineRevive('3 秒内未选择「化蝶」');
   }
 
   /* ---------------- 输入 ---------------- */
 
   window.addEventListener('keydown', function (e) {
     var code = e.code;
-    if (code === 'KeyA' || code === 'KeyD' || code === 'KeyW' || code === 'KeyS' || code === 'KeyE' || code === 'KeyQ' || code === 'KeyR' || code === 'Space') {
+
+    if (bindCapture) {
+      e.preventDefault();
+      handleBindKey(code);
+      return;
+    }
+
+    if (game.mode !== 'playing' || game.paused) return;
+
+    if (code === 'KeyA' || code === 'KeyD' || code === 'KeyW' || code === 'KeyS' ||
+        code === 'KeyR' || code === 'Space' || code === settings.skillE || code === settings.skillQ) {
       e.preventDefault();
     }
-    if (game.mode !== 'playing') return;
+
     var p = game.players.player;
     if (!p || !p.alive) return;
 
@@ -2010,8 +2315,8 @@
     if ((code === 'KeyW' || code === 'Space') && !e.repeat) game.jumpBuffer = 0.14;
     if (code === 'KeyS' && !e.repeat && !isRooted(p)) dropFighter(p);
     if (code === 'KeyR' && !e.repeat) startReload(p);
-    if (code === 'KeyE' && !e.repeat) usePlayerE();
-    if (code === 'KeyQ' && !e.repeat) usePlayerQ();
+    if (code === settings.skillE && !e.repeat) usePlayerE();
+    if (code === settings.skillQ && !e.repeat) usePlayerQ();
   });
 
   window.addEventListener('keyup', function (e) {
@@ -2023,12 +2328,20 @@
     game.mouse.down = false;
   });
 
-  canvas.addEventListener('mousemove', setMouse);
+  function onGameMouseMove(e) {
+    if (game.mode !== 'playing' || game.paused || !game.pointerLocked) return;
+    var scale = settings.sensitivity / view.scale;
+    game.mouse.x = clamp(game.mouse.x + (e.movementX || 0) * scale, 0, W);
+    game.mouse.y = clamp(game.mouse.y + (e.movementY || 0) * scale, 0, H);
+    game.mouse.inside = true;
+  }
+
+  canvas.addEventListener('mousemove', onGameMouseMove);
 
   canvas.addEventListener('mousedown', function (e) {
     if (e.button === 0) {
       e.preventDefault();
-      if (game.mode === 'playing') game.mouse.down = true;
+      if (game.mode === 'playing' && !game.paused) game.mouse.down = true;
     }
   });
 
@@ -2037,6 +2350,36 @@
   });
 
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  document.addEventListener('pointerlockchange', function () {
+    var locked = document.pointerLockElement === canvas;
+    game.pointerLocked = locked;
+    if (locked) {
+      if (game.mode === 'playing') {
+        game.paused = false;
+        hidePauseOverlay();
+      }
+    } else if (game.mode === 'playing') {
+      game.paused = true;
+      game.mouse.down = false;
+      game.keys = {};
+      showPauseOverlay('鼠标已解锁，点击继续');
+    }
+  });
+
+  document.addEventListener('pointerlockerror', function () {
+    if (game.mode === 'playing') {
+      game.paused = true;
+      showPauseOverlay('无法锁定鼠标，请点击重试');
+    }
+  });
+
+  resumeGameBtn.addEventListener('click', function () {
+    if (game.mode === 'playing') {
+      showPauseOverlay('正在锁定鼠标…');
+      requestGameLock();
+    }
+  });
 
   document.querySelectorAll('.choices').forEach(function (group) {
     group.addEventListener('click', function (e) {
@@ -2063,6 +2406,42 @@
 
   document.getElementById('tutorialCard').addEventListener('click', function () {
     showTutorialScreen();
+  });
+
+  settingsCard.addEventListener('click', function () {
+    showSettingsScreen();
+  });
+
+  settingsBackBtn.addEventListener('click', function () {
+    showHomeScreen();
+  });
+
+  settingsBackBottomBtn.addEventListener('click', function () {
+    showHomeScreen();
+  });
+
+  sensitivityRange.addEventListener('input', function () {
+    settings.sensitivity = clamp(Number(this.value), 0.1, 3);
+    sensitivityValue.textContent = settings.sensitivity.toFixed(2) + '×';
+    saveSettings();
+  });
+
+  bindEBtn.addEventListener('click', function () {
+    beginBind('E');
+  });
+
+  bindQBtn.addEventListener('click', function () {
+    beginBind('Q');
+  });
+
+  resetSettingsBtn.addEventListener('click', function () {
+    settings.sensitivity = DEFAULT_SETTINGS.sensitivity;
+    settings.skillE = DEFAULT_SETTINGS.skillE;
+    settings.skillQ = DEFAULT_SETTINGS.skillQ;
+    saveSettings();
+    bindCapture = null;
+    syncSettingsUI();
+    settingsErrorEl.hidden = true;
   });
 
   charHomeBtn.addEventListener('click', function () {
@@ -2094,7 +2473,7 @@
   });
 
   document.getElementById('reviveNo').addEventListener('click', function () {
-    declineRevive('你放弃了大招复活');
+    declineRevive('你放弃了「化蝶」');
   });
 
   document.getElementById('againBtn').addEventListener('click', function () {
@@ -2694,19 +3073,27 @@
     ctx.fill();
     ctx.stroke();
 
+    var keyText = keyLabel(key);
+    var keyFont = 19;
+    ctx.font = '800 ' + keyFont + 'px "Segoe UI", "Microsoft YaHei", sans-serif';
+    if (ctx.measureText(keyText).width > 28) keyFont = 13;
+    ctx.font = '800 ' + keyFont + 'px "Segoe UI", "Microsoft YaHei", sans-serif';
+    if (ctx.measureText(keyText).width > 32) keyFont = 11;
+    ctx.font = '800 ' + keyFont + 'px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = active ? '#ffb02e' : '#dfe7f4';
-    ctx.font = '800 19px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(key, x + 14, y + h / 2);
+    ctx.fillText(keyText, x + 12, y + h / 2);
+    var keyW = Math.max(22, Math.min(54, ctx.measureText(keyText).width));
+    var textX = x + 12 + keyW + 8;
 
     ctx.fillStyle = '#8d98aa';
     ctx.font = '600 10px "Segoe UI", "Microsoft YaHei", sans-serif';
-    ctx.fillText(title, x + 40, y + 16);
+    ctx.fillText(title, textX, y + 16);
 
     ctx.fillStyle = active ? '#ffcf70' : '#e7edf7';
-    ctx.font = '700 12px "Segoe UI", "Microsoft YaHei", sans-serif';
-    ctx.fillText(status, x + 40, y + 33);
+    ctx.font = '700 11px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillText(status, textX, y + 33);
     ctx.restore();
   }
 
@@ -2733,7 +3120,7 @@
     ctx.textBaseline = 'middle';
     ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#5c6879';
-    ctx.fillText('单命对战 · E / Q 每局各一次', W / 2, 30);
+    ctx.fillText('单命对战 · 小招 / 大招每局各一次', W / 2, 30);
     ctx.restore();
 
     var w1 = WEAPONS[p.weapon];
@@ -2763,31 +3150,33 @@
 
     var st = abilityText(p);
     var eActive = p.char === '😡' && p.buffUntil > game.gameTime;
-    var eTitle = '小技能';
-    if (p.char === '🤣') eTitle = '小技能 · 激光';
-    else if (p.char === '🦷') eTitle = '小技能 · 反弹弹';
+    var eTitle = '小招';
+    if (p.char === '😡') eTitle = '小招 · 充能疾驰';
+    else if (p.char === '😇') eTitle = '小招 · 逢春';
+    else if (p.char === '🤣') eTitle = '小招 · 招笑';
+    else if (p.char === '🦷') eTitle = '小招 · 回旋爪弹';
 
-    var qTitle = '大招 · 复活';
+    var qTitle = '大招 · 化蝶';
     var qActive = false;
     var qDisabled = false;
     if (p.char === '😡') {
-      qTitle = '大招 · 火箭筒';
+      qTitle = '大招 · 晚安焰火';
       qActive = p.rocketMode;
       qDisabled = p.qUsed && !p.rocketMode;
     } else if (p.char === '😇') {
-      qTitle = '大招 · 复活';
+      qTitle = '大招 · 化蝶';
       qDisabled = p.revived;
     } else if (p.char === '🤣') {
-      qTitle = '大招 · 滚动';
+      qTitle = '大招 · 大运来了';
       qActive = isRolling(p);
       qDisabled = p.qUsed && !qActive;
     } else {
-      qTitle = '大招 · 弹幕';
+      qTitle = '大招 · 黄金回旋';
       qDisabled = p.qUsed;
     }
 
-    drawAbilityCard(W / 2 - 228, 78, 'E', eTitle, st.e, p.eUsed && !eActive, eActive);
-    drawAbilityCard(W / 2 + 8, 78, 'Q', qTitle, st.q, qDisabled, qActive);
+    drawAbilityCard(W / 2 - 228, 78, settings.skillE, eTitle, st.e, p.eUsed && !eActive, eActive);
+    drawAbilityCard(W / 2 + 8, 78, settings.skillQ, qTitle, st.q, qDisabled, qActive);
 
     var centerY = 150;
     if (p.reviveDeadline && p.alive) {
@@ -2814,7 +3203,7 @@
       ctx.textAlign = 'center';
       ctx.font = '800 16px "Segoe UI", "Microsoft YaHei", sans-serif';
       ctx.fillStyle = '#67e8f9';
-      ctx.fillText('AI 天使即将复活…', W / 2, centerY);
+      ctx.fillText('AI 即将通过「化蝶」复活…', W / 2, centerY);
       ctx.restore();
     }
 
@@ -2876,7 +3265,7 @@
     game.lastTs = ts;
     dt = clamp(dt, 0, 0.05);
 
-    if (game.mode === 'playing') {
+    if (game.mode === 'playing' && !game.paused) {
       update(dt);
     } else if (game.mode === 'revivePrompt') {
       updatePrompt();
@@ -2889,6 +3278,8 @@
 
   window.addEventListener('resize', resize);
 
+  loadSettings();
+  syncSettingsUI();
   initStars();
   resize();
   requestAnimationFrame(frame);
