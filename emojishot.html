@@ -397,6 +397,7 @@
           <button type="button" class="choice selected" data-value="😡">😡 愤怒<small>加速 / 火箭筒</small></button>
           <button type="button" class="choice" data-value="😇">😇 天使<small>回血 / 复活</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 狂笑<small>激光 / 无敌滚动</small></button>
+          <button type="button" class="choice" data-value="🦷">🦷 牙齿<small>反弹 / 金色弹幕</small></button>
         </div>
       </section>
 
@@ -406,6 +407,7 @@
           <button type="button" class="choice selected" data-value="😇">😇 天使<small>回血 / 复活</small></button>
           <button type="button" class="choice" data-value="😡">😡 愤怒<small>加速 / 火箭筒</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 狂笑<small>激光 / 无敌滚动</small></button>
+          <button type="button" class="choice" data-value="🦷">🦷 牙齿<small>反弹 / 金色弹幕</small></button>
         </div>
       </section>
 
@@ -499,6 +501,13 @@
               <li><b>E 穿墙激光</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 3 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
               <li><b>Q 无敌滚动</b>：持续 6 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用 E 和射击；释放时立即解除定身。</li>
               <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，6 秒最多 6 次；滚动会被墙和平台阻挡。</li>
+            </ul>
+          </div>
+          <div class="tutChar">
+            <h4>🦷 牙齿</h4>
+            <ul>
+              <li><b>E 反弹弹</b>：发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
+              <li><b>Q 金色弹幕</b>：以自身为圆心发射 10 颗金色子弹，速度 1900；子弹穿墙，每颗命中造成 20 伤害并消失，多颗命中伤害叠加；飞出屏幕边界后消失。</li>
             </ul>
           </div>
         </section>
@@ -617,7 +626,8 @@
   var CHARS = {
     '😡': { name: '愤怒', color: '#ff5a5f', glow: 'rgba(255, 90, 95, 0.55)' },
     '😇': { name: '天使', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
-    '🤣': { name: '狂笑', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' }
+    '🤣': { name: '狂笑', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
+    '🦷': { name: '牙齿', color: '#e879f9', glow: 'rgba(232, 121, 249, 0.55)' }
   };
 
   var loadout = {
@@ -680,6 +690,42 @@
       }
     }
     return t0;
+  }
+
+  function rayRect(px, py, dx, dy, rect, rad) {
+    var x0 = rect.x - rad;
+    var x1 = rect.x + rect.w + rad;
+    var y0 = rect.y - rad;
+    var y1 = rect.y + rect.h + rad;
+    var tmin = -Infinity;
+    var tmax = Infinity;
+    var nx = 0;
+    var ny = 0;
+
+    if (Math.abs(dx) < 1e-9) {
+      if (px < x0 || px > x1) return null;
+    } else {
+      var tx1 = (x0 - px) / dx;
+      var tx2 = (x1 - px) / dx;
+      if (tx1 > tx2) { var tmp = tx1; tx1 = tx2; tx2 = tmp; }
+      if (tx1 > tmin) { tmin = tx1; nx = dx > 0 ? -1 : 1; ny = 0; }
+      if (tx2 < tmax) tmax = tx2;
+      if (tmin > tmax) return null;
+    }
+
+    if (Math.abs(dy) < 1e-9) {
+      if (py < y0 || py > y1) return null;
+    } else {
+      var ty1 = (y0 - py) / dy;
+      var ty2 = (y1 - py) / dy;
+      if (ty1 > ty2) { var tmp2 = ty1; ty1 = ty2; ty2 = tmp2; }
+      if (ty1 > tmin) { tmin = ty1; nx = 0; ny = dy > 0 ? -1 : 1; }
+      if (ty2 < tmax) tmax = ty2;
+      if (tmin > tmax) return null;
+    }
+
+    if (tmin < 0) return null;
+    return { t: tmin, nx: nx, ny: ny };
   }
 
   function segmentCircleT(x1, y1, x2, y2, cx, cy, r) {
@@ -765,6 +811,7 @@
       reloading: false,
       reloadEnd: 0,
       rootUntil: 0,
+      slowUntil: 0,
       rollingUntil: 0,
       rollTouching: false,
       lastRollHit: -999,
@@ -1148,6 +1195,14 @@
       if (!rolling && !ai.eUsed && p.alive && !isInvincible(p) && game.gameTime > 2.2) {
         useLaser(ai);
       }
+    } else if (ai.char === '🦷') {
+      if (!rolling && !ai.eUsed && p.alive && !isInvincible(p) && game.gameTime > 1.5) {
+        useToothE(ai);
+      }
+      if (!rolling && !ai.qUsed && p.alive && !isInvincible(p) && game.gameTime > 1.5 &&
+          (distance < 380 || isRooted(p))) {
+        useToothQ(ai);
+      }
     }
 
     if (!rolling) {
@@ -1227,11 +1282,13 @@
     return true;
   }
 
-  function applyRoot(f) {
+  function applyRoot(f, duration, slow) {
     if (!f || !f.alive || isInvincible(f)) return false;
-    f.rootUntil = Math.max(f.rootUntil, game.gameTime + 3);
+    var d = duration || 3;
+    f.rootUntil = Math.max(f.rootUntil, game.gameTime + d);
+    if (slow) f.slowUntil = Math.max(f.slowUntil, game.gameTime + d);
     spawnParticles(f.x, f.y, '#6ec6ff', 18, 150, 0.5);
-    addText(f.x, f.y - 54, '定身 3s', '#6ec6ff');
+    addText(f.x, f.y - 54, slow ? '定身 ' + d + 's · 射速-50%' : '定身 ' + d + 's', '#6ec6ff');
     return true;
   }
 
@@ -1240,10 +1297,73 @@
     f.qUsed = true;
     f.rollingUntil = game.gameTime + 6;
     f.rootUntil = 0;
+    f.slowUntil = 0;
     f.rollTouching = false;
     f.lastRollHit = -999;
     spawnParticles(f.x, f.y, '#c084fc', 30, 240, 0.7);
     addText(f.x, f.y - 52, '无敌滚动 6s', '#c084fc');
+    return true;
+  }
+
+  function useToothE(f) {
+    if (!f || !f.alive || f.eUsed || isRolling(f)) return false;
+    f.eUsed = true;
+
+    var angle = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
+    var sx = f.x;
+    var sy = f.y;
+
+    game.bullets.push({
+      type: 'bounce',
+      x: sx,
+      y: sy,
+      px: sx,
+      py: sy,
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+      speed: 1900,
+      damage: 30,
+      radius: 5,
+      color: '#4da3ff',
+      owner: f,
+      life: Infinity,
+      spin: 0
+    });
+
+    spawnParticles(sx, sy, '#4da3ff', 14, 170, 0.35, angle);
+    return true;
+  }
+
+  function useToothQ(f) {
+    if (!f || !f.alive || f.qUsed || isRolling(f)) return false;
+    f.qUsed = true;
+
+    var base = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
+    var count = 10;
+
+    for (var i = 0; i < count; i++) {
+      var angle = base + (Math.PI * 2 * i) / count;
+      var sx = f.x + Math.cos(angle) * (f.r + 6);
+      var sy = f.y + Math.sin(angle) * (f.r + 6);
+      game.bullets.push({
+        type: 'gold',
+        x: sx,
+        y: sy,
+        px: sx,
+        py: sy,
+        dx: Math.cos(angle),
+        dy: Math.sin(angle),
+        speed: 1900,
+        damage: 20,
+        radius: 4,
+        color: '#ffd166',
+        owner: f,
+        life: Infinity,
+        spin: 0
+      });
+    }
+
+    spawnParticles(f.x, f.y, '#ffd166', 30, 240, 0.5);
     return true;
   }
 
@@ -1252,7 +1372,8 @@
     if (!p || !p.alive) return;
     if (p.char === '😡') useAngryE(p);
     else if (p.char === '😇') useAngelE(p);
-    else useLaser(p);
+    else if (p.char === '🤣') useLaser(p);
+    else if (p.char === '🦷') useToothE(p);
   }
 
   function usePlayerQ() {
@@ -1260,6 +1381,7 @@
     if (!p || !p.alive) return;
     if (p.char === '😡') equipRocket(p);
     else if (p.char === '🤣') useRoll(p);
+    else if (p.char === '🦷') useToothQ(p);
   }
 
   /* ---------------- 射击 ---------------- */
@@ -1296,7 +1418,7 @@
     });
 
     f.mag--;
-    f.fireCd = w.interval * (isRooted(f) ? 2 : 1);
+    f.fireCd = w.interval * (f.slowUntil > game.gameTime ? 2 : 1);
     f.muzzle = 0.06;
     spawnParticles(mx, my, w.color, 3, 90, 0.12, angle);
 
@@ -1426,6 +1548,7 @@
     f.qUsed = true;
     f.buffUntil = 0;
     f.rootUntil = 0;
+    f.slowUntil = 0;
     f.rollingUntil = 0;
     f.rollTouching = false;
     f.lastRollHit = -999;
@@ -1461,7 +1584,9 @@
     var ai = game.players.ai;
     if (!p || !ai || !p.alive || !ai.alive) return;
     if (hasMainAmmo(p) || hasMainAmmo(ai)) return;
-    if (game.bullets.length > 0) return;
+    for (var bi = 0; bi < game.bullets.length; bi++) {
+      if (game.bullets[bi].type !== 'bounce') return;
+    }
 
     var reason = '双方子弹用尽 · 剩余血量：你 ' + Math.ceil(p.hp) + ' / AI ' + Math.ceil(ai.hp);
     if (p.hp > ai.hp) {
@@ -1507,9 +1632,150 @@
 
   /* ---------------- 子弹与爆炸 ---------------- */
 
+  function updateBounceBullet(b, dt) {
+    b.spin = (b.spin || 0) + dt * 20;
+
+    var target = b.owner === game.players.player ? game.players.ai : game.players.player;
+    var remaining = b.speed * dt;
+    var safety = 0;
+
+    while (remaining > 0.001 && safety < 10) {
+      safety++;
+
+      var bestD = remaining;
+      var bestType = null;
+      var bestNx = 0;
+      var bestNy = 0;
+
+      if (target && target.alive) {
+        var te = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
+          target.x, target.y, target.r + b.radius);
+        if (te !== null) {
+          var de = te * remaining;
+          if (de < bestD) {
+            bestD = de;
+            bestType = 'enemy';
+          }
+        }
+      }
+
+      for (var pi = 0; pi < PLATFORMS.length; pi++) {
+        var hr = rayRect(b.x, b.y, b.dx, b.dy, PLATFORMS[pi], b.radius);
+        if (hr && hr.t > 0.001 && hr.t < bestD) {
+          bestD = hr.t;
+          bestType = 'platform';
+          bestNx = hr.nx;
+          bestNy = hr.ny;
+        }
+      }
+
+      if (b.dx > 0) {
+        var twr = (W - b.radius - b.x) / b.dx;
+        if (twr >= 0 && twr < bestD) {
+          bestD = twr;
+          bestType = 'wall';
+          bestNx = -1;
+          bestNy = 0;
+        }
+      } else if (b.dx < 0) {
+        var twl = (b.radius - b.x) / b.dx;
+        if (twl >= 0 && twl < bestD) {
+          bestD = twl;
+          bestType = 'wall';
+          bestNx = 1;
+          bestNy = 0;
+        }
+      }
+
+      if (b.dy > 0) {
+        var twb = (H - b.radius - b.y) / b.dy;
+        if (twb >= 0 && twb < bestD) {
+          bestD = twb;
+          bestType = 'wall';
+          bestNx = 0;
+          bestNy = -1;
+        }
+      } else if (b.dy < 0) {
+        var twt = (b.radius - b.y) / b.dy;
+        if (twt >= 0 && twt < bestD) {
+          bestD = twt;
+          bestType = 'wall';
+          bestNx = 0;
+          bestNy = 1;
+        }
+      }
+
+      if (!bestType) {
+        b.x += b.dx * remaining;
+        b.y += b.dy * remaining;
+        break;
+      }
+
+      b.x += b.dx * bestD;
+      b.y += b.dy * bestD;
+      remaining -= bestD;
+
+      if (bestType === 'enemy') {
+        damageFighter(target, b.damage, b.owner);
+        applyRoot(target, 1.5, false);
+        spawnParticles(b.x, b.y, b.color, 10, 160, 0.4);
+        return true;
+      }
+
+      if (bestNx !== 0) b.dx = -b.dx;
+      if (bestNy !== 0) b.dy = -b.dy;
+      b.x += bestNx * 0.05;
+      b.y += bestNy * 0.05;
+    }
+
+    return false;
+  }
+
+  function updateGoldBullet(b, dt) {
+    b.spin = (b.spin || 0) + dt * 20;
+
+    var target = b.owner === game.players.player ? game.players.ai : game.players.player;
+    var nx = b.x + b.dx * b.speed * dt;
+    var ny = b.y + b.dy * b.speed * dt;
+
+    if (target && target.alive) {
+      var t = segmentCircleT(b.x, b.y, nx, ny, target.x, target.y, target.r + b.radius);
+      if (t !== null) {
+        b.x = b.x + (nx - b.x) * t;
+        b.y = b.y + (ny - b.y) * t;
+        damageFighter(target, b.damage, b.owner);
+        spawnParticles(b.x, b.y, b.color, 8, 140, 0.35);
+        return true;
+      }
+    }
+
+    b.x = nx;
+    b.y = ny;
+
+    if (b.x < 0 || b.x > W || b.y < 0 || b.y > H) return true;
+    return false;
+  }
+
   function updateBullets(dt) {
     for (var i = game.bullets.length - 1; i >= 0; i--) {
       var b = game.bullets[i];
+
+      if (b.type === 'bounce') {
+        if (updateBounceBullet(b, dt)) {
+          game.bullets.splice(i, 1);
+          if (game.mode !== 'playing') return;
+        }
+        continue;
+      }
+
+      if (b.type === 'gold') {
+        if (updateGoldBullet(b, dt)) {
+          game.bullets.splice(i, 1);
+          if (game.mode !== 'playing') return;
+        }
+        continue;
+      }
+
       b.life -= dt;
       if (b.life <= 0) {
         game.bullets.splice(i, 1);
@@ -1661,7 +1927,7 @@
       var px = laser.x + dx * t;
       var py = laser.y + dy * t;
       if (Math.hypot(target.x - px, target.y - py) <= target.r + 5) {
-        if (applyRoot(target)) laser.hit = true;
+        if (applyRoot(target, 3, true)) laser.hit = true;
       }
     }
   }
@@ -2075,7 +2341,9 @@
       ctx.font = '800 11px "Segoe UI", "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#6ec6ff';
-      ctx.fillText('定身 ' + rootLeft.toFixed(1) + 's · 射速 -50%', f.x, f.y - f.r - 30);
+      var rootLabel = '定身 ' + rootLeft.toFixed(1) + 's';
+      if (f.slowUntil > game.gameTime) rootLabel += ' · 射速 -50%';
+      ctx.fillText(rootLabel, f.x, f.y - f.r - 30);
       ctx.restore();
     }
 
@@ -2110,6 +2378,66 @@
   function drawBullets() {
     for (var i = 0; i < game.bullets.length; i++) {
       var b = game.bullets[i];
+
+      if (b.type === 'bounce') {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(77, 163, 255, 0.35)';
+        ctx.lineWidth = 9;
+        ctx.beginPath();
+        ctx.moveTo(b.x - b.dx * 22, b.y - b.dy * 22);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 13, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(77, 163, 255, 0.18)';
+        ctx.fill();
+
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.spin || 0);
+        ctx.strokeStyle = 'rgba(190, 230, 255, 0.95)';
+        ctx.lineWidth = 2;
+        for (var sb = 0; sb < 3; sb++) {
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(sb * Math.PI * 2 / 3) * 4, Math.sin(sb * Math.PI * 2 / 3) * 4);
+          ctx.lineTo(Math.cos(sb * Math.PI * 2 / 3) * 12, Math.sin(sb * Math.PI * 2 / 3) * 12);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#e8f6ff';
+        ctx.fill();
+        ctx.restore();
+        continue;
+      }
+
+      if (b.type === 'gold') {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 209, 102, 0.35)';
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.moveTo(b.x - b.dx * 18, b.y - b.dy * 18);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 11, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 209, 102, 0.2)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffe9a8';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#ffd166';
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+
       if (b.type === 'rocket') {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 176, 46, 0.35)';
@@ -2337,6 +2665,13 @@
       };
     }
 
+    if (f.char === '🦷') {
+      return {
+        e: f.eUsed ? '已使用' : '蓝色反弹弹 · 30 伤害',
+        q: f.qUsed ? '已使用' : '金色弹幕 10 发'
+      };
+    }
+
     var laserText = f.eUsed ? '已使用' : '穿墙激光 · 定身 3s';
     var rollText;
     if (isRolling(f)) rollText = '滚动 ' + Math.max(0, f.rollingUntil - game.gameTime).toFixed(1) + 's';
@@ -2428,7 +2763,9 @@
 
     var st = abilityText(p);
     var eActive = p.char === '😡' && p.buffUntil > game.gameTime;
-    var eTitle = p.char === '🤣' ? '小技能 · 激光' : '小技能';
+    var eTitle = '小技能';
+    if (p.char === '🤣') eTitle = '小技能 · 激光';
+    else if (p.char === '🦷') eTitle = '小技能 · 反弹弹';
 
     var qTitle = '大招 · 复活';
     var qActive = false;
@@ -2440,10 +2777,13 @@
     } else if (p.char === '😇') {
       qTitle = '大招 · 复活';
       qDisabled = p.revived;
-    } else {
+    } else if (p.char === '🤣') {
       qTitle = '大招 · 滚动';
       qActive = isRolling(p);
       qDisabled = p.qUsed && !qActive;
+    } else {
+      qTitle = '大招 · 弹幕';
+      qDisabled = p.qUsed;
     }
 
     drawAbilityCard(W / 2 - 228, 78, 'E', eTitle, st.e, p.eUsed && !eActive, eActive);
