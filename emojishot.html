@@ -840,8 +840,8 @@
         <section class="tutSection">
           <h3>枪械说明</h3>
           <div class="tutWeapons">
-            <div><strong>AK</strong><span>25 发/弹夹 · 4 发/秒 · 40 伤害 · 三角形枪身</span></div>
-            <div><strong>M4</strong><span>30 发/弹夹 · 5 发/秒 · 35 伤害 · 菱形枪身</span></div>
+            <div><strong>AK</strong><span>25 发/弹夹 · 4 发/秒 · 40 伤害 · 三角机匣 · 木质护木</span></div>
+            <div><strong>M4</strong><span>30 发/弹夹 · 5 发/秒 · 35 伤害 · 菱形机匣 · 战术护木</span></div>
           </div>
           <ul>
             <li>AK 与 M4 的子弹飞行速度相同，均为 1850；AK 伤害更高但射速更慢。</li>
@@ -4631,10 +4631,6 @@
 
   function drawGun(f) {
     var isRocket = f.rocketMode;
-    var len = isRocket ? 42 : 32;
-    var thick = isRocket ? 13 : 8;
-    var baseX = f.r * 0.2;
-    var noseX = f.r + len;
 
     ctx.save();
     ctx.translate(f.x, f.y);
@@ -4642,83 +4638,235 @@
     ctx.lineJoin = 'round';
 
     if (isRocket) {
-      ctx.fillStyle = '#3a4150';
-      ctx.fillRect(baseX, -thick / 2, f.r * 0.8 + len, thick);
+      var rBase = f.r * 0.16;
+      var rLen = 50;
+      var rNose = f.r + rLen;
+      var rThick = 14;
+
+      ctx.fillStyle = '#343b47';
+      ctx.fillRect(rBase, -rThick / 2, rNose - rBase, rThick);
+      ctx.fillStyle = '#20252e';
+      ctx.fillRect(rBase + 14, -rThick / 2 - 2, 8, rThick + 4);
+      ctx.fillRect(rNose - 18, -rThick / 2 - 2, 7, rThick + 4);
+
       ctx.fillStyle = '#11151d';
       ctx.beginPath();
-      ctx.arc(noseX, 0, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = CHARS[f.char].color;
-      ctx.fillRect(noseX - 8, -thick / 2 - 1, 6, thick + 2);
-    } else if (f.weapon === 'AK') {
-      ctx.fillStyle = '#2c2117';
-      ctx.beginPath();
-      ctx.moveTo(baseX, -thick * 0.65);
-      ctx.lineTo(noseX - len * 0.28, -thick * 0.95);
-      ctx.lineTo(noseX, 0);
-      ctx.lineTo(noseX - len * 0.28, thick * 0.95);
-      ctx.lineTo(baseX, thick * 0.65);
-      ctx.closePath();
+      ctx.arc(rNose + 2, 0, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#ffb02e';
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = 'rgba(255, 176, 46, 0.28)';
+      ctx.fillStyle = '#252b34';
       ctx.beginPath();
-      ctx.moveTo(baseX + 6, -2.5);
-      ctx.lineTo(noseX - 10, -4.5);
-      ctx.lineTo(noseX - 10, 4.5);
-      ctx.lineTo(baseX + 6, 2.5);
+      ctx.moveTo(rBase + 18, rThick / 2);
+      ctx.lineTo(rBase + 29, rThick / 2);
+      ctx.lineTo(rBase + 26, rThick / 2 + 12);
+      ctx.lineTo(rBase + 18, rThick / 2 + 11);
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = '#3a2a1b';
+      ctx.fillStyle = CHARS[f.char].color;
+      ctx.fillRect(rNose - 7, -rThick / 2 - 1, 5, rThick + 2);
+
+      if (f.muzzle > 0) {
+        ctx.beginPath();
+        ctx.arc(rNose + 10, 0, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 224, 102, 0.9)';
+        ctx.fill();
+      }
+      ctx.restore();
+      return;
+    }
+
+    var isAK = f.weapon === 'AK';
+    var accent = isAK ? '#ffb02e' : '#5ad7ff';
+    var metal = isAK ? '#3b2a1d' : '#1b2a32';
+    var metalLight = isAK ? '#5a4028' : '#263b45';
+    var wood = isAK ? '#7a4a25' : '#202a30';
+    var magColor = isAK ? '#633a1d' : '#18242b';
+
+    var baseX = f.r * 0.3;
+    var receiverEnd = f.r + 20;
+    var barrelEnd = f.r + 50;
+    var tipX = barrelEnd + 5;
+    var half = 5.5;
+    var magX = f.r + 4;
+    var gripX = f.r - 2;
+
+    // 枪托
+    ctx.fillStyle = wood;
+    ctx.beginPath();
+    ctx.moveTo(baseX - 10, -3.5);
+    ctx.lineTo(baseX + 4, -6);
+    ctx.lineTo(baseX + 4, 5);
+    ctx.lineTo(baseX - 7, 4.2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 枪管
+    ctx.fillStyle = metal;
+    ctx.fillRect(receiverEnd - 2, -1.8, barrelEnd - receiverEnd + 4, 3.6);
+    ctx.fillStyle = metalLight;
+    ctx.fillRect(receiverEnd, -1.1, barrelEnd - receiverEnd - 2, 1.2);
+
+    // 护木
+    ctx.fillStyle = isAK ? '#6d431f' : '#22343d';
+    ctx.fillRect(receiverEnd - 12, -4.8, 24, 9.6);
+    ctx.strokeStyle = isAK ? 'rgba(255, 176, 46, 0.5)' : 'rgba(90, 215, 255, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(receiverEnd - 12, -4.8, 24, 9.6);
+
+    if (isAK) {
+      ctx.strokeStyle = 'rgba(255, 176, 46, 0.45)';
       ctx.beginPath();
-      ctx.moveTo(baseX + 8, thick * 0.58);
-      ctx.lineTo(baseX + 18, thick * 0.58);
-      ctx.lineTo(baseX + 14, thick * 2.3);
-      ctx.lineTo(baseX + 7, thick * 2.1);
+      ctx.moveTo(receiverEnd - 8, -3.5);
+      ctx.lineTo(receiverEnd + 8, -3.5);
+      ctx.moveTo(receiverEnd - 8, 3.5);
+      ctx.lineTo(receiverEnd + 8, 3.5);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = 'rgba(90, 215, 255, 0.32)';
+      ctx.fillRect(receiverEnd - 10, -1.2, 20, 2.4);
+      ctx.strokeStyle = 'rgba(90, 215, 255, 0.5)';
+      ctx.lineWidth = 1;
+      for (var hg = receiverEnd - 8; hg < receiverEnd + 10; hg += 6) {
+        ctx.beginPath();
+        ctx.moveTo(hg, -4);
+        ctx.lineTo(hg, 4);
+        ctx.stroke();
+      }
+    }
+
+    // 机匣
+    ctx.fillStyle = metalLight;
+    ctx.beginPath();
+    if (isAK) {
+      ctx.moveTo(baseX, -half);
+      ctx.lineTo(receiverEnd - 8, -half - 1.2);
+      ctx.lineTo(receiverEnd, -2.2);
+      ctx.lineTo(receiverEnd, 2.2);
+      ctx.lineTo(receiverEnd - 8, half + 1.2);
+      ctx.lineTo(baseX, half);
+    } else {
+      ctx.moveTo(baseX, 0);
+      ctx.lineTo(baseX + 10, -half - 1);
+      ctx.lineTo(receiverEnd, -half + 1);
+      ctx.lineTo(receiverEnd, half - 1);
+      ctx.lineTo(baseX + 10, half + 1);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+
+    // 机匣装饰
+    ctx.fillStyle = isAK ? 'rgba(255, 176, 46, 0.2)' : 'rgba(90, 215, 255, 0.2)';
+    if (isAK) {
+      ctx.beginPath();
+      ctx.moveTo(baseX + 8, -3.2);
+      ctx.lineTo(receiverEnd - 9, -4);
+      ctx.lineTo(receiverEnd - 9, 4);
+      ctx.lineTo(baseX + 8, 3.2);
       ctx.closePath();
       ctx.fill();
     } else {
-      ctx.fillStyle = '#1a2930';
       ctx.beginPath();
-      ctx.moveTo(baseX, 0);
-      ctx.lineTo(baseX + len * 0.34, -thick * 0.9);
-      ctx.lineTo(noseX, 0);
-      ctx.lineTo(baseX + len * 0.34, thick * 0.9);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#5ad7ff';
-      ctx.lineWidth = 1.6;
-      ctx.stroke();
-
-      ctx.fillStyle = 'rgba(90, 215, 255, 0.26)';
-      ctx.beginPath();
-      ctx.moveTo(baseX + 7, 0);
-      ctx.lineTo(baseX + len * 0.34, -3.2);
-      ctx.lineTo(noseX - 9, 0);
-      ctx.lineTo(baseX + len * 0.34, 3.2);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#23343d';
-      ctx.beginPath();
-      ctx.moveTo(baseX + 10, thick * 0.72);
-      ctx.lineTo(baseX + 19, thick * 0.72);
-      ctx.lineTo(baseX + 16, thick * 2.1);
-      ctx.lineTo(baseX + 9, thick * 2.0);
+      ctx.moveTo(baseX + 12, 0);
+      ctx.lineTo(baseX + 19, -4.2);
+      ctx.lineTo(baseX + 26, 0);
+      ctx.lineTo(baseX + 19, 4.2);
       ctx.closePath();
       ctx.fill();
     }
 
+    // 弹匣
+    ctx.fillStyle = magColor;
+    ctx.beginPath();
+    if (isAK) {
+      ctx.moveTo(magX, 4.5);
+      ctx.lineTo(magX + 11, 4.5);
+      ctx.quadraticCurveTo(magX + 15, 16, magX + 10, 26);
+      ctx.lineTo(magX + 2, 24);
+      ctx.quadraticCurveTo(magX + 4, 14, magX - 2, 6);
+    } else {
+      ctx.moveTo(magX, 4.5);
+      ctx.lineTo(magX + 10, 4.5);
+      ctx.lineTo(magX + 9, 24);
+      ctx.lineTo(magX + 1, 24);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 握把
+    ctx.fillStyle = isAK ? '#3d2a18' : '#18232a';
+    ctx.beginPath();
+    ctx.moveTo(gripX, 4.5);
+    ctx.lineTo(gripX + 8, 4.5);
+    ctx.lineTo(gripX + 6, 17);
+    ctx.lineTo(gripX - 1, 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.stroke();
+
+    // 扳机护圈
+    ctx.strokeStyle = metal;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(gripX + 12, 5.5, 5, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+
+    // 顶部导轨与准星
+    if (isAK) {
+      ctx.fillStyle = metal;
+      ctx.fillRect(receiverEnd - 9, -9, 7, 4);
+      ctx.fillRect(receiverEnd + 2, -7.5, 24, 2.4);
+      ctx.fillStyle = '#2a1d12';
+      ctx.fillRect(barrelEnd - 12, -10, 3.5, 7);
+      ctx.fillStyle = accent;
+      ctx.fillRect(barrelEnd - 11.5, -11, 2.4, 2.5);
+    } else {
+      ctx.fillStyle = metal;
+      ctx.fillRect(baseX + 9, -9.5, receiverEnd - baseX - 3, 3.8);
+      for (var rail = baseX + 12; rail < receiverEnd - 4; rail += 7) {
+        ctx.fillStyle = 'rgba(90, 215, 255, 0.35)';
+        ctx.fillRect(rail, -9.5, 2, 3.8);
+      }
+      ctx.fillStyle = '#162127';
+      ctx.fillRect(barrelEnd - 13, -10, 3.5, 7);
+      ctx.fillStyle = accent;
+      ctx.fillRect(barrelEnd - 12.5, -11, 2.4, 2.5);
+    }
+
+    // 枪口制退器
+    ctx.fillStyle = metal;
+    ctx.fillRect(barrelEnd, -3, tipX - barrelEnd, 6);
+    ctx.fillStyle = accent;
+    ctx.fillRect(tipX - 2, -3, 2, 6);
+
+    // 枪口火焰
     if (f.muzzle > 0) {
+      ctx.fillStyle = 'rgba(255, 224, 102, 0.95)';
       ctx.beginPath();
-      ctx.arc(noseX + 5, 0, 9, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 224, 102, 0.9)';
+      ctx.moveTo(tipX + 1, -3.2);
+      ctx.lineTo(tipX + 15, 0);
+      ctx.lineTo(tipX + 1, 3.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(tipX + 3, 0, 7, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 150, 50, 0.55)';
       ctx.fill();
     }
+
     ctx.restore();
   }
 
