@@ -225,6 +225,7 @@
   }
   #modeToggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
   .modeOptions { padding: 0 22px 20px; }
+  .versusOptions { padding: 0; }
   .modeOption {
     display: flex;
     align-items: center;
@@ -479,7 +480,7 @@
   <div id="homeScreen" class="screen">
     <div class="homeWrap">
       <div class="brand">EMOJI<span>SHOT</span></div>
-      <div class="tagline">单机 / 联机 1v1 · 平台跳跃射击</div>
+      <div class="tagline">单机 / 联机 · 死斗 / 斗牛 · 平台跳跃射击</div>
 
       <div class="homeList">
         <section class="homeCard" id="modeCard">
@@ -490,11 +491,11 @@
           </button>
           <div class="modeOptions" id="modeOptions" hidden>
             <button type="button" class="modeOption" id="modeDuel">
-              <span class="modeOptionText"><strong>1v1 死斗（AI）</strong><small>单命对战 · 本地 AI 对手</small></span>
+              <span class="modeOptionText"><strong>AI</strong><small>死斗 / 斗牛 · 本地 AI 对手</small></span>
               <span class="modeArrow">→</span>
             </button>
             <button type="button" class="modeOption" id="modeOnline">
-              <span class="modeOptionText"><strong>1v1死斗（真人）</strong><small>在线对战</small></span>
+              <span class="modeOptionText"><strong>真人</strong><small>死斗 / 斗牛 · 在线对战</small></span>
               <span class="modeArrow">→</span>
             </button>
           </div>
@@ -513,18 +514,46 @@
         </button>
       </div>
 
-      <div class="homeFoot">EMOJISHOT · 1V1 DEATHMATCH</div>
+      <div class="homeFoot">EMOJISHOT · DEATHMATCH / BULLFIGHT</div>
+    </div>
+  </div>
+
+  <div id="versusScreen" class="screen" hidden>
+    <div class="card narrow">
+      <div class="stepTop">
+        <button type="button" class="backBtn" id="versusBack">← 返回首页</button>
+        <span class="stepBadge" id="versusBadge">AI</span>
+      </div>
+      <h1 class="screenTitle" id="versusTitle">AI 对战</h1>
+      <p class="screenSub" id="versusSub">选择对战规则：死斗为单命对决，斗牛为多局赛制。</p>
+
+      <div class="modeOptions versusOptions">
+        <button type="button" class="modeOption" id="versusDuel">
+          <span class="modeOptionText">
+            <strong id="versusDuelTitle">死斗（AI）</strong>
+            <small>单命对决 · 先击杀对方获胜</small>
+          </span>
+          <span class="modeArrow">→</span>
+        </button>
+        <button type="button" class="modeOption" id="versusBull">
+          <span class="modeOptionText">
+            <strong id="versusBullTitle">斗牛（AI）</strong>
+            <small>多局赛制 · 先到 13 分获胜 · 12:12 加时争 2</small>
+          </span>
+          <span class="modeArrow">→</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <div id="charScreen" class="screen" hidden>
     <div class="card narrow">
       <div class="stepTop">
-        <button type="button" class="backBtn" id="charBack">← 返回首页</button>
+        <button type="button" class="backBtn" id="charBack">← 返回模式选择</button>
         <span class="stepBadge">1 / 2</span>
       </div>
       <h1 class="screenTitle">选择角色</h1>
-      <p class="screenSub">先选择你和 AI 的角色，确认后进入枪械选择。</p>
+      <p class="screenSub" id="charSub">先选择你和 AI 的角色，确认后进入枪械选择。</p>
 
       <section class="team">
         <h2><span class="dot playerDot"></span>你</h2>
@@ -557,7 +586,7 @@
         <span class="stepBadge">2 / 2</span>
       </div>
       <h1 class="screenTitle">选择枪械</h1>
-      <p class="screenSub">确认双方的主武器，确认后进入对战。</p>
+      <p class="screenSub" id="weaponSub">确认双方的主武器，确认后进入对战。</p>
 
       <section class="team">
         <h2><span class="dot playerDot"></span>你</h2>
@@ -582,11 +611,11 @@
   <div id="onlineScreen" class="screen" hidden>
     <div class="card narrow">
       <div class="stepTop">
-        <button type="button" class="backBtn" id="onlineBack">← 返回首页</button>
+        <button type="button" class="backBtn" id="onlineBack">← 返回模式选择</button>
         <span class="stepBadge">联机</span>
       </div>
-      <h1 class="screenTitle">1v1死斗（真人）</h1>
-      <p class="screenSub">房主创建房间，把房间码发给对方；对方输入房间码加入。</p>
+      <h1 class="screenTitle" id="onlineTitle">死斗（真人）</h1>
+      <p class="screenSub" id="onlineSub">单命对决 · 房主创建房间，把房间码发给对方。</p>
 
       <div class="onlineGrid">
         <section class="onlinePanel">
@@ -617,7 +646,7 @@
         <span class="stepBadge">房间</span>
       </div>
       <h1 class="screenTitle">联机房间</h1>
-      <p class="screenSub">双方各自选择角色和枪械，准备后由房主开始。</p>
+      <p class="screenSub" id="lobbySub">双方各自选择角色和枪械，准备后由房主开始。</p>
 
       <div class="lobbyRoom">
         <span>房间码</span>
@@ -669,7 +698,7 @@
           <input type="range" id="sensitivityRange" min="0.1" max="3" step="0.05" value="1">
           <output id="sensitivityValue">1.00×</output>
         </div>
-        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。1v1死斗（真人）使用鼠标位置瞄准；鼠标锁定不可用时也会回退为鼠标位置瞄准，此时灵敏度不生效。</p>
+        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。真人模式使用鼠标位置瞄准；鼠标锁定不可用时也会回退为鼠标位置瞄准，此时灵敏度不生效。</p>
       </section>
 
       <section class="settingsGroup">
@@ -716,11 +745,25 @@
           <h3>游戏规则</h3>
           <ul>
             <li>1v1 单命对战，双方 150 HP，先击败对手者获胜。</li>
-            <li>😇 的「化蝶」可以在死亡后复活，属于额外一条命。</li>
-            <li>小招、大招每局各只能使用一次（🦷 回旋爪弹可连续使用 2 次）；😇 复活不会重置小招的使用次数。</li>
+            <li>😇 的「化蝶」可以在死亡后复活，属于额外一条命；斗牛模式需要 6 点大招点。</li>
+            <li>死斗模式中，小招、大招每局各只能使用一次（🦷 回旋爪弹可连续使用 2 次）；😇 复活不会重置小招的使用次数。斗牛模式的大招改为按点数释放。</li>
             <li>每把枪有 3 个弹夹：1 个已装填 + 2 个备用。</li>
             <li>换弹 2.5 秒，会丢弃当前弹夹剩余子弹；弹夹打空会自动换弹。</li>
             <li>双方主武器弹药都耗尽后，剩余血量高者获胜；血量相同则平局。火箭筒不计入该判定。</li>
+          </ul>
+        </section>
+
+        <section class="tutSection">
+          <h3>斗牛模式</h3>
+          <ul>
+            <li>斗牛是连续多局死斗。每赢一小局积 1 分，率先获得 13 分的一方获胜。</li>
+            <li>比分达到 12:12 后进入加时，必须领先对方 2 分才能获胜。</li>
+            <li>每小局重置生命、位置、弹药和 E 技能使用次数；大招点跨小局保留。</li>
+            <li>击杀获得 2 个大招点，被击杀获得 1 个大招点；小局平局时无人得分，重开下一小局。</li>
+            <li>大招点需求：😡 7 点、😇 6 点、🤣 7 点、🦷 7 点。每场斗牛开局 0 点，点满后才能释放大招，释放后点数清空，之后可以重新积攒。</li>
+            <li>😇 开大复活后的 10 秒内被击杀：击杀者不获得大招点，😇 也不获得被击杀的大招点。她在这 10 秒内击杀对方则正常获得 2 点。</li>
+            <li>😇 有大招时死亡，选择不复活则本小局判给对方；选择复活后，本小局等她再次死亡或击杀对方后结算。</li>
+            <li>开大复活后的 😇 若 10 秒内未造成击杀而再次死亡，本小局判给对方，双方都不获得这次死亡的大招点。</li>
           </ul>
         </section>
 
@@ -744,7 +787,7 @@
             <h4>🤣 乐子</h4>
             <ul>
               <li><b>小招 招笑</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 2 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
-              <li><b>大招 大运来了</b>：持续 4 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
+              <li><b>大招 大运来了</b>：持续 4 秒，受到的所有伤害降低 70%（每段伤害向上取整），免疫 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
               <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，4 秒最多 4 次；滚动会被墙和平台阻挡。</li>
             </ul>
           </div>
@@ -789,7 +832,7 @@
   <div class="promptCard">
     <div class="promptEmoji">😇</div>
     <h2>是否释放「化蝶」？</h2>
-    <p>满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。</p>
+    <p id="reviveDesc">满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。</p>
     <div id="reviveCountdown" class="reviveCountdown">3.0</div>
     <div class="actions">
       <button type="button" id="reviveYes" class="primary small">释放化蝶</button>
@@ -823,13 +866,24 @@
   var gameOverReason = document.getElementById('gameOverReason');
   var homeScreen = document.getElementById('homeScreen');
   var charScreen = document.getElementById('charScreen');
+  var charSubEl = document.getElementById('charSub');
   var weaponScreen = document.getElementById('weaponScreen');
+  var weaponSubEl = document.getElementById('weaponSub');
   var tutorialScreen = document.getElementById('tutorialScreen');
   var modeCard = document.getElementById('modeCard');
   var modeToggle = document.getElementById('modeToggle');
   var modeOptions = document.getElementById('modeOptions');
   var modeDuel = document.getElementById('modeDuel');
   var modeOnlineBtn = document.getElementById('modeOnline');
+  var versusScreen = document.getElementById('versusScreen');
+  var versusBackBtn = document.getElementById('versusBack');
+  var versusBadgeEl = document.getElementById('versusBadge');
+  var versusTitleEl = document.getElementById('versusTitle');
+  var versusSubEl = document.getElementById('versusSub');
+  var versusDuelBtn = document.getElementById('versusDuel');
+  var versusBullBtn = document.getElementById('versusBull');
+  var versusDuelTitleEl = document.getElementById('versusDuelTitle');
+  var versusBullTitleEl = document.getElementById('versusBullTitle');
   var tutorialCardEl = document.querySelector('.tutorialCard');
   var tutorialHomeBtn = document.getElementById('tutorialBack');
   var tutorialHomeBtnBottom = document.getElementById('tutorialBackBottom');
@@ -838,7 +892,11 @@
   var weaponBackBtn = document.getElementById('weaponBack');
   var weaponConfirmBtn = document.getElementById('weaponConfirm');
   var onlineScreen = document.getElementById('onlineScreen');
+  var onlineTitleEl = document.getElementById('onlineTitle');
+  var onlineSubEl = document.getElementById('onlineSub');
   var onlineLobbyScreen = document.getElementById('onlineLobbyScreen');
+  var lobbySubEl = document.getElementById('lobbySub');
+  var reviveDescEl = document.getElementById('reviveDesc');
   var onlineBackBtn = document.getElementById('onlineBack');
   var lobbyBackBtn = document.getElementById('lobbyBack');
   var hostRoomBtn = document.getElementById('hostRoomBtn');
@@ -915,6 +973,10 @@
     aiWeapon: 'M4'
   };
 
+  var ULT_COST = { '😡': 7, '😇': 6, '🤣': 7, '🦷': 7 };
+  var BULL_WIN_SCORE = 13;
+  var selectedMatch = { opponent: 'ai', mode: 'duel' };
+
   var SETTINGS_KEY = 'emojishot.settings.v1';
   var DEFAULT_SETTINGS = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
   var settings = { sensitivity: 1, skillE: 'KeyE', skillQ: 'KeyQ' };
@@ -926,6 +988,9 @@
 
   var game = {
     mode: 'menu',
+    matchType: 'duel',
+    opponentType: 'ai',
+    bull: null,
     players: { player: null, ai: null },
     bullets: [],
     particles: [],
@@ -959,6 +1024,7 @@
     myWeapon: loadout.playerWeapon,
     peerChar: null,
     peerWeapon: null,
+    peerMode: 'duel',
     myReady: false,
     peerReady: false,
     input: { left: false, right: false, shoot: false, aim: 0 },
@@ -978,6 +1044,78 @@
   function isRolling(f) { return !!(f && f.rollingUntil > game.gameTime); }
   function isRooted(f) { return !!(f && f.rootUntil > game.gameTime && !isRolling(f)); }
   function isInvincible(f) { return isRolling(f); }
+
+  function validMatchMode(mode) {
+    return mode === 'bullfight' ? 'bullfight' : 'duel';
+  }
+
+  function isBullMatch() {
+    return game.matchType === 'bullfight';
+  }
+
+  function createBullState() {
+    return {
+      scoreHost: 0,
+      scoreGuest: 0,
+      round: 1,
+      phase: 'playing',
+      transitionUntil: 0,
+      lastWinner: null,
+      matchWinner: null,
+      reason: ''
+    };
+  }
+
+  function ultCost(f) {
+    return ULT_COST[f.char] || 7;
+  }
+
+  function ultReady(f) {
+    if (!f) return false;
+    if (isBullMatch()) return (f.ultPoints || 0) >= ultCost(f);
+    return !f.qUsed;
+  }
+
+  function canUseUltQ(f) {
+    if (!f || !f.alive || f.qUsed || f.char === '😇') return false;
+    if (isBullMatch()) return (f.ultPoints || 0) >= ultCost(f);
+    return true;
+  }
+
+  function addUltPoints(f, amount) {
+    if (!f || !isBullMatch()) return;
+    f.ultPoints = Math.min(ultCost(f), (f.ultPoints || 0) + amount);
+  }
+
+  function spendUlt(f) {
+    if (!f || !isBullMatch()) return;
+    f.ultPoints = 0;
+  }
+
+  function canAngelRevive(f) {
+    if (!f || f.char !== '😇' || f.revived) return false;
+    if (isBullMatch()) return !f.qUsed && (f.ultPoints || 0) >= ULT_COST['😇'];
+    return true;
+  }
+
+  function fighterSide(f) {
+    if (!f) return null;
+    var guestIsPlayer = game.onlineMode && game.onlineRole === 'guest';
+    if (f === game.players.player) return guestIsPlayer ? 'guest' : 'host';
+    if (f === game.players.ai) return guestIsPlayer ? 'host' : 'guest';
+    return null;
+  }
+
+  function scoreForLocal() {
+    if (!game.bull) return { player: 0, opp: 0, host: 0, guest: 0 };
+    var guestIsPlayer = game.onlineMode && game.onlineRole === 'guest';
+    return {
+      player: guestIsPlayer ? game.bull.scoreGuest : game.bull.scoreHost,
+      opp: guestIsPlayer ? game.bull.scoreHost : game.bull.scoreGuest,
+      host: game.bull.scoreHost,
+      guest: game.bull.scoreGuest
+    };
+  }
 
   function isValidSkillCode(code, otherCode) {
     return typeof code === 'string' && code.length > 0 &&
@@ -1179,6 +1317,7 @@
       eUsed: false,
       eUsesLeft: char === '🦷' ? 2 : 1,
       qUsed: false,
+      ultPoints: 0,
       goldDotUntil: 0,
       goldDotNextTick: 0,
       goldDotSource: null,
@@ -1203,12 +1342,20 @@
   }
 
   function startRound() {
+    beginLocalMatch(selectedMatch.mode === 'bullfight' ? 'bullfight' : 'duel');
+  }
+
+  function beginLocalMatch(matchType) {
+    matchType = validMatchMode(matchType);
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     menuEl.hidden = true;
     reviveOverlay.hidden = true;
     gameOverEl.hidden = true;
 
     game.mode = 'playing';
+    game.matchType = matchType;
+    game.opponentType = 'ai';
+    game.bull = matchType === 'bullfight' ? createBullState() : null;
     game.onlineMode = false;
     game.onlineRole = null;
     game.absoluteAim = false;
@@ -1231,27 +1378,74 @@
     game.mouse.down = false;
     game.keys = {};
     game.paused = false;
-    game.pointerLocked = false;
+    game.pointerLocked = document.pointerLockElement === canvas;
     game.absoluteAim = game.absoluteAim || !canUsePointerLock();
     game.mouse.x = W / 2;
     game.mouse.y = H / 2;
     game.mouse.inside = true;
 
-    document.getElementById('againBtn').textContent = '再来一局';
+    document.getElementById('againBtn').textContent = matchType === 'bullfight' ? '再来一场' : '再来一局';
     document.getElementById('menuBtn').textContent = '返回选择';
 
     document.body.classList.add('playing');
-    resumeGame();
+    if (document.pointerLockElement === canvas) {
+      game.paused = false;
+      hidePauseOverlay();
+    } else {
+      resumeGame();
+    }
   }
 
   function hideMenuScreens() {
     homeScreen.hidden = true;
+    versusScreen.hidden = true;
     charScreen.hidden = true;
     weaponScreen.hidden = true;
     tutorialScreen.hidden = true;
     settingsScreen.hidden = true;
     onlineScreen.hidden = true;
     onlineLobbyScreen.hidden = true;
+  }
+
+  function modeDisplayName(mode) {
+    return validMatchMode(mode) === 'bullfight' ? '斗牛' : '死斗';
+  }
+
+  function updateVersusLabels() {
+    var isAI = selectedMatch.opponent === 'ai';
+    var label = isAI ? 'AI' : '真人';
+    versusBadgeEl.textContent = label;
+    versusTitleEl.textContent = isAI ? 'AI 对战' : '真人对战';
+    versusSubEl.textContent = isAI
+      ? '选择对战规则：死斗为单命对决，斗牛为多局赛制。'
+      : '选择对战规则：死斗为单命对决，斗牛为多局赛制；确认后进入联机房间。';
+    versusDuelTitleEl.textContent = '死斗（' + label + '）';
+    versusBullTitleEl.textContent = '斗牛（' + label + '）';
+  }
+
+  function showVersusScreen(opponent) {
+    selectedMatch.opponent = opponent === 'online' ? 'online' : 'ai';
+    hideMenuScreens();
+    versusScreen.hidden = false;
+    menuEl.hidden = false;
+    gameOverEl.hidden = true;
+    reviveOverlay.hidden = true;
+    pauseOverlay.hidden = true;
+    updateVersusLabels();
+  }
+
+  function updateOnlineModeText() {
+    var bull = selectedMatch.mode === 'bullfight';
+    if (onlineTitleEl) onlineTitleEl.textContent = modeDisplayName(selectedMatch.mode) + '（真人）';
+    if (onlineSubEl) {
+      onlineSubEl.textContent = bull
+        ? '多局赛制 · 先到 13 分获胜 · 12:12 加时争 2 · 房主创建房间，把房间码发给对方。'
+        : '单命对决 · 房主创建房间，把房间码发给对方。';
+    }
+    if (lobbySubEl) {
+      lobbySubEl.textContent = (bull ? '斗牛（真人） · 先到 13 分' : '死斗（真人） · 单命对决') +
+        ' · 双方各自选择角色和枪械，准备后由房主开始。';
+    }
   }
 
   function showHomeScreen() {
@@ -1269,6 +1463,10 @@
 
   function showCharScreen() {
     hideMenuScreens();
+    if (charSubEl) {
+      charSubEl.textContent = '当前模式：' + modeDisplayName(selectedMatch.mode) +
+        '（AI） · 先选择你和 AI 的角色，确认后进入枪械选择。';
+    }
     charScreen.hidden = false;
     menuEl.hidden = false;
     gameOverEl.hidden = true;
@@ -1277,6 +1475,10 @@
 
   function showWeaponScreen() {
     hideMenuScreens();
+    if (weaponSubEl) {
+      weaponSubEl.textContent = '当前模式：' + modeDisplayName(selectedMatch.mode) +
+        '（AI） · 确认双方的主武器，确认后进入对战。';
+    }
     weaponScreen.hidden = false;
     menuEl.hidden = false;
     gameOverEl.hidden = true;
@@ -1299,6 +1501,7 @@
 
   function showOnlineScreen() {
     hideMenuScreens();
+    updateOnlineModeText();
     onlineScreen.hidden = false;
     menuEl.hidden = false;
     gameOverEl.hidden = true;
@@ -1315,6 +1518,7 @@
 
   function showOnlineLobbyScreen() {
     hideMenuScreens();
+    updateOnlineModeText();
     onlineLobbyScreen.hidden = false;
     menuEl.hidden = false;
     gameOverEl.hidden = true;
@@ -1504,7 +1708,7 @@
       if (!net.roomCode && net.peer) net.roomCode = net.peer.id;
       net.myReady = false;
       net.peerReady = false;
-      sendNet({ type: 'hello', char: net.myChar, weapon: net.myWeapon, ready: false });
+      sendNet({ type: 'hello', char: net.myChar, weapon: net.myWeapon, mode: selectedMatch.mode, ready: false });
       setOnlineStatus('已连接');
       showOnlineLobbyScreen();
     }
@@ -1573,13 +1777,21 @@
     if (net.role !== 'host' || !net.connected || !net.myReady || !net.peerReady || !net.peerChar) return;
     var hostLoadout = { char: net.myChar, weapon: net.myWeapon };
     var guestLoadout = { char: net.peerChar, weapon: net.peerWeapon };
-    sendNet({ type: 'start', host: hostLoadout, guest: guestLoadout });
-    startOnlineRound('host', hostLoadout, guestLoadout);
+    var mode = validMatchMode(selectedMatch.mode);
+    var bull = mode === 'bullfight' ? createBullState() : null;
+    sendNet({ type: 'start', host: hostLoadout, guest: guestLoadout, mode: mode, bull: bull });
+    startOnlineRound('host', hostLoadout, guestLoadout, mode, bull);
   }
 
-  function startOnlineRound(role, own, opp) {
+  function startOnlineRound(role, own, opp, mode, bullState) {
     own = { char: validChar(own.char), weapon: validWeapon(own.weapon) };
     opp = { char: validChar(opp.char), weapon: validWeapon(opp.weapon) };
+    mode = validMatchMode(mode);
+    if (mode === 'bullfight') {
+      bullState = bullState || createBullState();
+      bullState.phase = 'playing';
+      bullState.transitionUntil = 0;
+    }
 
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     menuEl.hidden = true;
@@ -1588,6 +1800,9 @@
     pauseOverlay.hidden = true;
 
     game.mode = 'playing';
+    game.matchType = mode;
+    game.opponentType = 'online';
+    game.bull = mode === 'bullfight' ? bullState : null;
     game.onlineMode = true;
     game.onlineRole = role;
     game.absoluteAim = true;
@@ -1638,6 +1853,9 @@
     if (send) sendNet({ type: 'lobby' });
 
     game.mode = 'menu';
+    game.matchType = 'duel';
+    game.opponentType = 'online';
+    game.bull = null;
     game.onlineMode = false;
     game.onlineRole = null;
     game.players.player = null;
@@ -1676,6 +1894,9 @@
     game.onlineMode = false;
     game.onlineRole = null;
     game.mode = 'menu';
+    game.matchType = 'duel';
+    game.opponentType = 'ai';
+    game.bull = null;
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -1711,6 +1932,9 @@
     game.onlineMode = false;
     game.onlineRole = null;
     game.mode = 'menu';
+    game.matchType = 'duel';
+    game.opponentType = 'ai';
+    game.bull = null;
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
@@ -1817,6 +2041,7 @@
       qUsed: f.qUsed,
       eUsed: f.eUsed,
       eUsesLeft: f.eUsesLeft,
+      ultPoints: f.ultPoints || 0,
       goldDotUntil: f.goldDotUntil,
       goldDotNextTick: f.goldDotNextTick,
       revived: f.revived,
@@ -1869,7 +2094,14 @@
       guest: snapFighter(game.players.ai),
       bullets: bullets,
       explosions: explosions,
-      notice: game.notice
+      notice: game.notice,
+      matchType: game.matchType,
+      bull: isBullMatch() ? {
+        scoreHost: game.bull.scoreHost,
+        scoreGuest: game.bull.scoreGuest,
+        round: game.bull.round,
+        phase: game.bull.phase
+      } : null
     });
   }
 
@@ -1899,6 +2131,7 @@
     local.qUsed = data.qUsed;
     local.eUsed = data.eUsed;
     local.eUsesLeft = data.eUsesLeft;
+    local.ultPoints = data.ultPoints || 0;
     local.goldDotUntil = data.goldDotUntil || 0;
     local.goldDotNextTick = data.goldDotNextTick || 0;
     local.goldDotSource = null;
@@ -1913,6 +2146,7 @@
 
   function applySnapshot(data) {
     if (net.role !== 'guest' || !net.onlineGame) return;
+    if (game.mode !== 'playing') return;
     if (!game.players.player || !game.players.ai) return;
 
     game.gameTime = data.t;
@@ -1945,6 +2179,14 @@
       return { x: ex.x, y: ex.y, life: ex.life, maxLife: ex.maxLife, maxR: ex.maxR };
     });
     game.notice = data.notice || null;
+    if (data.matchType) game.matchType = validMatchMode(data.matchType);
+    if (data.bull) {
+      game.bull = game.bull || createBullState();
+      game.bull.scoreHost = data.bull.scoreHost || 0;
+      game.bull.scoreGuest = data.bull.scoreGuest || 0;
+      game.bull.round = data.bull.round || game.bull.round;
+      game.bull.phase = data.bull.phase || 'playing';
+    }
   }
 
   function sendGuestInput() {
@@ -1975,7 +2217,22 @@
     if (data.type === 'hello') {
       net.peerChar = validChar(data.char);
       net.peerWeapon = validWeapon(data.weapon);
+      net.peerMode = validMatchMode(data.mode);
       net.peerReady = !!data.ready;
+      if (net.role === 'host') {
+        sendNet({ type: 'mode', mode: selectedMatch.mode });
+      } else {
+        selectedMatch.mode = net.peerMode;
+        updateOnlineModeText();
+      }
+      syncOnlineLobbyUI();
+      return;
+    }
+
+    if (data.type === 'mode') {
+      selectedMatch.mode = validMatchMode(data.mode);
+      net.peerMode = selectedMatch.mode;
+      updateOnlineModeText();
       syncOnlineLobbyUI();
       return;
     }
@@ -1998,7 +2255,18 @@
       net.myWeapon = validWeapon(data.guest.weapon);
       net.peerChar = validChar(data.host.char);
       net.peerWeapon = validWeapon(data.host.weapon);
-      startOnlineRound('guest', data.guest, data.host);
+      selectedMatch.mode = validMatchMode(data.mode);
+      startOnlineRound('guest', data.guest, data.host, selectedMatch.mode, data.bull || null);
+      return;
+    }
+
+    if (data.type === 'bullRoundEnd' && net.role === 'guest') {
+      applyRemoteBullRoundEnd(data);
+      return;
+    }
+
+    if (data.type === 'bullRoundStart' && net.role === 'guest') {
+      applyRemoteBullRoundStart(data);
       return;
     }
 
@@ -2090,6 +2358,11 @@
     game.mode = 'revivePrompt';
     game.paused = false;
     game.promptDeadline = performance.now() + seconds * 1000;
+    if (reviveDescEl) {
+      reviveDescEl.textContent = isBullMatch()
+        ? '消耗 6 点大招点，满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。'
+        : '满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。';
+    }
     reviveCountdownEl.textContent = seconds.toFixed(1);
     reviveOverlay.hidden = false;
   }
@@ -2098,6 +2371,11 @@
     if (net.role !== 'guest') return;
     hideOnlineWait();
     reviveOverlay.hidden = true;
+
+    if (data.bull) {
+      showBullMatchResult(data.winner, data.scoreHost || 0, data.scoreGuest || 0);
+      return;
+    }
 
     var winner = null;
     if (data.winner === 'guest') winner = game.players.player;
@@ -2114,6 +2392,9 @@
 
   function returnToCharSelect() {
     game.mode = 'menu';
+    game.matchType = 'duel';
+    game.opponentType = 'ai';
+    game.bull = null;
     game.onlineMode = false;
     game.onlineRole = null;
     net.onlineGame = false;
@@ -2397,8 +2678,7 @@
     var rooted = isRooted(ai);
 
     if (ai.char === '🤣' && !ai.qUsed && !rolling && game.gameTime > 1.5 &&
-        (rooted || ai.hp < 95 || distance < 560)) {
-      useRoll(ai);
+        (rooted || ai.hp < 95 || distance < 560) && useRoll(ai)) {
       rolling = true;
       rooted = false;
     }
@@ -2541,11 +2821,13 @@
   }
 
   function equipRocket(f) {
-    if (f.qUsed) return;
+    if (!canUseUltQ(f)) return false;
     f.qUsed = true;
+    spendUlt(f);
     f.rocketMode = true;
     f.rocketAmmo = 1;
     addText(f.x, f.y - 50, '晚安焰火就绪', '#ffb02e');
+    return true;
   }
 
   function useLaser(f) {
@@ -2575,8 +2857,9 @@
   }
 
   function useRoll(f) {
-    if (!f || !f.alive || f.qUsed || isRolling(f)) return false;
+    if (!canUseUltQ(f) || isRolling(f)) return false;
     f.qUsed = true;
+    spendUlt(f);
     f.rollingUntil = game.gameTime + 4;
     f.rootUntil = 0;
     f.slowUntil = 0;
@@ -2642,8 +2925,9 @@
   }
 
   function useToothQ(f) {
-    if (!f || !f.alive || f.qUsed || isRolling(f)) return false;
+    if (!canUseUltQ(f) || isRolling(f)) return false;
     f.qUsed = true;
+    spendUlt(f);
 
     var angle = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
 
@@ -2678,10 +2962,11 @@
   }
 
   function useFighterQ(f) {
-    if (!f || !f.alive) return;
-    if (f.char === '😡') equipRocket(f);
-    else if (f.char === '🤣') useRoll(f);
-    else if (f.char === '🦷') useToothQ(f);
+    if (!f || !f.alive) return false;
+    if (f.char === '😡') return equipRocket(f);
+    if (f.char === '🤣') return useRoll(f);
+    if (f.char === '🦷') return useToothQ(f);
+    return false;
   }
 
   function usePlayerE() {
@@ -2689,7 +2974,12 @@
   }
 
   function usePlayerQ() {
-    useFighterQ(game.players.player);
+    var p = game.players.player;
+    var used = useFighterQ(p);
+    if (!used && p && p.alive && isBullMatch() && p.char !== '😇' && !p.qUsed &&
+        (p.ultPoints || 0) < ultCost(p)) {
+      notify('大招点不足：' + (p.ultPoints || 0) + '/' + ultCost(p), '#ffd166', 1.2);
+    }
   }
 
   /* ---------------- 射击 ---------------- */
@@ -2781,10 +3071,12 @@
   }
 
   function damageFighter(target, amount, attacker) {
-    if (!target || !target.alive || game.mode !== 'playing' || isInvincible(target)) return;
-    target.hp = Math.max(0, target.hp - amount);
+    if (!target || !target.alive || game.mode !== 'playing') return;
+    var damage = amount;
+    if (isRolling(target)) damage = Math.max(1, Math.ceil(amount * 0.3));
+    target.hp = Math.max(0, target.hp - damage);
     target.damageFlash = 0.14;
-    addText(target.x, target.y - target.r - 8, String(amount), attacker === game.players.player ? '#ffffff' : '#ff8f95');
+    addText(target.x, target.y - target.r - 8, String(damage), attacker === game.players.player ? '#ffffff' : '#ff8f95');
     spawnParticles(target.x, target.y, CHARS[target.char].color, 9, 130, 0.35);
 
     if (target.hp <= 0) handleDeath(target, attacker);
@@ -2802,18 +3094,25 @@
     clearGoldDot(victim);
     spawnParticles(victim.x, victim.y, CHARS[victim.char].color, 34, 260, 0.7);
 
+    var revivedAngelDeath = victim.char === '😇' && victim.revived;
+    var couldRevive = canAngelRevive(victim);
+    if (isBullMatch() && game.bull && game.bull.phase === 'playing' && !revivedAngelDeath) {
+      if (killer && killer.alive && killer !== victim) addUltPoints(killer, 2);
+      addUltPoints(victim, 1);
+    }
+
     if (killer && killer.alive && killer.reviveDeadline) {
       killer.reviveDeadline = 0;
       var killerName = killer.isAI ? (game.onlineMode ? '对手 ' : 'AI ') : '你 ';
       notify(killerName + '复活成功：已造成击杀', '#7df7c4', 2.4);
     }
 
-    if (victim.char === '😇' && !victim.revived) {
+    if (couldRevive) {
       if (game.onlineMode && game.onlineRole === 'host' && victim === game.players.ai) {
         openRemoteRevivePrompt();
       } else if (victim.isAI) {
         victim.reviveAt = game.gameTime + 1.0;
-        notify('AI 头顶游泳圈触发「化蝶」，即将复活', '#67e8f9', 2.2);
+        notify((game.onlineMode ? '对手' : 'AI') + ' 头顶游泳圈触发「化蝶」，即将复活', '#67e8f9', 2.2);
       } else {
         openRevivePrompt();
       }
@@ -2835,6 +3134,11 @@
     exitGameLock();
     if (game.onlineMode && net.role === 'host' && net.connected) {
       sendNet({ type: 'wait', text: '对手正在选择「化蝶」…' });
+    }
+    if (reviveDescEl) {
+      reviveDescEl.textContent = isBullMatch()
+        ? '消耗 6 点大招点，满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。'
+        : '满血复活，并在 10 秒内造成 1 次击杀；否则再次死亡。';
     }
     reviveCountdownEl.textContent = '3.0';
     reviveOverlay.hidden = false;
@@ -2891,6 +3195,7 @@
     f.dropTimer = 0;
     f.revived = true;
     f.qUsed = true;
+    spendUlt(f);
     f.buffUntil = 0;
     f.rootUntil = 0;
     f.slowUntil = 0;
@@ -2937,7 +3242,8 @@
       if (game.bullets[bi].type !== 'bounce') return;
     }
 
-    var reason = '双方子弹用尽 · 剩余血量：你 ' + Math.ceil(p.hp) + ' / AI ' + Math.ceil(ai.hp);
+    var reason = '双方子弹用尽 · 剩余血量：你 ' + Math.ceil(p.hp) + ' / ' +
+      (game.onlineMode ? '对手' : 'AI') + ' ' + Math.ceil(ai.hp);
     if (p.hp > ai.hp) {
       endRound(p, ai, reason);
     } else if (ai.hp > p.hp) {
@@ -2962,8 +3268,201 @@
     }
   }
 
+  function finishBullRound(winnerSide, reason) {
+    if (!isBullMatch() || !game.bull || game.bull.phase !== 'playing') return;
+
+    if (winnerSide === 'host') game.bull.scoreHost++;
+    else if (winnerSide === 'guest') game.bull.scoreGuest++;
+
+    game.bull.lastWinner = winnerSide;
+    game.bull.lastReason = reason || '';
+
+    var a = game.bull.scoreHost;
+    var b = game.bull.scoreGuest;
+    var over = Math.max(a, b) >= BULL_WIN_SCORE && Math.abs(a - b) >= 2;
+
+    if (over) {
+      var matchWinner = a > b ? 'host' : 'guest';
+      game.bull.phase = 'matchOver';
+      game.bull.matchWinner = matchWinner;
+      if (game.onlineMode && net.role === 'host' && net.connected) {
+        sendNet({
+          type: 'gameover',
+          winner: matchWinner,
+          reason: '斗牛结束',
+          bull: true,
+          scoreHost: a,
+          scoreGuest: b
+        });
+      }
+      showBullMatchResult(matchWinner, a, b);
+      return;
+    }
+
+    game.bull.phase = 'roundEnd';
+    game.bull.transitionUntil = performance.now() + 2600;
+    game.mode = 'bullRoundEnd';
+    game.mouse.down = false;
+    game.keys = {};
+    game.paused = false;
+    reviveOverlay.hidden = true;
+    hideOnlineWait();
+    hidePauseOverlay();
+
+    if (game.onlineMode && net.role === 'host' && net.connected) {
+      sendNet({
+        type: 'bullRoundEnd',
+        scoreHost: a,
+        scoreGuest: b,
+        round: game.bull.round,
+        winner: winnerSide,
+        reason: '',
+        nextIn: 2600
+      });
+    }
+  }
+
+  function showBullMatchResult(winnerSide, scoreHost, scoreGuest) {
+    if (!game.bull) game.bull = createBullState();
+    game.bull.scoreHost = scoreHost;
+    game.bull.scoreGuest = scoreGuest;
+    game.bull.phase = 'matchOver';
+    game.bull.matchWinner = winnerSide;
+
+    var guestIsPlayer = game.onlineMode && game.onlineRole === 'guest';
+    var localSide = guestIsPlayer ? 'guest' : 'host';
+    var win = winnerSide === localSide;
+    var my = guestIsPlayer ? scoreGuest : scoreHost;
+    var opp = guestIsPlayer ? scoreHost : scoreGuest;
+    var overtime = scoreHost >= 12 && scoreGuest >= 12;
+
+    game.mode = 'gameover';
+    game.winner = win ? game.players.player : game.players.ai;
+    game.mouse.down = false;
+    game.keys = {};
+    game.paused = false;
+    hidePauseOverlay();
+    exitGameLock();
+
+    gameOverTitle.textContent = win ? '斗牛胜利' : '斗牛失败';
+    gameOverTitle.className = 'resultTitle ' + (win ? 'win' : 'lose');
+    gameOverReason.textContent = '最终比分 ' + my + ' : ' + opp + ' · ' +
+      (overtime ? '加时领先 2 分' : '率先达到 13 分');
+    gameOverEl.hidden = false;
+    reviveOverlay.hidden = true;
+
+    if (game.onlineMode) {
+      document.getElementById('againBtn').textContent = '返回联机房间';
+      document.getElementById('menuBtn').textContent = '退出联机';
+    } else {
+      document.getElementById('againBtn').textContent = '再来一场';
+      document.getElementById('menuBtn').textContent = '返回选择';
+    }
+
+    document.body.classList.remove('playing');
+  }
+
+  function startNextBullRound() {
+    if (!isBullMatch() || !game.bull || game.bull.phase !== 'roundEnd') return;
+    if (game.onlineMode && game.onlineRole === 'guest') return;
+
+    var oldBull = game.bull;
+    var pPoints = game.players.player ? (game.players.player.ultPoints || 0) : 0;
+    var aPoints = game.players.ai ? (game.players.ai.ultPoints || 0) : 0;
+
+    if (game.onlineMode && game.onlineRole === 'host') {
+      var hostLoadout = { char: game.players.player.char, weapon: game.players.player.weapon };
+      var guestLoadout = { char: game.players.ai.char, weapon: game.players.ai.weapon };
+      var nextBull = {
+        scoreHost: oldBull.scoreHost,
+        scoreGuest: oldBull.scoreGuest,
+        round: oldBull.round + 1,
+        phase: 'playing',
+        transitionUntil: 0,
+        lastWinner: null,
+        matchWinner: null,
+        reason: ''
+      };
+      startOnlineRound('host', hostLoadout, guestLoadout, 'bullfight', nextBull);
+      game.players.player.ultPoints = pPoints;
+      game.players.ai.ultPoints = aPoints;
+      net.snapshotAccum = 0;
+      sendNet({
+        type: 'bullRoundStart',
+        round: nextBull.round,
+        scoreHost: nextBull.scoreHost,
+        scoreGuest: nextBull.scoreGuest,
+        pointsHost: pPoints,
+        pointsGuest: aPoints,
+        host: hostLoadout,
+        guest: guestLoadout
+      });
+      return;
+    }
+
+    beginLocalMatch('bullfight');
+    game.bull = oldBull;
+    game.bull.round += 1;
+    game.bull.phase = 'playing';
+    game.bull.transitionUntil = 0;
+    game.bull.lastWinner = null;
+    game.bull.lastReason = '';
+    game.bull.matchWinner = null;
+    game.bull.reason = '';
+    game.players.player.ultPoints = pPoints;
+    game.players.ai.ultPoints = aPoints;
+    if (document.pointerLockElement === canvas) {
+      game.paused = false;
+      hidePauseOverlay();
+    }
+  }
+
+  function applyRemoteBullRoundEnd(data) {
+    if (net.role !== 'guest') return;
+    if (!game.bull) game.bull = createBullState();
+    game.bull.scoreHost = data.scoreHost || 0;
+    game.bull.scoreGuest = data.scoreGuest || 0;
+    game.bull.round = data.round || game.bull.round;
+    game.bull.phase = 'roundEnd';
+    game.bull.lastWinner = data.winner || 'draw';
+    game.bull.lastReason = data.reason || '';
+    game.bull.transitionUntil = performance.now() + (Number(data.nextIn) || 2600);
+    game.mode = 'bullRoundEnd';
+    game.mouse.down = false;
+    game.keys = {};
+    game.paused = false;
+    reviveOverlay.hidden = true;
+    hideOnlineWait();
+    hidePauseOverlay();
+  }
+
+  function applyRemoteBullRoundStart(data) {
+    if (net.role !== 'guest') return;
+    var nextBull = {
+      scoreHost: data.scoreHost || 0,
+      scoreGuest: data.scoreGuest || 0,
+      round: data.round || 1,
+      phase: 'playing',
+      transitionUntil: 0,
+      lastWinner: null,
+      matchWinner: null,
+      reason: ''
+    };
+    startOnlineRound('guest', data.guest, data.host, 'bullfight', nextBull);
+    game.players.player.ultPoints = data.pointsGuest || 0;
+    game.players.ai.ultPoints = data.pointsHost || 0;
+    reviveOverlay.hidden = true;
+    hideOnlineWait();
+    hidePauseOverlay();
+  }
+
   function endRound(winner, loser, reason) {
-    if (game.mode === 'gameover') return;
+    if (game.mode === 'gameover' || game.mode === 'bullRoundEnd') return;
+
+    if (isBullMatch()) {
+      finishBullRound(winner ? (fighterSide(winner) || 'draw') : 'draw', reason);
+      return;
+    }
 
     if (game.onlineMode && net.role === 'host' && net.connected) {
       sendNet({
@@ -3337,10 +3836,8 @@
 
     var touching = Math.hypot(roller.x - target.x, roller.y - target.y) <= roller.r + target.r;
     if (touching && !roller.rollTouching && game.gameTime - roller.lastRollHit >= 1) {
-      if (!isInvincible(target)) {
-        damageFighter(target, 50, roller);
-        roller.lastRollHit = game.gameTime;
-      }
+      damageFighter(target, 50, roller);
+      roller.lastRollHit = game.gameTime;
     }
     roller.rollTouching = touching;
   }
@@ -3429,7 +3926,14 @@
       if (code === 'KeyS' && !e.repeat) sendGuestAction('drop');
       if (code === 'KeyR' && !e.repeat) sendGuestAction('reload');
       if (code === settings.skillE && !e.repeat) sendGuestAction('E');
-      if (code === settings.skillQ && !e.repeat) sendGuestAction('Q');
+      if (code === settings.skillQ && !e.repeat) {
+        var gp = game.players.player;
+        if (gp && isBullMatch() && gp.char !== '😇' && !gp.qUsed && (gp.ultPoints || 0) < ultCost(gp)) {
+          notify('大招点不足：' + (gp.ultPoints || 0) + '/' + ultCost(gp), '#ffd166', 1.2);
+        } else {
+          sendGuestAction('Q');
+        }
+      }
       return;
     }
 
@@ -3553,20 +4057,37 @@
   });
 
   modeDuel.addEventListener('click', function () {
-    showCharScreen();
+    showVersusScreen('ai');
   });
 
   modeOnlineBtn.addEventListener('click', function () {
-    showOnlineScreen();
+    showVersusScreen('online');
+  });
+
+  versusBackBtn.addEventListener('click', function () {
+    showHomeScreen();
+  });
+
+  versusDuelBtn.addEventListener('click', function () {
+    selectedMatch.mode = 'duel';
+    if (selectedMatch.opponent === 'ai') showCharScreen();
+    else showOnlineScreen();
+  });
+
+  versusBullBtn.addEventListener('click', function () {
+    selectedMatch.mode = 'bullfight';
+    if (selectedMatch.opponent === 'ai') showCharScreen();
+    else showOnlineScreen();
   });
 
   onlineBackBtn.addEventListener('click', function () {
     if (net.connected || net.peer || net.connecting) leaveOnline();
-    else showHomeScreen();
+    showVersusScreen('online');
   });
 
   lobbyBackBtn.addEventListener('click', function () {
     leaveOnline();
+    showVersusScreen('online');
   });
 
   hostRoomBtn.addEventListener('click', function () {
@@ -3651,7 +4172,7 @@
   });
 
   charHomeBtn.addEventListener('click', function () {
-    showHomeScreen();
+    showVersusScreen('ai');
   });
 
   charConfirmBtn.addEventListener('click', function () {
@@ -3934,7 +4455,7 @@
       ctx.font = '800 11px "Segoe UI", "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#d8b4fe';
-      ctx.fillText('无敌滚动 ' + rollLeft.toFixed(1) + 's', f.x, f.y - f.r - 30);
+      ctx.fillText('减伤滚动 ' + rollLeft.toFixed(1) + 's', f.x, f.y - f.r - 30);
       ctx.restore();
     } else if (rooted) {
       ctx.save();
@@ -4251,13 +4772,30 @@
     ctx.lineWidth = 1;
     ctx.strokeRect(x + 0.5, y + 0.5, w - 1, 14);
 
+    var statusBits = [];
+    if (isBullMatch()) {
+      var pts = f.ultPoints || 0;
+      var cost = ultCost(f);
+      statusBits.push(pts >= cost ? '大招就绪 ' + pts + '/' + cost : '大招 ' + pts + '/' + cost);
+    }
     if (f.reviveDeadline) {
       var left = Math.max(0, f.reviveDeadline - game.gameTime);
+      statusBits.push('复活剩余 ' + left.toFixed(1) + 's');
+    }
+    if (statusBits.length) {
       ctx.font = '700 11px "Segoe UI", "Microsoft YaHei", sans-serif';
-      ctx.fillStyle = '#67e8f9';
-      ctx.fillText('复活剩余 ' + left.toFixed(1) + 's', alignRight ? x : x + w, y + 29);
+      ctx.fillStyle = f.reviveDeadline ? '#67e8f9' : ((f.ultPoints || 0) >= ultCost(f) ? '#ffd166' : '#9aa4b5');
+      ctx.fillText(statusBits.join(' · '), alignRight ? x : x + w, y + 29);
     }
     ctx.restore();
+  }
+
+  function bullQStatus(f, readyText) {
+    var cost = ultCost(f);
+    var pts = f.ultPoints || 0;
+    if (f.qUsed) return '本局已释放';
+    if (pts >= cost) return '就绪 · ' + readyText;
+    return '大招 ' + pts + '/' + cost;
   }
 
   function abilityText(f) {
@@ -4267,16 +4805,29 @@
       else if (f.buffUntil > game.gameTime) e = '加速 ' + (f.buffUntil - game.gameTime).toFixed(1) + 's';
       else e = '已使用';
       var q;
-      if (!f.qUsed) q = '火箭筒 1 发';
-      else if (f.rocketMode) q = '已装备 · 左键发射';
-      else q = '已使用';
+      if (isBullMatch()) {
+        if (f.rocketMode) q = '已装备 · 左键发射';
+        else q = bullQStatus(f, '火箭准备');
+      } else {
+        if (!f.qUsed) q = '火箭筒 1 发';
+        else if (f.rocketMode) q = '已装备 · 左键发射';
+        else q = '已使用';
+      }
       return { e: e, q: q };
     }
 
     if (f.char === '😇') {
+      var angelQ;
+      if (isBullMatch()) {
+        angelQ = f.qUsed ? '本局已使用' : ((f.ultPoints || 0) >= ULT_COST['😇']
+          ? '就绪 · 死亡可复活'
+          : '大招 ' + (f.ultPoints || 0) + '/6');
+      } else {
+        angelQ = f.revived ? '已使用' : '死亡时触发';
+      }
       return {
         e: f.eUsed ? '已使用' : (f.hp < f.maxHp ? '回复最多 100' : '生命已满'),
-        q: f.revived ? '已使用' : '死亡时触发'
+        q: angelQ
       };
     }
 
@@ -4286,15 +4837,16 @@
       else toothE = '蓝色反弹弹 · ' + (f.eUsesLeft || 1) + '/2';
       return {
         e: toothE,
-        q: f.qUsed ? '已使用' : '金色反弹弹 · 5s 持续'
+        q: isBullMatch() ? bullQStatus(f, '金色反弹弹') : (f.qUsed ? '已使用' : '金色反弹弹 · 5s 持续')
       };
     }
 
     var laserText = f.eUsed ? '已使用' : '穿墙激光 · 定身 2s';
     var rollText;
-    if (isRolling(f)) rollText = '滚动 ' + Math.max(0, f.rollingUntil - game.gameTime).toFixed(1) + 's';
+    if (isRolling(f)) rollText = '减伤滚动 ' + Math.max(0, f.rollingUntil - game.gameTime).toFixed(1) + 's';
+    else if (isBullMatch()) rollText = bullQStatus(f, '减伤 70%');
     else if (f.qUsed) rollText = '已使用';
-    else rollText = '无敌滚动 4s';
+    else rollText = '减伤滚动 4s';
 
     return { e: laserText, q: rollText };
   }
@@ -4357,9 +4909,20 @@
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#5c6879';
-    ctx.fillText('单命对战 · 小招 / 大招每局各一次（🦷 小招 2 次）', W / 2, 30);
+    if (isBullMatch() && game.bull) {
+      var sc = scoreForLocal();
+      ctx.font = '900 17px "Segoe UI", "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText('斗牛 · 第 ' + game.bull.round + ' 局 · 你 ' + sc.player + ' : ' + sc.opp + ' 对手', W / 2, 25);
+      ctx.font = '700 11px "Segoe UI", "Microsoft YaHei", sans-serif';
+      var overtime = game.bull.scoreHost >= 12 && game.bull.scoreGuest >= 12;
+      ctx.fillStyle = overtime ? '#ff8f95' : '#5c6879';
+      ctx.fillText(overtime ? '加时 · 需领先 2 分' : '先到 13 分获胜 · 12:12 加时争 2', W / 2, 43);
+    } else {
+      ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#5c6879';
+      ctx.fillText('单命对战 · 小招 / 大招每局各一次（🦷 小招 2 次）', W / 2, 30);
+    }
     ctx.restore();
 
     var w1 = WEAPONS[p.weapon];
@@ -4401,17 +4964,21 @@
     if (p.char === '😡') {
       qTitle = '大招 · 晚安焰火';
       qActive = p.rocketMode;
-      qDisabled = p.qUsed && !p.rocketMode;
+      qDisabled = isBullMatch()
+        ? ((p.qUsed || !ultReady(p)) && !p.rocketMode)
+        : (p.qUsed && !p.rocketMode);
     } else if (p.char === '😇') {
       qTitle = '大招 · 化蝶';
-      qDisabled = p.revived;
+      qDisabled = isBullMatch() ? (p.qUsed || !ultReady(p)) : p.revived;
     } else if (p.char === '🤣') {
       qTitle = '大招 · 大运来了';
       qActive = isRolling(p);
-      qDisabled = p.qUsed && !qActive;
+      qDisabled = isBullMatch()
+        ? ((p.qUsed || !ultReady(p)) && !qActive)
+        : (p.qUsed && !qActive);
     } else {
       qTitle = '大招 · 黄金回旋';
-      qDisabled = p.qUsed;
+      qDisabled = isBullMatch() ? (p.qUsed || !ultReady(p)) : p.qUsed;
     }
 
     drawAbilityCard(W / 2 - 228, 78, settings.skillE, eTitle, st.e, p.eUsed && !eActive, eActive);
@@ -4460,6 +5027,44 @@
     }
   }
 
+  function drawBullRoundOverlay() {
+    if (!game.bull) return;
+    var guestIsPlayer = game.onlineMode && game.onlineRole === 'guest';
+    var localSide = guestIsPlayer ? 'guest' : 'host';
+    var winner = game.bull.lastWinner;
+    var draw = !winner || winner === 'draw';
+    var win = winner === localSide;
+    var sc = scoreForLocal();
+    var remain = Math.max(0, (game.bull.transitionUntil - performance.now()) / 1000);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(4, 6, 11, 0.78)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.font = '800 16px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#7f8a9d';
+    ctx.fillText('斗牛 · 第 ' + game.bull.round + ' 局结束', W / 2, H / 2 - 104);
+
+    ctx.font = '900 44px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = draw ? '#ffd166' : (win ? '#6ef3b0' : '#ff5a5f');
+    ctx.fillText(draw ? '本局平局' : (win ? '本局胜利' : '本局失败'), W / 2, H / 2 - 52);
+
+    ctx.font = '900 44px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#eef3fa';
+    ctx.fillText(sc.player + ' : ' + sc.opp, W / 2, H / 2 + 12);
+
+    ctx.font = '700 13px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#9aa4b5';
+    ctx.fillText(game.bull.lastReason || '下一小局即将开始', W / 2, H / 2 + 62);
+
+    ctx.font = '800 12px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#ffd166';
+    ctx.fillText(remain.toFixed(1) + 's 后开始下一小局', W / 2, H / 2 + 100);
+    ctx.restore();
+  }
+
   function render(now) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = '#04060b';
@@ -4486,6 +5091,8 @@
     drawEffects();
 
     if (game.players.player) drawHUD();
+
+    if (game.mode === 'bullRoundEnd') drawBullRoundOverlay();
 
     if (game.mode === 'playing' || game.mode === 'revivePrompt') drawCrosshair();
 
@@ -4519,6 +5126,12 @@
     } else if (game.mode === 'onlineRevivePrompt') {
       if (performance.now() > net.promptDeadline) {
         handleRemoteReviveChoice(false);
+      }
+    } else if (game.mode === 'bullRoundEnd') {
+      if ((!game.onlineMode || game.onlineRole === 'host') &&
+          game.bull && game.bull.transitionUntil &&
+          performance.now() >= game.bull.transitionUntil) {
+        startNextBullRound();
       }
     }
 
