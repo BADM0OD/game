@@ -494,7 +494,7 @@
               <span class="modeArrow">→</span>
             </button>
             <button type="button" class="modeOption" id="modeOnline">
-              <span class="modeOptionText"><strong>联机直连</strong><small>PeerJS 房间码 · 主机权威</small></span>
+              <span class="modeOptionText"><strong>1v1死斗（真人）</strong><small>在线对战</small></span>
               <span class="modeArrow">→</span>
             </button>
           </div>
@@ -585,7 +585,7 @@
         <button type="button" class="backBtn" id="onlineBack">← 返回首页</button>
         <span class="stepBadge">联机</span>
       </div>
-      <h1 class="screenTitle">联机直连</h1>
+      <h1 class="screenTitle">1v1死斗（真人）</h1>
       <p class="screenSub">房主创建房间，把房间码发给对方；对方输入房间码加入。</p>
 
       <div class="onlineGrid">
@@ -669,7 +669,7 @@
           <input type="range" id="sensitivityRange" min="0.1" max="3" step="0.05" value="1">
           <output id="sensitivityValue">1.00×</output>
         </div>
-        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。联机直连使用鼠标位置瞄准；鼠标锁定不可用时也会回退为鼠标位置瞄准，此时灵敏度不生效。</p>
+        <p class="settingsHint">数值越高，鼠标移动时准星移动越快。1v1死斗（真人）使用鼠标位置瞄准；鼠标锁定不可用时也会回退为鼠标位置瞄准，此时灵敏度不生效。</p>
       </section>
 
       <section class="settingsGroup">
@@ -717,7 +717,7 @@
           <ul>
             <li>1v1 单命对战，双方 150 HP，先击败对手者获胜。</li>
             <li>😇 的「化蝶」可以在死亡后复活，属于额外一条命。</li>
-            <li>小招、大招每局各只能使用一次；😇 复活不会重置小招的使用次数。</li>
+            <li>小招、大招每局各只能使用一次（🦷 回旋爪弹可连续使用 2 次）；😇 复活不会重置小招的使用次数。</li>
             <li>每把枪有 3 个弹夹：1 个已装填 + 2 个备用。</li>
             <li>换弹 2.5 秒，会丢弃当前弹夹剩余子弹；弹夹打空会自动换弹。</li>
             <li>双方主武器弹药都耗尽后，剩余血量高者获胜；血量相同则平局。火箭筒不计入该判定。</li>
@@ -743,16 +743,16 @@
           <div class="tutChar">
             <h4>🤣 乐子</h4>
             <ul>
-              <li><b>小招 招笑</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 3 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
-              <li><b>大招 大运来了</b>：持续 6 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
-              <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，6 秒最多 6 次；滚动会被墙和平台阻挡。</li>
+              <li><b>小招 招笑</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 2 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
+              <li><b>大招 大运来了</b>：持续 4 秒，免疫伤害和 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
+              <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，4 秒最多 4 次；滚动会被墙和平台阻挡。</li>
             </ul>
           </div>
           <div class="tutChar">
             <h4>🦷 獠牙</h4>
             <ul>
-              <li><b>小招 回旋爪弹</b>：发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
-              <li><b>大招 黄金回旋</b>：以自身为圆心发射 10 颗金色子弹，速度 1900；子弹穿墙，每颗命中造成 20 伤害并消失，多颗命中伤害叠加；飞出屏幕边界后消失。</li>
+              <li><b>小招 回旋爪弹</b>：可连续使用 2 次。发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
+              <li><b>大招 黄金回旋</b>：向准心发射一颗金色旋转子弹，大小和速度与回旋爪弹一致；同样在地面、平台和屏幕边界无限反弹，命中敌人后立即消失，并造成持续 5 秒、每秒 30 伤害的黄金回旋。重复命中只刷新持续时间，不叠加伤害。</li>
             </ul>
           </div>
         </section>
@@ -905,7 +905,7 @@
     '😡': { name: '超级生气暴怒', color: '#ff5a5f', glow: 'rgba(255, 90, 95, 0.55)' },
     '😇': { name: '头顶游泳圈', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
     '🤣': { name: '乐子', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
-    '🦷': { name: '獠牙', color: '#e879f9', glow: 'rgba(232, 121, 249, 0.55)' }
+    '🦷': { name: '獠牙', color: '#ff6ec7', glow: 'rgba(255, 110, 199, 0.6)' }
   };
 
   var loadout = {
@@ -1177,7 +1177,11 @@
       lastRollHit: -999,
       laser: null,
       eUsed: false,
+      eUsesLeft: char === '🦷' ? 2 : 1,
       qUsed: false,
+      goldDotUntil: 0,
+      goldDotNextTick: 0,
+      goldDotSource: null,
       buffUntil: 0,
       rocketMode: false,
       rocketAmmo: 0,
@@ -1192,6 +1196,7 @@
         reaction: 0,
         burstLeft: 0,
         burstPause: 0.6,
+        toothECd: 0,
         airTargetX: null
       } : null
     };
@@ -1811,6 +1816,9 @@
       rocketMode: f.rocketMode,
       qUsed: f.qUsed,
       eUsed: f.eUsed,
+      eUsesLeft: f.eUsesLeft,
+      goldDotUntil: f.goldDotUntil,
+      goldDotNextTick: f.goldDotNextTick,
       revived: f.revived,
       reviveAt: f.reviveAt,
       deathX: f.deathX,
@@ -1845,6 +1853,7 @@
         radius: b.radius,
         color: b.color,
         spin: b.spin || 0,
+        goldDot: !!b.goldDot,
         owner: b.owner === game.players.player ? 'host' : 'guest'
       });
     }
@@ -1889,6 +1898,10 @@
     local.rocketMode = data.rocketMode;
     local.qUsed = data.qUsed;
     local.eUsed = data.eUsed;
+    local.eUsesLeft = data.eUsesLeft;
+    local.goldDotUntil = data.goldDotUntil || 0;
+    local.goldDotNextTick = data.goldDotNextTick || 0;
+    local.goldDotSource = null;
     local.revived = data.revived;
     local.reviveAt = data.reviveAt;
     local.deathX = data.deathX;
@@ -1921,6 +1934,7 @@
         radius: b.radius,
         color: b.color,
         spin: b.spin || 0,
+        goldDot: !!b.goldDot,
         life: 1,
         owner: b.owner === 'host' ? game.players.ai : game.players.player
       });
@@ -2431,6 +2445,7 @@
 
     ai.ai.jumpCd = Math.max(0, ai.ai.jumpCd - dt);
     ai.ai.dropCd = Math.max(0, ai.ai.dropCd - dt);
+    if (ai.ai.toothECd) ai.ai.toothECd = Math.max(0, ai.ai.toothECd - dt);
 
     if (!rooted && ai.onGround && ai.ai.jumpCd <= 0) {
       var aligned = climb && Math.abs(ai.x - climb.tx) < 8;
@@ -2462,8 +2477,9 @@
         useLaser(ai);
       }
     } else if (ai.char === '🦷') {
-      if (!rolling && !ai.eUsed && p.alive && !isInvincible(p) && game.gameTime > 1.5) {
-        useToothE(ai);
+      if (!rolling && p.alive && !isInvincible(p) && game.gameTime > 1.5 &&
+          ai.ai.toothECd <= 0 && useToothE(ai)) {
+        ai.ai.toothECd = 0.9;
       }
       if (!rolling && !ai.qUsed && p.alive && !isInvincible(p) && game.gameTime > 1.5 &&
           (distance < 380 || isRooted(p))) {
@@ -2561,9 +2577,10 @@
   function useRoll(f) {
     if (!f || !f.alive || f.qUsed || isRolling(f)) return false;
     f.qUsed = true;
-    f.rollingUntil = game.gameTime + 6;
+    f.rollingUntil = game.gameTime + 4;
     f.rootUntil = 0;
     f.slowUntil = 0;
+    clearGoldDot(f);
     f.rollTouching = false;
     f.lastRollHit = -999;
     spawnParticles(f.x, f.y, '#c084fc', 30, 240, 0.7);
@@ -2572,8 +2589,10 @@
   }
 
   function useToothE(f) {
-    if (!f || !f.alive || f.eUsed || isRolling(f)) return false;
-    f.eUsed = true;
+    if (!f || !f.alive || f.eUsed || (f.eUsesLeft || 0) <= 0 || isRolling(f)) return false;
+
+    f.eUsesLeft = Math.max(0, (f.eUsesLeft || 1) - 1);
+    if (f.eUsesLeft <= 0) f.eUsed = true;
 
     var angle = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
     var sx = f.x;
@@ -2600,36 +2619,53 @@
     return true;
   }
 
+  function applyGoldDot(f, source) {
+    if (!f || !f.alive || isInvincible(f)) return false;
+
+    var active = f.goldDotUntil > game.gameTime;
+    f.goldDotUntil = game.gameTime + 5;
+    f.goldDotSource = source;
+    if (!active || f.goldDotNextTick <= game.gameTime) {
+      f.goldDotNextTick = game.gameTime + 1;
+    }
+
+    spawnParticles(f.x, f.y, '#ffd166', 14, 130, 0.45);
+    addText(f.x, f.y - 60, '黄金回旋', '#ffd166');
+    return true;
+  }
+
+  function clearGoldDot(f) {
+    if (!f) return;
+    f.goldDotUntil = 0;
+    f.goldDotNextTick = 0;
+    f.goldDotSource = null;
+  }
+
   function useToothQ(f) {
     if (!f || !f.alive || f.qUsed || isRolling(f)) return false;
     f.qUsed = true;
 
-    var base = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
-    var count = 10;
+    var angle = f.isAI ? f.aim : Math.atan2(game.mouse.y - f.y, game.mouse.x - f.x);
 
-    for (var i = 0; i < count; i++) {
-      var angle = base + (Math.PI * 2 * i) / count;
-      var sx = f.x + Math.cos(angle) * (f.r + 6);
-      var sy = f.y + Math.sin(angle) * (f.r + 6);
-      game.bullets.push({
-        type: 'gold',
-        x: sx,
-        y: sy,
-        px: sx,
-        py: sy,
-        dx: Math.cos(angle),
-        dy: Math.sin(angle),
-        speed: 1900,
-        damage: 20,
-        radius: 4,
-        color: '#ffd166',
-        owner: f,
-        life: Infinity,
-        spin: 0
-      });
-    }
+    game.bullets.push({
+      type: 'bounce',
+      x: f.x,
+      y: f.y,
+      px: f.x,
+      py: f.y,
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+      speed: 1900,
+      damage: 0,
+      radius: 5,
+      color: '#ffd166',
+      owner: f,
+      life: Infinity,
+      spin: 0,
+      goldDot: true
+    });
 
-    spawnParticles(f.x, f.y, '#ffd166', 30, 240, 0.5);
+    spawnParticles(f.x, f.y, '#ffd166', 22, 200, 0.5, angle);
     return true;
   }
 
@@ -2763,6 +2799,7 @@
     victim.vx = 0;
     victim.vy = 0;
     victim.rocketMode = false;
+    clearGoldDot(victim);
     spawnParticles(victim.x, victim.y, CHARS[victim.char].color, 34, 260, 0.7);
 
     if (killer && killer.alive && killer.reviveDeadline) {
@@ -2866,6 +2903,7 @@
     f.fireCd = 0.4;
     f.damageFlash = 0;
     f.reviveAt = 0;
+    clearGoldDot(f);
     f.reviveDeadline = game.gameTime + 10;
     f.aim = Math.atan2((f.isAI ? game.players.player.y : game.players.ai.y) - f.y,
                        (f.isAI ? game.players.player.x : game.players.ai.x) - f.x);
@@ -2875,6 +2913,7 @@
       f.ai.reaction = 0;
       f.ai.burstLeft = 0;
       f.ai.burstPause = 0.6;
+      f.ai.toothECd = 0;
       f.ai.airTargetX = null;
     }
     spawnParticles(f.x, f.y, '#67e8f9', 38, 260, 0.8);
@@ -3047,8 +3086,12 @@
       remaining -= bestD;
 
       if (bestType === 'enemy') {
-        damageFighter(target, b.damage, b.owner);
-        applyRoot(target, 1.5, false);
+        if (b.goldDot) {
+          applyGoldDot(target, b.owner);
+        } else {
+          damageFighter(target, b.damage, b.owner);
+          applyRoot(target, 1.5, false);
+        }
         spawnParticles(b.x, b.y, b.color, 10, 160, 0.4);
         return true;
       }
@@ -3171,6 +3214,29 @@
     }
   }
 
+  function updateGoldDots() {
+    var fighters = [game.players.player, game.players.ai];
+
+    for (var i = 0; i < fighters.length; i++) {
+      var f = fighters[i];
+      if (!f || !f.alive || !f.goldDotUntil) continue;
+
+      var guard = 0;
+      while (f.goldDotNextTick <= game.gameTime && f.goldDotNextTick <= f.goldDotUntil && guard < 8) {
+        guard++;
+        damageFighter(f, 30, f.goldDotSource);
+        if (game.mode !== 'playing') return;
+        if (!f.alive) {
+          clearGoldDot(f);
+          break;
+        }
+        f.goldDotNextTick += 1;
+      }
+
+      if (f.alive && game.gameTime >= f.goldDotUntil) clearGoldDot(f);
+    }
+  }
+
   /* ---------------- 粒子与文字 ---------------- */
 
   function spawnParticles(x, y, color, count, speed, life, angle) {
@@ -3258,7 +3324,7 @@
       var px = laser.x + dx * t;
       var py = laser.y + dy * t;
       if (Math.hypot(target.x - px, target.y - py) <= target.r + 5) {
-        if (applyRoot(target, 3, true)) laser.hit = true;
+        if (applyRoot(target, 2, true)) laser.hit = true;
       }
     }
   }
@@ -3312,6 +3378,9 @@
     if (game.mode !== 'playing') return;
 
     updateBullets(dt);
+    if (game.mode !== 'playing') return;
+
+    updateGoldDots();
     if (game.mode !== 'playing') return;
 
     checkReviveTimers();
@@ -3810,6 +3879,19 @@
       ctx.restore();
     }
 
+    var goldLeft = f.goldDotUntil > game.gameTime ? f.goldDotUntil - game.gameTime : 0;
+    if (goldLeft > 0) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 209, 102, ' + (0.55 + Math.sin(now / 90) * 0.25) + ')';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 5]);
+      ctx.lineDashOffset = -now / 40;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r + 12, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     if (!rolling) drawGun(f);
 
     ctx.beginPath();
@@ -3874,6 +3956,15 @@
       ctx.restore();
     }
 
+    if (goldLeft > 0) {
+      ctx.save();
+      ctx.font = '800 11px "Segoe UI", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText('黄金回旋 ' + goldLeft.toFixed(1) + 's', f.x, f.y - f.r - 62);
+      ctx.restore();
+    }
+
     if (f.reloading) {
       var reloadProgress = clamp(1 - Math.max(0, f.reloadEnd - game.gameTime) / RELOAD_TIME, 0, 1);
 
@@ -3898,8 +3989,13 @@
       var b = game.bullets[i];
 
       if (b.type === 'bounce') {
+        var trailColor = b.goldDot ? 'rgba(255, 209, 102, 0.38)' : 'rgba(77, 163, 255, 0.35)';
+        var glowColor = b.goldDot ? 'rgba(255, 200, 80, 0.22)' : 'rgba(77, 163, 255, 0.18)';
+        var spikeColor = b.goldDot ? 'rgba(255, 240, 190, 0.98)' : 'rgba(190, 230, 255, 0.95)';
+        var coreColor = b.goldDot ? '#fff6cc' : '#e8f6ff';
+
         ctx.save();
-        ctx.strokeStyle = 'rgba(77, 163, 255, 0.35)';
+        ctx.strokeStyle = trailColor;
         ctx.lineWidth = 9;
         ctx.beginPath();
         ctx.moveTo(b.x - b.dx * 22, b.y - b.dy * 22);
@@ -3909,12 +4005,12 @@
         ctx.globalCompositeOperation = 'lighter';
         ctx.beginPath();
         ctx.arc(b.x, b.y, 13, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(77, 163, 255, 0.18)';
+        ctx.fillStyle = glowColor;
         ctx.fill();
 
         ctx.translate(b.x, b.y);
         ctx.rotate(b.spin || 0);
-        ctx.strokeStyle = 'rgba(190, 230, 255, 0.95)';
+        ctx.strokeStyle = spikeColor;
         ctx.lineWidth = 2;
         for (var sb = 0; sb < 3; sb++) {
           ctx.beginPath();
@@ -3924,7 +4020,7 @@
         }
         ctx.beginPath();
         ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#e8f6ff';
+        ctx.fillStyle = coreColor;
         ctx.fill();
         ctx.restore();
         continue;
@@ -4185,17 +4281,20 @@
     }
 
     if (f.char === '🦷') {
+      var toothE;
+      if (f.eUsed) toothE = '已使用';
+      else toothE = '蓝色反弹弹 · ' + (f.eUsesLeft || 1) + '/2';
       return {
-        e: f.eUsed ? '已使用' : '蓝色反弹弹 · 30 伤害',
-        q: f.qUsed ? '已使用' : '金色弹幕 10 发'
+        e: toothE,
+        q: f.qUsed ? '已使用' : '金色反弹弹 · 5s 持续'
       };
     }
 
-    var laserText = f.eUsed ? '已使用' : '穿墙激光 · 定身 3s';
+    var laserText = f.eUsed ? '已使用' : '穿墙激光 · 定身 2s';
     var rollText;
     if (isRolling(f)) rollText = '滚动 ' + Math.max(0, f.rollingUntil - game.gameTime).toFixed(1) + 's';
     else if (f.qUsed) rollText = '已使用';
-    else rollText = '无敌滚动 6s';
+    else rollText = '无敌滚动 4s';
 
     return { e: laserText, q: rollText };
   }
@@ -4260,7 +4359,7 @@
     ctx.textBaseline = 'middle';
     ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#5c6879';
-    ctx.fillText('单命对战 · 小招 / 大招每局各一次', W / 2, 30);
+    ctx.fillText('单命对战 · 小招 / 大招每局各一次（🦷 小招 2 次）', W / 2, 30);
     ctx.restore();
 
     var w1 = WEAPONS[p.weapon];
