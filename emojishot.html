@@ -4175,30 +4175,6 @@
       var bestNx = 0;
       var bestNy = 0;
 
-      if (target && target.alive) {
-        var te = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
-          target.x, target.y, target.r + b.radius);
-        if (te !== null) {
-          var de = te * remaining;
-          if (de < bestD) {
-            bestD = de;
-            bestType = 'enemy';
-          }
-        }
-        if (target.ghostClone) {
-          var gc = target.ghostClone;
-          var tgc = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
-            gc.x, gc.y, gc.r + b.radius);
-          if (tgc !== null) {
-            var dgc = tgc * remaining;
-            if (dgc <= bestD) {
-              bestD = dgc;
-              bestType = 'clone';
-            }
-          }
-        }
-      }
-
       for (var pi = 0; pi < PLATFORMS.length; pi++) {
         var hr = rayRect(b.x, b.y, b.dx, b.dy, PLATFORMS[pi], b.radius);
         if (hr && hr.t > 0.001 && hr.t < bestD) {
@@ -4242,6 +4218,33 @@
           bestType = 'wall';
           bestNx = 0;
           bestNy = 1;
+        }
+      }
+
+      var obstacleD = bestD;
+
+      if (target && target.alive) {
+        var te = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
+          target.x, target.y, target.r + b.radius);
+        if (te !== null) {
+          var de = te * remaining;
+          if (de < bestD) {
+            bestD = de;
+            bestType = 'enemy';
+          }
+        }
+        if (target.ghostClone) {
+          var gc = target.ghostClone;
+          var tgc = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
+            gc.x, gc.y, gc.r + b.radius);
+          if (tgc !== null) {
+            var dgc = tgc * remaining;
+            var invisibleOwner = isGhostInvisible(target);
+            if (dgc <= bestD || (invisibleOwner && dgc < obstacleD)) {
+              bestD = dgc;
+              bestType = 'clone';
+            }
+          }
         }
       }
 
@@ -4347,6 +4350,7 @@
           hit = { type: 'platform' };
         }
       }
+      var obstacleT = hitT;
 
       var target = b.owner === game.players.player ? game.players.ai : game.players.player;
       if (target && target.alive) {
@@ -4361,7 +4365,8 @@
       if (enemyF && enemyF.ghostClone) {
         var cg = enemyF.ghostClone;
         var tcg = segmentCircleT(b.x, b.y, nx, ny, cg.x, cg.y, cg.r + b.radius);
-        if (tcg !== null && tcg <= hitT) {
+        var invisibleOwner = target && isGhostInvisible(target);
+        if (tcg !== null && (tcg <= hitT || (invisibleOwner && tcg < obstacleT))) {
           hitT = tcg;
           hit = { type: 'clone', target: cg, enemy: enemyF };
         }
