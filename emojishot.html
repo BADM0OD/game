@@ -129,10 +129,11 @@
     box-shadow: inset 0 0 18px rgba(255, 70, 85, 0.08);
   }
   .choice:disabled { opacity: 0.45; cursor: default; }
-  .mapChoices { gap: 14px; margin-bottom: 22px; }
-  .mapChoices .choice { min-height: 96px; font-size: 15px; padding: 14px 16px; }
+  .mapChoices { gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .mapChoices .choice { flex: 1 1 220px; min-height: 96px; font-size: 15px; padding: 14px 16px; }
   .mapChoices .choice small { margin-top: 6px; font-size: 11.5px; line-height: 1.6; }
-  .onlineMapChoices { margin-top: 4px; }
+  .onlineMapChoices { margin-top: 4px; flex-wrap: wrap; }
+  .onlineMapChoices .choice { flex: 1 1 120px; }
   #onlineLobbyScreen .card.narrow { max-height: calc(100vh - 32px); overflow-y: auto; }
   @media (max-width: 600px) { .mapChoices { flex-direction: column; } }
   .vs {
@@ -640,6 +641,10 @@
           🔥 炙热沙城
           <small>大地图 · 多层高台 · 空中桥梁 · 强调垂直作战</small>
         </button>
+        <button type="button" class="choice" data-value="kongjiang">
+          🏫 控江中学
+          <small>6 层教学楼 · 斜坡与跳台 · 可破坏情侣墙 · 垂直作战</small>
+        </button>
       </div>
 
       <button type="button" id="mapConfirm" class="primary">进入对战</button>
@@ -711,6 +716,7 @@
         <div class="choices onlineMapChoices" data-group="onlineMap">
           <button type="button" class="choice selected" data-value="training">🏙️ 训练场<small>经典对称竞技场</small></button>
           <button type="button" class="choice" data-value="sand">🔥 炙热沙城<small>大地图 · 垂直作战</small></button>
+          <button type="button" class="choice" data-value="kongjiang">🏫 控江中学<small>6 层 · 斜坡跳台 · 情侣墙</small></button>
         </div>
         <p class="settingsHint" id="onlineMapHint">地图由房主选择，加入者同步显示。</p>
       </section>
@@ -878,12 +884,15 @@
           <div class="tutWeapons">
             <div><strong>训练场</strong><span>经典对称竞技场 · 紧凑平台 · 中距离交火</span></div>
             <div><strong>炙热沙城</strong><span>大地图 · 多层高台 · 空中桥梁 · 强调垂直作战</span></div>
+            <div><strong>控江中学</strong><span>6 层教学楼 · 3 条垂直通道 · 可破坏情侣墙 · 强调垂直作战</span></div>
           </div>
           <ul>
             <li>训练场：三线阶梯结构，左、中、右三条上高路线；顶部左右平台中间有缺口。</li>
             <li>炙热沙城：地图更空旷，中央低地开阔，两侧高塔和空中桥梁提供多层转移路线。</li>
             <li>炙热沙城采用摄像机跟随和轻微缩放；所有平台仍然可以按 S 下落。</li>
-            <li>死斗和斗牛都可以选择两张地图；斗牛整场固定使用同一张地图。</li>
+            <li>控江中学：左井和右井是斜坡（可直接走上去），中井是水平跳台（需要跳）。L2 - L6 每层有 2 面 👫 情侣墙，50 血，可被子弹、回旋爪弹、火箭、激光破坏；墙顶可以站立。</li>
+            <li>控江中学的走廊里有木色跳台，高度 = 一次跳跃，站在跳台上再跳一次可到上一层。</li>
+            <li>死斗和斗牛都可以选择三张地图；斗牛整场固定使用同一张地图。</li>
           </ul>
         </section>
       </div>
@@ -1008,6 +1017,103 @@
   var R = 26;
   var RELOAD_TIME = 2.5;
 
+  var SLOPES = [];
+  var COUPLE_WALLS = [];
+  var COUPLE_WALL_MAX_HP = 50;
+  var KONGJIANG_STATIC = null;
+
+  function buildKongjiangMap() {
+    var platforms = [];
+    var slopes = [];
+    var coupleWalls = [];
+
+    var F = [1640, 1340, 1040, 740, 440, 260];
+    var SHAFTS = [
+      { x: 360, w: 480, type: 'left' },
+      { x: 1320, w: 480, type: 'middle' },
+      { x: 2280, w: 480, type: 'right' }
+    ];
+
+    platforms.push({ x: 0, y: F[0], w: 3200, h: 60, ground: true, kType: 'ground' });
+
+    platforms.push({ x: 0, y: F[0] - 90, w: 240, h: 24, kType: 'ledge' });
+    slopes.push({ x1: 240, y1: F[0] - 90, x2: 480, y2: F[0] });
+
+    platforms.push({ x: 2960, y: F[0] - 90, w: 240, h: 24, kType: 'ledge' });
+    slopes.push({ x1: 2720, y1: F[0], x2: 2960, y2: F[0] - 90 });
+
+    for (var i = 1; i < F.length; i++) {
+      var y = F[i];
+      var cursor = 0;
+      var segs = [];
+      for (var si = 0; si < SHAFTS.length; si++) {
+        segs.push([cursor, SHAFTS[si].x]);
+        cursor = SHAFTS[si].x + SHAFTS[si].w;
+      }
+      segs.push([cursor, 3200]);
+      for (var gi = 0; gi < segs.length; gi++) {
+        var a = segs[gi][0];
+        var b = segs[gi][1];
+        if (b - a > 40) {
+          platforms.push({ x: a, y: y, w: b - a, h: 24, kFloor: i, kType: 'corridor' });
+        }
+      }
+    }
+
+    var LSh = SHAFTS[0], MSh = SHAFTS[1], RSh = SHAFTS[2];
+
+    for (var k = 0; k < F.length - 1; k++) {
+      var yLow = F[k];
+      var yHigh = F[k + 1];
+
+      slopes.push({ x1: LSh.x, y1: yLow, x2: LSh.x + LSh.w, y2: yHigh });
+      slopes.push({ x1: RSh.x + RSh.w, y1: yLow, x2: RSh.x, y2: yHigh });
+
+      var step1Y = yLow - (yLow - yHigh) / 3;
+      var step2Y = yLow - (yLow - yHigh) * 2 / 3;
+
+      // 中井：两级整宽跳台，方便从任意一侧走廊跳入并继续向上
+      platforms.push({ x: MSh.x, y: step1Y, w: MSh.w, h: 18, kType: 'jump' });
+      platforms.push({ x: MSh.x, y: step2Y, w: MSh.w, h: 18, kType: 'jump' });
+    }
+
+    var slotXs = [40, 860, 1820, 2780];
+    for (var fi = 1; fi < F.length; fi++) {
+      for (var sj = 0; sj < slotXs.length; sj++) {
+        platforms.push({ x: slotXs[sj], y: F[fi] - 150, w: 120, h: 18, kType: 'step' });
+      }
+    }
+
+    var couples = [
+      { f: 1, x: 1050 }, { f: 1, x: 2100 },
+      { f: 2, x: 950 }, { f: 2, x: 2250 },
+      { f: 3, x: 1150 }, { f: 3, x: 2050 },
+      { f: 4, x: 1000 }, { f: 4, x: 2200 },
+      { f: 5, x: 1200 }, { f: 5, x: 2000 }
+    ];
+    for (var ci = 0; ci < couples.length; ci++) {
+      var c = couples[ci];
+      coupleWalls.push({
+        x: c.x - 30,
+        y: F[c.f] - 180,
+        w: 60,
+        h: 180,
+        hp: COUPLE_WALL_MAX_HP,
+        maxHp: COUPLE_WALL_MAX_HP,
+        floor: c.f,
+        flash: 0
+      });
+    }
+
+    return {
+      platforms: platforms,
+      slopes: slopes,
+      coupleWalls: coupleWalls,
+      floors: F,
+      shafts: SHAFTS
+    };
+  }
+
   var MAPS = {
     training: {
       key: 'training',
@@ -1071,6 +1177,26 @@
         { x: 1420, y: 900, w: 420, h: 20 }
       ]
     }
+  };
+
+  var KJ_DATA = buildKongjiangMap();
+
+  MAPS.kongjiang = {
+    key: 'kongjiang',
+    name: '控江中学',
+    desc: '6 层教学楼 · 斜坡与跳台 · 可破坏情侣墙 · 垂直作战',
+    w: 3200,
+    h: 1720,
+    viewW: 1600,
+    viewH: 900,
+    spawnLeft: 200,
+    spawnRight: 3000,
+    theme: 'school',
+    platforms: KJ_DATA.platforms,
+    slopes: KJ_DATA.slopes,
+    coupleWalls: KJ_DATA.coupleWalls,
+    floors: KJ_DATA.floors,
+    shafts: KJ_DATA.shafts
   };
 
   var WORLD_W = MAPS.training.w;
@@ -1317,6 +1443,34 @@
     WORLD_W = map.w;
     WORLD_H = map.h;
     PLATFORMS = map.platforms;
+    SLOPES = map.slopes || [];
+
+    COUPLE_WALLS = [];
+    if (map.coupleWalls) {
+      for (var wi = 0; wi < map.coupleWalls.length; wi++) {
+        var cw = map.coupleWalls[wi];
+        COUPLE_WALLS.push({
+          x: cw.x,
+          y: cw.y,
+          w: cw.w,
+          h: cw.h,
+          hp: COUPLE_WALL_MAX_HP,
+          maxHp: COUPLE_WALL_MAX_HP,
+          floor: cw.floor,
+          flash: 0
+        });
+      }
+    }
+
+    if (map.theme === 'school') {
+      if (!KONGJIANG_STATIC || KONGJIANG_STATIC._mapKey !== map.key) {
+        KONGJIANG_STATIC = buildKongjiangStaticLayer(map);
+        KONGJIANG_STATIC._mapKey = map.key;
+      }
+    } else {
+      KONGJIANG_STATIC = null;
+    }
+
     GROUND = PLATFORMS[0];
     GROUND_Y = GROUND.y;
     game.camW = map.viewW;
@@ -1522,9 +1676,71 @@
     return null;
   }
 
+  function circleSegmentHit(cx, cy, r, x1, y1, x2, y2) {
+    var dx = x2 - x1;
+    var dy = y2 - y1;
+    var len2 = dx * dx + dy * dy;
+    var t = 0;
+    if (len2 > 0) {
+      t = ((cx - x1) * dx + (cy - y1) * dy) / len2;
+      t = Math.max(0, Math.min(1, t));
+    }
+    var px = x1 + dx * t;
+    var py = y1 + dy * t;
+    var ox = cx - px;
+    var oy = cy - py;
+    var d2 = ox * ox + oy * oy;
+    if (d2 >= r * r) return null;
+    var d = Math.sqrt(d2);
+    var nx = 0;
+    var ny = -1;
+    if (d > 1e-6) {
+      nx = ox / d;
+      ny = oy / d;
+    }
+    return { nx: nx, ny: ny, pen: r - d };
+  }
+
+  function resolveCoupleWallsHorizontal(f) {
+    if (f.dropTimer > 0) return;
+    for (var i = 0; i < COUPLE_WALLS.length; i++) {
+      var w = COUPLE_WALLS[i];
+      if (w.hp <= 0) continue;
+      var overlapX = f.x + f.r > w.x && f.x - f.r < w.x + w.w;
+      var overlapY = f.y + f.r > w.y && f.y - f.r < w.y + w.h;
+      if (!overlapX || !overlapY) continue;
+      if (f.y + f.r <= w.y + 5) continue;
+      var cx = w.x + w.w / 2;
+      if (f.x < cx) f.x = w.x - f.r;
+      else f.x = w.x + w.w + f.r;
+      f.vx = 0;
+    }
+  }
+
+  function damageCoupleWall(w, amount) {
+    if (!w || w.hp <= 0) return;
+    w.hp = Math.max(0, w.hp - amount);
+    w.flash = 0.15;
+    spawnParticles(w.x + w.w / 2, w.y + w.h / 2, '#ff9ec4', 10, 150, 0.4);
+    if (w.hp <= 0) {
+      spawnParticles(w.x + w.w / 2, w.y + w.h / 2, '#ffd4e6', 30, 280, 0.7);
+    }
+  }
+
+  function updateMapObjects(dt) {
+    for (var i = 0; i < COUPLE_WALLS.length; i++) {
+      var w = COUPLE_WALLS[i];
+      if (w.flash > 0) w.flash = Math.max(0, w.flash - dt);
+    }
+  }
+
   function hasLOS(a, b) {
     for (var i = 0; i < PLATFORMS.length; i++) {
       if (segmentRectT(a.x, a.y, b.x, b.y, PLATFORMS[i]) !== null) return false;
+    }
+    for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
+      var w = COUPLE_WALLS[wi];
+      if (w.hp > 0 && segmentRectT(a.x, a.y, b.x, b.y, w) !== null) return false;
     }
     return true;
   }
@@ -2424,6 +2640,7 @@
     }
 
     updatePhysics(g, dt);
+    resolveCoupleWallsHorizontal(g);
   }
 
   function snapFighter(f) {
@@ -2528,6 +2745,9 @@
       notice: game.notice,
       matchType: game.matchType,
       mapKey: game.mapKey,
+      walls: COUPLE_WALLS.map(function (w) {
+        return { x: w.x, y: w.y, hp: w.hp };
+      }),
       bull: isBullMatch() ? {
         scoreHost: game.bull.scoreHost,
         scoreGuest: game.bull.scoreGuest,
@@ -2603,6 +2823,20 @@
     }
 
     game.gameTime = data.t;
+
+    if (data.walls) {
+      for (var swi = 0; swi < data.walls.length; swi++) {
+        var sw = data.walls[swi];
+        for (var cwj = 0; cwj < COUPLE_WALLS.length; cwj++) {
+          var lw = COUPLE_WALLS[cwj];
+          if (Math.abs(lw.x - sw.x) < 1 && Math.abs(lw.y - sw.y) < 1) {
+            if (lw.hp !== sw.hp) lw.flash = 0.15;
+            lw.hp = sw.hp;
+            break;
+          }
+        }
+      }
+    }
 
     applyFighterSnapshot(game.players.ai, data.host);
     applyFighterSnapshot(game.players.player, data.guest);
@@ -3015,7 +3249,7 @@
   }
 
   function dropFighter(f) {
-    if (!f.onGround || !f.standing || f.standing.ground) return false;
+    if (!f.onGround || !f.standing || f.standing.ground || f.standing.kSlope || f.standing.kWallTop) return false;
     f.dropTimer = 0.12;
     f.onGround = false;
     f.standing = null;
@@ -3036,16 +3270,66 @@
     f.onGround = false;
     f.standing = null;
 
+    // 斜坡：圆-线段碰撞
+    if (f.dropTimer <= 0 && f.vy >= -10) {
+      for (var si = 0; si < SLOPES.length; si++) {
+        var s = SLOPES[si];
+        var hit = circleSegmentHit(f.x, f.y, f.r, s.x1, s.y1, s.x2, s.y2);
+        if (!hit || hit.ny > -0.1) continue;
+
+        f.x += hit.nx * hit.pen;
+        f.y += hit.ny * hit.pen;
+
+        var dot = f.vx * hit.nx + f.vy * hit.ny;
+        if (dot < 0) {
+          f.vx -= dot * hit.nx;
+          f.vy -= dot * hit.ny;
+        }
+        if (f.vy < 0) f.vy = 0;
+
+        f.onGround = true;
+        f.standing = {
+          slope: true,
+          ground: false,
+          kSlope: true,
+          x: Math.min(s.x1, s.x2),
+          y: Math.min(s.y1, s.y2),
+          w: Math.abs(s.x2 - s.x1),
+          h: Math.abs(s.y2 - s.y1)
+        };
+      }
+    }
+
     if (f.vy >= 0 && f.dropTimer <= 0) {
       var land = null;
+      var prevFeet = oldY + f.r;
+      var feet = f.y + f.r;
+
       for (var i = 0; i < PLATFORMS.length; i++) {
         var pl = PLATFORMS[i];
-        var prevFeet = oldY + f.r;
-        var newFeet = f.y + f.r;
-        if (prevFeet <= pl.y + 1 && newFeet >= pl.y && f.x + f.r > pl.x + 1 && f.x - f.r < pl.x + pl.w - 1) {
+        var withinX = f.x + f.r > pl.x + 2 && f.x - f.r < pl.x + pl.w - 2;
+        if (!withinX) continue;
+        var crossed = prevFeet <= pl.y + 2 && feet >= pl.y;
+        var resting = feet >= pl.y - 2 && feet <= pl.y + 10 && f.vy >= 0;
+        if ((crossed || resting) && f.vy >= 0) {
           if (!land || pl.y < land.y) land = pl;
         }
       }
+
+      for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
+        var w = COUPLE_WALLS[wi];
+        if (w.hp <= 0) continue;
+        var wallX = f.x + f.r > w.x + 2 && f.x - f.r < w.x + w.w - 2;
+        if (!wallX) continue;
+        var wallCrossed = prevFeet <= w.y + 2 && feet >= w.y;
+        var wallResting = feet >= w.y - 2 && feet <= w.y + 10 && f.vy >= 0;
+        if ((wallCrossed || wallResting) && f.vy >= 0) {
+          if (!land || w.y < land.y) {
+            land = { x: w.x, y: w.y, w: w.w, h: w.h, kWallTop: true };
+          }
+        }
+      }
+
       if (land) {
         f.y = land.y - f.r;
         f.vy = 0;
@@ -3084,6 +3368,7 @@
     }
 
     updatePhysics(p, dt);
+    resolveCoupleWallsHorizontal(p);
 
     p.aim = Math.atan2(game.aim.y - p.y, game.aim.x - p.x);
 
@@ -3138,6 +3423,7 @@
     if (!p || !p.alive) {
       accelerate(ai, 0, 320, dt);
       updatePhysics(ai, dt);
+      resolveCoupleWallsHorizontal(ai);
       return;
     }
 
@@ -3166,6 +3452,18 @@
     var distance = Math.hypot(dx, dy);
     var los = hasLOS(ai, p);
     var aiBlind = ai.blindUntil > game.gameTime;
+
+    // 控江中学：视线被情侣墙挡住时，AI 会朝墙射击
+    var wallBlock = false;
+    if (!los && COUPLE_WALLS.length) {
+      for (var lwi = 0; lwi < COUPLE_WALLS.length; lwi++) {
+        var lw = COUPLE_WALLS[lwi];
+        if (lw.hp > 0 && segmentRectT(ai.x, ai.y, p.x, p.y, lw) !== null) {
+          wallBlock = true;
+          break;
+        }
+      }
+    }
 
     var rolling = isRolling(ai);
     var rooted = isRooted(ai);
@@ -3212,6 +3510,33 @@
       if (ai.x >= edgeR - 1 && dir > 0) dir = 0;
     }
 
+    // 控江中学：目标在高层时，优先去中间跳台井；两侧边缘则走斜坡
+    if (game.mapKey === 'kongjiang' && !rooted && ai.onGround && p.y < ai.y - 80) {
+      var shafts = game.map.shafts || [];
+      if (shafts.length >= 3) {
+        var leftShaft = shafts[0];
+        var midShaft = shafts[1];
+        var rightShaft = shafts[2];
+        var inMidShaft = ai.x > midShaft.x && ai.x < midShaft.x + midShaft.w;
+        if (ai.x < leftShaft.x) {
+          dir = 1;
+        } else if (ai.x > rightShaft.x + rightShaft.w) {
+          dir = -1;
+        } else if (inMidShaft) {
+          if (climb) dir = sign(climb.tx - ai.x);
+        } else {
+          dir = sign(midShaft.x + midShaft.w / 2 - ai.x);
+        }
+      }
+      // 站在平台边缘时先停住，等跳跃冷却结束后向上跳，避免直接走空
+      if (climb && ai.standing && !ai.standing.ground && !ai.standing.kSlope) {
+        var edgeL2 = ai.standing.x + ai.r + 2;
+        var edgeR2 = ai.standing.x + ai.standing.w - ai.r - 2;
+        if (dir > 0 && ai.x >= edgeR2) dir = 0;
+        else if (dir < 0 && ai.x <= edgeL2) dir = 0;
+      }
+    }
+
     var maxSpeed = 320 * (rolling ? 2 : 1) * (ai.buffUntil > game.gameTime ? 1.2 : 1);
     if (ai.ghostSpeedUntil > game.gameTime) maxSpeed *= 1.5;
     accelerate(ai, dir, maxSpeed, dt);
@@ -3223,6 +3548,15 @@
 
     if (!rooted && ai.onGround && ai.ai.jumpCd <= 0) {
       var aligned = climb && Math.abs(ai.x - climb.tx) < 8;
+      // 控江中学中井：目标平台在斜上方但水平差较大时，允许从平台边缘起跳
+      if (!aligned && climb && game.mapKey === 'kongjiang' && ai.standing &&
+          !ai.standing.ground && !ai.standing.kSlope) {
+        var standL = ai.standing.x + ai.r;
+        var standR = ai.standing.x + ai.standing.w - ai.r;
+        var towardTarget = (climb.tx < ai.x && ai.x <= standL + 4) ||
+          (climb.tx > ai.x && ai.x >= standR - 4);
+        if (towardTarget && Math.abs(ai.x - climb.tx) < 160) aligned = true;
+      }
       var needLos = !climb && !los && Math.abs(dx) < 420;
       if (aligned || needLos) {
         ai.ai.airTargetX = climb ? climb.tx : null;
@@ -3275,7 +3609,7 @@
           fireRocket(ai);
           ai.fireCd = 0.8;
         }
-      } else if (los && distance < 1000 && game.gameTime > 1.5 && p.alive) {
+      } else if ((los || wallBlock) && distance < 1000 && game.gameTime > 1.5 && p.alive) {
         ai.ai.reaction += dt;
         if (ai.ai.reaction > 0.4) {
           if (ai.ai.burstLeft > 0) {
@@ -3300,6 +3634,7 @@
     }
 
     updatePhysics(ai, dt);
+    resolveCoupleWallsHorizontal(ai);
     if (ai.onGround) ai.ai.airTargetX = null;
   }
 
@@ -3682,6 +4017,15 @@
 
   function explosiveDamage(x, y, owner) {
     var target = owner === game.players.player ? game.players.ai : game.players.player;
+    for (var ei = 0; ei < COUPLE_WALLS.length; ei++) {
+      var ew = COUPLE_WALLS[ei];
+      if (ew.hp <= 0) continue;
+      var edx = (ew.x + ew.w / 2) - x;
+      var edy = (ew.y + ew.h / 2) - y;
+      if (Math.hypot(edx, edy) <= 100 + Math.max(ew.w, ew.h) / 2) {
+        damageCoupleWall(ew, 50);
+      }
+    }
     game.explosions.push({ x: x, y: y, life: 0.34, maxLife: 0.34, maxR: 100 });
     spawnParticles(x, y, '#ffb02e', 30, 310, 0.6);
     spawnParticles(x, y, '#ff5a5f', 18, 200, 0.5);
@@ -4180,6 +4524,7 @@
       var bestType = null;
       var bestNx = 0;
       var bestNy = 0;
+      var bestWall = null;
 
       for (var pi = 0; pi < PLATFORMS.length; pi++) {
         var hr = rayRect(b.x, b.y, b.dx, b.dy, PLATFORMS[pi], b.radius);
@@ -4227,6 +4572,19 @@
         }
       }
 
+      for (var bwi = 0; bwi < COUPLE_WALLS.length; bwi++) {
+        var bw = COUPLE_WALLS[bwi];
+        if (bw.hp <= 0) continue;
+        var bhr = rayRect(b.x, b.y, b.dx, b.dy, bw, b.radius);
+        if (bhr && bhr.t > 0.001 && bhr.t < bestD) {
+          bestD = bhr.t;
+          bestType = 'coupleWall';
+          bestNx = bhr.nx;
+          bestNy = bhr.ny;
+          bestWall = bw;
+        }
+      }
+
       if (target && target.alive) {
         var te = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
           target.x, target.y, target.r + b.radius);
@@ -4260,6 +4618,15 @@
       b.x += b.dx * bestD;
       b.y += b.dy * bestD;
       remaining -= bestD;
+
+      if (bestType === 'coupleWall') {
+        damageCoupleWall(bestWall, b.damage > 0 ? b.damage : 20);
+        if (bestNx !== 0) b.dx = -b.dx;
+        if (bestNy !== 0) b.dy = -b.dy;
+        b.x += bestNx * 0.05;
+        b.y += bestNy * 0.05;
+        continue;
+      }
 
       if (bestType === 'clone') {
         destroyGhostClone(target);
@@ -4354,6 +4721,16 @@
         }
       }
 
+      for (var cwi = 0; cwi < COUPLE_WALLS.length; cwi++) {
+        var cw = COUPLE_WALLS[cwi];
+        if (cw.hp <= 0) continue;
+        var tw = segmentRectT(b.x, b.y, nx, ny, cw);
+        if (tw !== null && tw < hitT) {
+          hitT = tw;
+          hit = { type: 'wall', wall: cw };
+        }
+      }
+
       var target = b.owner === game.players.player ? game.players.ai : game.players.player;
       if (target && target.alive) {
         var tc = segmentCircleT(b.x, b.y, nx, ny, target.x, target.y, target.r + b.radius);
@@ -4382,6 +4759,9 @@
         if (b.type === 'rocket') {
           if (hit.type === 'clone') destroyGhostClone(hit.enemy);
           explosiveDamage(hx, hy, b.owner);
+        } else if (hit.type === 'wall') {
+          damageCoupleWall(hit.wall, b.damage);
+          spawnParticles(hx, hy, '#ff9ec4', 6, 110, 0.3);
         } else if (hit.type === 'clone') {
           destroyGhostClone(hit.enemy);
           spawnParticles(hx, hy, '#b8e6ff', 10, 140, 0.35);
@@ -4509,17 +4889,39 @@
       }
       if (laser.hit) continue;
 
-      var target = f === p ? ai : p;
-      if (!target || !target.alive || isInvincible(target)) continue;
-
       var dx = Math.cos(laser.angle);
       var dy = Math.sin(laser.angle);
-      var t = (target.x - laser.x) * dx + (target.y - laser.y) * dy;
-      if (t < 0) continue;
 
-      var px = laser.x + dx * t;
-      var py = laser.y + dy * t;
-      if (Math.hypot(target.x - px, target.y - py) <= target.r + 5) {
+      var wallHit = null;
+      var wallT = Infinity;
+      for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
+        var w = COUPLE_WALLS[wi];
+        if (w.hp <= 0) continue;
+        var wh = rayRect(laser.x, laser.y, dx, dy, w, 2);
+        if (wh && wh.t > 0.001 && wh.t < wallT) {
+          wallT = wh.t;
+          wallHit = w;
+        }
+      }
+
+      var target = f === p ? ai : p;
+      var targetT = Infinity;
+      if (target && target.alive && !isInvincible(target)) {
+        var t = (target.x - laser.x) * dx + (target.y - laser.y) * dy;
+        if (t >= 0) {
+          var px = laser.x + dx * t;
+          var py = laser.y + dy * t;
+          if (Math.hypot(target.x - px, target.y - py) <= target.r + 5) targetT = t;
+        }
+      }
+
+      if (wallHit && wallT < targetT) {
+        damageCoupleWall(wallHit, 25);
+        laser.hit = true;
+        continue;
+      }
+
+      if (targetT !== Infinity) {
         if (applyRoot(target, 2, true)) laser.hit = true;
       }
     }
@@ -4964,9 +5366,389 @@
     }
   }
 
+  function drawSchoolWindow(c, x, y, w, h) {
+    c.save();
+    c.fillStyle = '#f7fbff';
+    c.fillRect(x - 4, y - 4, w + 8, h + 8);
+    var glass = c.createLinearGradient(0, y, 0, y + h);
+    glass.addColorStop(0, '#c7e8fa');
+    glass.addColorStop(1, '#83b8dc');
+    c.fillStyle = glass;
+    c.fillRect(x, y, w, h);
+    c.strokeStyle = 'rgba(255,255,255,0.88)';
+    c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(x + w / 2, y);
+    c.lineTo(x + w / 2, y + h);
+    c.moveTo(x, y + h / 2);
+    c.lineTo(x + w, y + h / 2);
+    c.stroke();
+    c.strokeStyle = 'rgba(60,90,120,0.35)';
+    c.lineWidth = 1;
+    c.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+    c.fillStyle = 'rgba(255,255,255,0.25)';
+    c.beginPath();
+    c.moveTo(x + 8, y + h - 8);
+    c.lineTo(x + w - 12, y + 8);
+    c.lineTo(x + w - 3, y + 8);
+    c.lineTo(x + 17, y + h - 8);
+    c.closePath();
+    c.fill();
+    c.fillStyle = '#d8e2ec';
+    c.fillRect(x - 6, y + h + 2, w + 12, 5);
+    c.restore();
+  }
+
+  function drawSchoolDoor(c, x, y, w, h, label) {
+    c.save();
+    c.fillStyle = '#f2f6fa';
+    c.fillRect(x - 4, y - 4, w + 8, h + 8);
+    var wood = c.createLinearGradient(x, 0, x + w, 0);
+    wood.addColorStop(0, '#986844');
+    wood.addColorStop(0.5, '#c08b5e');
+    wood.addColorStop(1, '#875636');
+    c.fillStyle = wood;
+    c.fillRect(x, y, w, h);
+    c.strokeStyle = 'rgba(80,45,25,0.5)';
+    c.lineWidth = 2;
+    c.strokeRect(x + 1, y + 1, w - 2, h - 2);
+    c.fillStyle = 'rgba(255,255,255,0.16)';
+    c.fillRect(x + 8, y + 40, w - 16, h * 0.34);
+    c.fillStyle = '#e8c06a';
+    c.beginPath();
+    c.arc(x + w - 12, y + h * 0.58, 3.2, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#f4f8fc';
+    c.fillRect(x + 10, y + 10, w - 20, 22);
+    c.fillStyle = '#31506f';
+    c.font = '700 12px "Segoe UI", "Microsoft YaHei", sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillText(label, x + w / 2, y + 21);
+    c.restore();
+  }
+
+  function buildKongjiangStaticLayer(map) {
+    var cv = document.createElement('canvas');
+    cv.width = map.w;
+    cv.height = map.h;
+    var c = cv.getContext('2d');
+    var floors = map.floors || [1640, 1340, 1040, 740, 440, 140];
+    var shafts = map.shafts || [];
+
+    var bg = c.createLinearGradient(0, 0, 0, map.h);
+    bg.addColorStop(0, '#edf5fc');
+    bg.addColorStop(0.55, '#dbe8f4');
+    bg.addColorStop(1, '#c6d7e6');
+    c.fillStyle = bg;
+    c.fillRect(0, 0, map.w, map.h);
+
+    for (var shi = 0; shi < shafts.length; shi++) {
+      var shaft = shafts[shi];
+      var sg = c.createLinearGradient(shaft.x, 0, shaft.x + shaft.w, 0);
+      sg.addColorStop(0, 'rgba(255,255,255,0.05)');
+      sg.addColorStop(0.5, 'rgba(255,255,255,0.32)');
+      sg.addColorStop(1, 'rgba(255,255,255,0.05)');
+      c.fillStyle = sg;
+      c.fillRect(shaft.x, 0, shaft.w, map.h);
+    }
+
+    function floorSegments(floorIndex) {
+      if (floorIndex === 0) return [[0, map.w]];
+      var segs = [];
+      var cursor = 0;
+      for (var si = 0; si < shafts.length; si++) {
+        segs.push([cursor, shafts[si].x]);
+        cursor = shafts[si].x + shafts[si].w;
+      }
+      segs.push([cursor, map.w]);
+      return segs;
+    }
+
+    for (var i = 0; i < floors.length; i++) {
+      var floorY = floors[i];
+      var top = floorY - 300;
+      var segs = floorSegments(i);
+
+      for (var si2 = 0; si2 < segs.length; si2++) {
+        var a = segs[si2][0];
+        var b = segs[si2][1];
+        if (b - a < 40) continue;
+
+        c.fillStyle = '#e7eef5';
+        c.fillRect(a, top, b - a, floorY - top);
+
+        c.strokeStyle = 'rgba(150,175,200,0.22)';
+        c.lineWidth = 1;
+        for (var tx = a + 40; tx < b; tx += 80) {
+          c.beginPath();
+          c.moveTo(tx, top);
+          c.lineTo(tx, floorY - 46);
+          c.stroke();
+        }
+
+        c.fillStyle = '#8b5d42';
+        c.fillRect(a, floorY - 46, b - a, 46);
+        c.fillStyle = 'rgba(255,255,255,0.12)';
+        c.fillRect(a, floorY - 46, b - a, 2);
+
+        for (var wx = a + 60; wx < b - 130; wx += 240) {
+          drawSchoolWindow(c, wx, top + 36, 120, 96);
+        }
+
+        if (b - a > 170) {
+          drawSchoolDoor(c, a + 30, floorY - 166, 78, 140,
+            'A' + (i + 1) + '0' + (si2 + 1));
+        }
+
+        c.fillStyle = '#31506f';
+        c.font = '800 22px "Microsoft YaHei", sans-serif';
+        c.textAlign = 'left';
+        c.textBaseline = 'alphabetic';
+        c.fillText((i + 1) + 'F', a + 14, floorY - 18);
+
+        c.strokeStyle = 'rgba(255,255,255,0.5)';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(a + 1, top);
+        c.lineTo(a + 1, floorY);
+        c.stroke();
+      }
+    }
+
+    c.fillStyle = '#b9c7d5';
+    c.fillRect(0, floors[0], map.w, 60);
+    c.fillStyle = 'rgba(255,255,255,0.58)';
+    c.fillRect(0, floors[0], map.w, 3);
+    c.fillStyle = 'rgba(70,90,110,0.25)';
+    c.fillRect(0, floors[0] + 56, map.w, 4);
+
+    for (var i2 = 1; i2 < floors.length; i2++) {
+      var segs2 = floorSegments(i2);
+      for (var s2 = 0; s2 < segs2.length; s2++) {
+        var aa = segs2[s2][0];
+        var bb = segs2[s2][1];
+        if (bb - aa < 40) continue;
+        c.fillStyle = '#c7d4e1';
+        c.fillRect(aa, floors[i2], bb - aa, 24);
+        c.fillStyle = 'rgba(255,255,255,0.62)';
+        c.fillRect(aa, floors[i2], bb - aa, 3);
+        c.fillStyle = 'rgba(70,90,110,0.22)';
+        c.fillRect(aa, floors[i2] + 21, bb - aa, 3);
+        c.strokeStyle = 'rgba(120,145,170,0.3)';
+        c.lineWidth = 1;
+        for (var fx = aa + 30; fx < bb; fx += 60) {
+          c.beginPath();
+          c.moveTo(fx, floors[i2] + 3);
+          c.lineTo(fx, floors[i2] + 21);
+          c.stroke();
+        }
+      }
+    }
+
+    var bw = 360;
+    var bx = (map.w - bw) / 2;
+    var by = 18;
+    var bh = 74;
+    c.fillStyle = 'rgba(30,80,130,0.92)';
+    c.fillRect(bx, by, bw, bh);
+    c.strokeStyle = 'rgba(255,255,255,0.9)';
+    c.lineWidth = 2;
+    c.strokeRect(bx + 2, by + 2, bw - 4, bh - 4);
+    c.fillStyle = '#ffffff';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.font = '900 34px "Microsoft YaHei", sans-serif';
+    c.fillText('控江中学', bx + bw / 2, by + 30);
+    c.font = '700 12px "Segoe UI", sans-serif';
+    c.fillStyle = 'rgba(220,240,255,0.9)';
+    c.fillText('KONGJIANG HIGH SCHOOL', bx + bw / 2, by + 57);
+
+    return cv;
+  }
+
+  function drawSlopesSchool() {
+    for (var i = 0; i < SLOPES.length; i++) {
+      var s = SLOPES[i];
+      var dx = s.x2 - s.x1;
+      var dy = s.y2 - s.y1;
+      var len = Math.hypot(dx, dy);
+      if (len < 1) continue;
+      var ux = dx / len;
+      var uy = dy / len;
+      var nx = uy;
+      var ny = -ux;
+      if (ny > 0) {
+        nx = -nx;
+        ny = -ny;
+      }
+
+      ctx.save();
+      ctx.lineCap = 'round';
+
+      ctx.strokeStyle = '#d1dbe5';
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(s.x1, s.y1);
+      ctx.lineTo(s.x2, s.y2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(80,95,110,0.55)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(s.x1 - nx * 4, s.y1 - ny * 4);
+      ctx.lineTo(s.x2 - nx * 4, s.y2 - ny * 4);
+      ctx.stroke();
+
+      for (var d = 0; d < len; d += 26) {
+        var px = s.x1 + ux * d;
+        var py = s.y1 + uy * d;
+        ctx.strokeStyle = 'rgba(90,105,120,0.22)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px + nx * 6, py + ny * 6);
+        ctx.lineTo(px - nx * 6, py - ny * 6);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(245,197,66,0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px + nx * 3, py + ny * 3);
+        ctx.lineTo(px - nx * 3, py - ny * 3);
+        ctx.stroke();
+      }
+
+      var hx1 = s.x1 + nx * 38;
+      var hy1 = s.y1 + ny * 38;
+      var hx2 = s.x2 + nx * 38;
+      var hy2 = s.y2 + ny * 38;
+      ctx.strokeStyle = '#5d6b7a';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(hx1, hy1);
+      ctx.lineTo(hx2, hy2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(93,107,122,0.8)';
+      ctx.lineWidth = 2;
+      for (var d2 = 20; d2 < len; d2 += 80) {
+        var bx = s.x1 + ux * d2;
+        var by = s.y1 + uy * d2;
+        ctx.beginPath();
+        ctx.moveTo(bx + nx * 6, by + ny * 6);
+        ctx.lineTo(bx + nx * 38, by + ny * 38);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawSchoolPlatforms() {
+    for (var i = 0; i < PLATFORMS.length; i++) {
+      var p = PLATFORMS[i];
+      if (p.ground || p.kType === 'corridor') continue;
+
+      ctx.save();
+      if (p.kType === 'ledge') {
+        ctx.fillStyle = '#8598ab';
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillRect(p.x, p.y, p.w, 2);
+        ctx.fillStyle = 'rgba(50,70,90,0.3)';
+        ctx.fillRect(p.x, p.y + p.h - 3, p.w, 3);
+      } else if (p.kType === 'jump') {
+        var jg = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
+        jg.addColorStop(0, '#9af0ff');
+        jg.addColorStop(1, '#3a9ec4');
+        ctx.fillStyle = jg;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillRect(p.x, p.y, p.w, 2);
+        ctx.fillStyle = '#2b7f9c';
+        ctx.fillRect(p.x + 18, p.y + p.h, 7, 30);
+        ctx.fillRect(p.x + p.w - 25, p.y + p.h, 7, 30);
+      } else {
+        var wg = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
+        wg.addColorStop(0, '#e8d8a0');
+        wg.addColorStop(1, '#b8a060');
+        ctx.fillStyle = wg;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillRect(p.x, p.y, p.w, 2);
+        ctx.fillStyle = '#8e7438';
+        ctx.fillRect(p.x + 16, p.y + p.h, 8, 26);
+        ctx.fillRect(p.x + p.w - 24, p.y + p.h, 8, 26);
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawCoupleWalls() {
+    for (var i = 0; i < COUPLE_WALLS.length; i++) {
+      var w = COUPLE_WALLS[i];
+
+      if (w.hp <= 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.16;
+        ctx.fillStyle = '#ff9ec4';
+        ctx.fillRect(w.x, w.y, w.w, w.h);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(w.x, w.y, w.w, w.h);
+        ctx.restore();
+        continue;
+      }
+
+      ctx.save();
+      var wg = ctx.createLinearGradient(w.x, w.y, w.x, w.y + w.h);
+      wg.addColorStop(0, '#ffc2da');
+      wg.addColorStop(1, '#ff77a8');
+      ctx.fillStyle = wg;
+      ctx.fillRect(w.x, w.y, w.w, w.h);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(w.x + 1, w.y + 1, w.w - 2, w.h - 2);
+
+      ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('👫', w.x + w.w / 2, w.y + w.h / 2);
+
+      var barW = w.w;
+      var barH = 6;
+      var barX = w.x;
+      var barY = w.y - 12;
+      ctx.fillStyle = 'rgba(8,12,20,0.75)';
+      ctx.fillRect(barX, barY, barW, barH);
+      var ratio = clamp(w.hp / w.maxHp, 0, 1);
+      ctx.fillStyle = ratio > 0.5 ? '#6ef3b0' : (ratio > 0.25 ? '#ffd166' : '#ff5a5f');
+      ctx.fillRect(barX, barY, barW * ratio, barH);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
+
+      if (w.flash > 0) {
+        ctx.globalAlpha = clamp(w.flash / 0.15, 0, 1) * 0.45;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(w.x, w.y, w.w, w.h);
+      }
+      ctx.restore();
+    }
+  }
+
   function drawBackground() {
     if (game.map && game.map.theme === 'sand') {
       drawSandBackground();
+      return;
+    }
+
+    if (game.map && game.map.theme === 'school') {
+      var sg = ctx.createLinearGradient(0, 0, 0, WORLD_H);
+      sg.addColorStop(0, '#eaf3fb');
+      sg.addColorStop(0.55, '#d8e5f1');
+      sg.addColorStop(1, '#c3d4e4');
+      ctx.fillStyle = sg;
+      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
       return;
     }
 
@@ -5053,6 +5835,12 @@
   }
 
   function drawPlatforms() {
+    if (game.map && game.map.theme === 'school') {
+      drawSlopesSchool();
+      drawSchoolPlatforms();
+      return;
+    }
+
     var sand = game.map && game.map.theme === 'sand';
     for (var i = 0; i < PLATFORMS.length; i++) {
       var p = PLATFORMS[i];
@@ -6243,7 +7031,11 @@
     ctx.setTransform(view.dpr * ws, 0, 0, view.dpr * ws, view.dpr * wox, view.dpr * woy);
 
     drawBackground();
+    if (game.map && game.map.theme === 'school' && KONGJIANG_STATIC) {
+      ctx.drawImage(KONGJIANG_STATIC, 0, 0);
+    }
     drawPlatforms();
+    drawCoupleWalls();
 
     if (game.players.player) drawFighter(game.players.player, now);
     if (game.players.ai) drawFighter(game.players.ai, now);
@@ -6289,6 +7081,7 @@
     if (game.mode === 'playing' && !game.paused) {
       updateCamera(dt);
       updateAimPoint();
+      updateMapObjects(dt);
       if (game.onlineMode && game.onlineRole === 'guest') {
         net.inputAccum += dt;
         if (net.inputAccum >= 1 / 30) {
