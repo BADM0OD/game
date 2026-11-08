@@ -4219,8 +4219,6 @@
         }
       }
 
-      var obstacleD = bestD;
-
       if (target && target.alive) {
         var te = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
           target.x, target.y, target.r + b.radius);
@@ -4237,8 +4235,7 @@
             gc.x, gc.y, gc.r + b.radius);
           if (tgc !== null) {
             var dgc = tgc * remaining;
-            var invisibleOwner = isGhostInvisible(target);
-            if (dgc <= bestD || (invisibleOwner && dgc < obstacleD)) {
+            if (dgc < bestD) {
               bestD = dgc;
               bestType = 'clone';
             }
@@ -4348,7 +4345,6 @@
           hit = { type: 'platform' };
         }
       }
-      var obstacleT = hitT;
 
       var target = b.owner === game.players.player ? game.players.ai : game.players.player;
       if (target && target.alive) {
@@ -4363,8 +4359,7 @@
       if (enemyF && enemyF.ghostClone) {
         var cg = enemyF.ghostClone;
         var tcg = segmentCircleT(b.x, b.y, nx, ny, cg.x, cg.y, cg.r + b.radius);
-        var invisibleOwner = target && isGhostInvisible(target);
-        if (tcg !== null && (tcg <= hitT || (invisibleOwner && tcg < obstacleT))) {
+        if (tcg !== null && tcg < hitT) {
           hitT = tcg;
           hit = { type: 'clone', target: cg, enemy: enemyF };
         }
