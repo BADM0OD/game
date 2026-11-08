@@ -281,6 +281,8 @@
   #charScreen .team, #weaponScreen .team { margin-top: 14px; }
   #charScreen .choices, #weaponScreen .choices { gap: 8px; }
   #charScreen .choice, #weaponScreen .choice { padding: 10px 12px; }
+  #charScreen .choices, .choices[data-group="onlineChar"] { flex-wrap: wrap; }
+  #charScreen .choice, .choices[data-group="onlineChar"] .choice { flex: 1 1 120px; }
 
   .tutorialCard {
     width: min(920px, 94vw);
@@ -572,6 +574,7 @@
           <button type="button" class="choice" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
+          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
         </div>
       </section>
 
@@ -582,6 +585,7 @@
           <button type="button" class="choice" data-value="😡">😡 超级生气暴怒<small>充能疾驰 / 晚安焰火</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
+          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
         </div>
       </section>
 
@@ -696,6 +700,7 @@
           <button type="button" class="choice" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
+          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
         </div>
         <span class="fieldLabel">枪械</span>
         <div class="choices" data-group="onlineWeapon">
@@ -843,6 +848,13 @@
             <ul>
               <li><b>小招 回旋爪弹</b>：可连续使用 2 次。发射一颗蓝色旋转子弹，速度 1900；在地面、平台和屏幕边界无限反弹，反射角等于入射角；命中敌人造成 30 伤害并定身 1.5 秒，命中后立即消失。定身只禁止移动、跳跃和下落，不降低射速。</li>
               <li><b>大招 黄金回旋</b>：向准心发射一颗金色旋转子弹，大小和速度与回旋爪弹一致；同样在地面、平台和屏幕边界无限反弹，命中敌人后立即消失，并造成持续 5 秒、每秒 30 伤害的黄金回旋。重复命中只刷新持续时间，不叠加伤害。</li>
+            </ul>
+          </div>
+          <div class="tutChar">
+            <h4>👻 幽灵</h4>
+            <ul>
+              <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。分身被摧毁时，以分身为中心半径 150 范围内的敌人致盲 2 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
+              <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 10 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。10 秒内死亡则在锚点以 100 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；10 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
             </ul>
           </div>
         </section>
@@ -1076,7 +1088,8 @@
     '😡': { name: '超级生气暴怒', color: '#ff5a5f', glow: 'rgba(255, 90, 95, 0.55)' },
     '😇': { name: '头顶游泳圈', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
     '🤣': { name: '乐子', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
-    '🦷': { name: '獠牙', color: '#ff6ec7', glow: 'rgba(255, 110, 199, 0.6)' }
+    '🦷': { name: '獠牙', color: '#ff6ec7', glow: 'rgba(255, 110, 199, 0.6)' },
+    '👻': { name: '幽灵', color: '#b8e6ff', glow: 'rgba(184, 230, 255, 0.6)' }
   };
 
   var loadout = {
@@ -1086,7 +1099,7 @@
     aiWeapon: 'M4'
   };
 
-  var ULT_COST = { '😡': 7, '😇': 6, '🤣': 7, '🦷': 7 };
+  var ULT_COST = { '😡': 7, '😇': 6, '🤣': 7, '🦷': 7, '👻': 8 };
   var BULL_WIN_SCORE = 13;
   var selectedMatch = { opponent: 'ai', mode: 'duel', map: 'training' };
 
@@ -1579,6 +1592,16 @@
       rollTouching: false,
       lastRollHit: -999,
       laser: null,
+      ghostClone: null,
+      ghostInvisUntil: 0,
+      ghostAnchor: null,
+      ghostBuffUntil: 0,
+      ghostSpeedUntil: 0,
+      ghostESpeedUntil: 0,
+      blindUntil: 0, // 👻
+
+      lastSeenX: spawnX,
+      lastSeenY: GROUND_Y - R,
       eUsed: false,
       eUsesLeft: char === '🦷' ? 2 : 1,
       qUsed: false,
@@ -2383,6 +2406,7 @@
     if (rooted) dir = 0;
 
     var maxSpeed = BASE_SPEED * (rolling ? 2 : 1);
+    if (g.ghostSpeedUntil > game.gameTime) maxSpeed *= 1.5;
     accelerate(g, dir, maxSpeed, dt);
     if (rooted) g.vx = 0;
 
@@ -2425,6 +2449,26 @@
       ultPoints: f.ultPoints || 0,
       goldDotUntil: f.goldDotUntil,
       goldDotNextTick: f.goldDotNextTick,
+      ghostClone: f.ghostClone ? {
+        x: f.ghostClone.x,
+        y: f.ghostClone.y,
+        r: f.ghostClone.r,
+        aim: f.ghostClone.aim,
+        char: f.ghostClone.char,
+        weapon: f.ghostClone.weapon
+      } : null,
+      ghostInvisUntil: f.ghostInvisUntil,
+      ghostAnchor: f.ghostAnchor ? {
+        x: f.ghostAnchor.x,
+        y: f.ghostAnchor.y,
+        until: f.ghostAnchor.until
+      } : null,
+      ghostBuffUntil: f.ghostBuffUntil,
+      ghostSpeedUntil: f.ghostSpeedUntil,
+      ghostESpeedUntil: f.ghostESpeedUntil,
+      blindUntil: f.blindUntil, // 👻
+      lastSeenX: f.lastSeenX,
+      lastSeenY: f.lastSeenY,
       revived: f.revived,
       reviveAt: f.reviveAt,
       deathX: f.deathX,
@@ -2517,6 +2561,23 @@
     local.goldDotUntil = data.goldDotUntil || 0;
     local.goldDotNextTick = data.goldDotNextTick || 0;
     local.goldDotSource = null;
+    local.ghostClone = data.ghostClone || null;
+    if (local.ghostClone) {
+      local.ghostClone.owner = local;
+      local.ghostClone.isClone = true;
+      local.ghostClone.vx = 0;
+      local.ghostClone.vy = 0;
+      local.ghostClone.alive = true;
+    }
+    local.ghostInvisUntil = data.ghostInvisUntil || 0;
+    local.ghostAnchor = data.ghostAnchor || null;
+    if (local.ghostAnchor) local.ghostAnchor.owner = local;
+    local.ghostBuffUntil = data.ghostBuffUntil || 0;
+    local.ghostSpeedUntil = data.ghostSpeedUntil || 0;
+    local.ghostESpeedUntil = data.ghostESpeedUntil || 0;
+    local.blindUntil = data.blindUntil || 0; // 👻
+    local.lastSeenX = data.lastSeenX !== undefined ? data.lastSeenX : local.x;
+    local.lastSeenY = data.lastSeenY !== undefined ? data.lastSeenY : local.y;
     local.revived = data.revived;
     local.reviveAt = data.reviveAt;
     local.deathX = data.deathX;
@@ -3007,6 +3068,7 @@
     if (rooted) dir = 0;
 
     var maxSpeed = BASE_SPEED * (rolling ? 2 : 1) * (p.buffUntil > game.gameTime ? 1.2 : 1);
+    if (p.ghostSpeedUntil > game.gameTime) maxSpeed *= 1.5;
     accelerate(p, dir, maxSpeed, dt);
     if (rooted) p.vx = 0;
 
@@ -3073,10 +3135,31 @@
       return;
     }
 
+    if (isGhostInvisible(p)) {
+      if (p.ghostClone) {
+        p = p.ghostClone;
+      } else {
+        p = {
+          x: p.lastSeenX,
+          y: p.lastSeenY,
+          vx: 0,
+          vy: 0,
+          r: p.r,
+          alive: true,
+          char: p.char,
+          ghostClone: null
+        };
+      }
+    } else {
+      p.lastSeenX = p.x;
+      p.lastSeenY = p.y;
+    }
+
     var dx = p.x - ai.x;
     var dy = p.y - ai.y;
     var distance = Math.hypot(dx, dy);
     var los = hasLOS(ai, p);
+    var aiBlind = ai.blindUntil > game.gameTime;
 
     var rolling = isRolling(ai);
     var rooted = isRooted(ai);
@@ -3124,6 +3207,7 @@
     }
 
     var maxSpeed = 320 * (rolling ? 2 : 1) * (ai.buffUntil > game.gameTime ? 1.2 : 1);
+    if (ai.ghostSpeedUntil > game.gameTime) maxSpeed *= 1.5;
     accelerate(ai, dir, maxSpeed, dt);
     if (rooted) ai.vx = 0;
 
@@ -3146,10 +3230,12 @@
       ai.ai.dropCd = 1.5;
     }
 
-    var lead = 0.06;
-    var tx = p.x + p.vx * lead;
-    var ty = p.y + p.vy * lead;
-    ai.aim = Math.atan2(ty - ai.y, tx - ai.x);
+    if (!aiBlind) {
+      var lead = 0.06;
+      var tx = p.x + p.vx * lead;
+      var ty = p.y + p.vy * lead;
+      ai.aim = Math.atan2(ty - ai.y, tx - ai.x);
+    }
 
     if (ai.char === '😡') {
       if (!ai.eUsed && distance < 620 && game.gameTime > 1.2) useAngryE(ai);
@@ -3169,9 +3255,15 @@
           (distance < 380 || isRooted(p))) {
         useToothQ(ai);
       }
+    } else if (ai.char === '👻') {
+      if (!ai.eUsed && (rooted || ai.hp < 100) && game.gameTime > 1.5) useGhostE(ai);
+      if (!ai.qUsed && ultReady(ai) && distance < 400 && game.gameTime > 3) useGhostQ(ai);
     }
 
-    if (!rolling) {
+    if (aiBlind) {
+      ai.ai.reaction = 0;
+      ai.ai.burstLeft = 0;
+    } else if (!rolling) {
       if (ai.rocketMode) {
         if (los && ai.fireCd <= 0) {
           fireRocket(ai);
@@ -3357,12 +3449,127 @@
     return true;
   }
 
+  function isGhostInvisible(f) {
+    return !!(f && f.ghostInvisUntil > game.gameTime);
+  }
+
+  function useGhostE(f) {
+    if (!f || !f.alive || f.eUsed || isRolling(f)) return false;
+    f.eUsed = true;
+
+    var landY = GROUND_Y - f.r;
+    for (var i = 0; i < PLATFORMS.length; i++) {
+      var pl = PLATFORMS[i];
+      if (f.x + f.r > pl.x && f.x - f.r < pl.x + pl.w &&
+          pl.y >= f.y && pl.y - f.r < landY) {
+        landY = pl.y - f.r;
+      }
+    }
+
+    f.ghostClone = {
+      x: f.x,
+      y: landY,
+      r: f.r,
+      aim: f.aim,
+      char: f.char,
+      weapon: f.weapon,
+      hp: 1,
+      vx: 0,
+      vy: 0,
+      alive: true,
+      owner: f,
+      isClone: true
+    };
+    f.ghostInvisUntil = game.gameTime + 1.5;
+    f.ghostESpeedUntil = game.gameTime + 1.5;
+    f.ghostSpeedUntil = Math.max(f.ghostSpeedUntil, f.ghostESpeedUntil);
+    f.rootUntil = 0;
+    f.slowUntil = 0;
+    spawnParticles(f.x, f.y, '#b8e6ff', 24, 180, 0.55);
+    addText(f.x, f.y - 50, '大梦', '#b8e6ff');
+    return true;
+  }
+
+  function useGhostQ(f) {
+    if (!canUseUltQ(f) || isRolling(f)) return false;
+    if (f.ghostInvisUntil > game.gameTime) f.ghostInvisUntil = 0;
+    f.qUsed = true;
+    spendUlt(f);
+    f.ghostAnchor = {
+      x: f.x,
+      y: f.y,
+      until: game.gameTime + 10,
+      owner: f
+    };
+    f.ghostBuffUntil = game.gameTime + 10;
+    f.ghostSpeedUntil = Math.max(f.ghostSpeedUntil, game.gameTime + 10);
+    spawnParticles(f.x, f.y, '#b8e6ff', 30, 220, 0.6);
+    addText(f.x, f.y - 52, '长恨', '#b8e6ff');
+    return true;
+  }
+
+  function destroyGhostClone(f) {
+    if (!f || !f.ghostClone) return;
+    var c = f.ghostClone;
+    f.ghostClone = null;
+    var enemy = f === game.players.player ? game.players.ai : game.players.player;
+    if (enemy && enemy.alive) {
+      if (Math.hypot(c.x - enemy.x, c.y - enemy.y) <= 150) {
+        enemy.blindUntil = Math.max(enemy.blindUntil, game.gameTime + 2);
+        addText(enemy.x, enemy.y - 60, '致盲 2s', '#b8e6ff');
+      }
+    }
+    spawnParticles(c.x, c.y, '#b8e6ff', 20, 200, 0.5);
+  }
+
+  function updateGhostSkills(dt) {
+    var fs = [game.players.player, game.players.ai];
+    for (var i = 0; i < fs.length; i++) {
+      var f = fs[i];
+      if (!f || !f.alive) continue;
+
+      if (f.ghostBuffUntil > 0 && game.gameTime >= f.ghostBuffUntil) {
+        if (f.ghostAnchor) {
+          f.x = f.ghostAnchor.x;
+          f.y = f.ghostAnchor.y;
+          f.vx = 0;
+          f.vy = 0;
+          f.onGround = false;
+          f.standing = null;
+          f.dropTimer = 0;
+          spawnParticles(f.x, f.y, '#b8e6ff', 20, 180, 0.5);
+          addText(f.x, f.y - 50, '长恨归位', '#b8e6ff');
+        }
+        f.ghostAnchor = null;
+        f.ghostBuffUntil = 0;
+        f.ghostSpeedUntil = (f.ghostESpeedUntil || 0) > game.gameTime ? f.ghostESpeedUntil : 0;
+      }
+
+      if (f.ghostInvisUntil > 0 && game.gameTime >= f.ghostInvisUntil) f.ghostInvisUntil = 0;
+      if (f.blindUntil > 0 && game.gameTime >= f.blindUntil) f.blindUntil = 0;
+
+      if (f.ghostClone) {
+        var c = f.ghostClone;
+        var groundY = GROUND_Y - c.r;
+        for (var j = 0; j < PLATFORMS.length; j++) {
+          var pl = PLATFORMS[j];
+          if (c.x + c.r > pl.x && c.x - c.r < pl.x + pl.w &&
+              pl.y >= c.y && pl.y - c.r < groundY) {
+            groundY = pl.y - c.r;
+          }
+        }
+        if (c.y < groundY) c.y = Math.min(groundY, c.y + 600 * Math.max(0, Math.min(dt, 0.05)));
+      }
+    }
+  }
+
   function useFighterE(f) {
     if (!f || !f.alive) return;
     if (f.char === '😡') useAngryE(f);
     else if (f.char === '😇') useAngelE(f);
     else if (f.char === '🤣') useLaser(f);
     else if (f.char === '🦷') useToothE(f);
+    else if (f.char === '👻') useGhostE(f);
   }
 
   function useFighterQ(f) {
@@ -3370,6 +3577,7 @@
     if (f.char === '😡') return equipRocket(f);
     if (f.char === '🤣') return useRoll(f);
     if (f.char === '🦷') return useToothQ(f);
+    if (f.char === '👻') return useGhostQ(f);
     return false;
   }
 
@@ -3390,6 +3598,7 @@
 
   function fireBullet(f) {
     if (!f || !f.alive || f.reloading || isRolling(f)) return false;
+    if (f.ghostInvisUntil > game.gameTime) f.ghostInvisUntil = 0;
 
     if (f.mag <= 0) {
       if (f.reserveMags > 0) startReload(f);
@@ -3420,7 +3629,11 @@
     });
 
     f.mag--;
-    f.fireCd = w.interval * (f.slowUntil > game.gameTime ? 2 : 1);
+    var rateMul = 1;
+    if (f.slowUntil > game.gameTime) rateMul -= 0.5;
+    if (f.ghostBuffUntil > game.gameTime) rateMul += 0.5;
+    rateMul = Math.max(0.1, rateMul);
+    f.fireCd = w.interval / rateMul;
     f.muzzle = 0.06;
     spawnParticles(mx, my, w.color, 3, 90, 0.12, angle);
 
@@ -3430,6 +3643,7 @@
 
   function fireRocket(f) {
     if (!f.rocketMode) return;
+    if (f.ghostInvisUntil > game.gameTime) f.ghostInvisUntil = 0;
 
     var angle = f.aim;
     if (f.isAI) angle += rand(-0.02, 0.02);
@@ -3471,11 +3685,16 @@
       if (d <= 100 + target.r) {
         damageFighter(target, 150, owner);
       }
+      if (target.ghostClone) {
+        var c = target.ghostClone;
+        if (dist2(x, y, c.x, c.y) <= 100 + c.r) destroyGhostClone(target);
+      }
     }
   }
 
   function damageFighter(target, amount, attacker) {
     if (!target || !target.alive || game.mode !== 'playing') return;
+    if (target.ghostInvisUntil > game.gameTime) target.ghostInvisUntil = 0;
     var damage = amount;
     if (isRolling(target)) damage = Math.max(1, Math.ceil(amount * 0.3));
     target.hp = Math.max(0, target.hp - damage);
@@ -3488,6 +3707,33 @@
 
   function handleDeath(victim, killer) {
     if (!victim || !victim.alive) return;
+
+    if (victim.char === '👻' && victim.ghostBuffUntil > game.gameTime && victim.ghostAnchor) {
+      victim.hp = 100;
+      victim.x = victim.ghostAnchor.x;
+      victim.y = victim.ghostAnchor.y;
+      victim.vx = 0;
+      victim.vy = 0;
+      victim.onGround = false;
+      victim.standing = null;
+      victim.dropTimer = 0;
+      victim.rootUntil = 0;
+      victim.slowUntil = 0;
+      clearGoldDot(victim);
+      victim.ghostAnchor = null;
+      victim.ghostBuffUntil = 0;
+      victim.ghostSpeedUntil = 0;
+      victim.ghostESpeedUntil = 0;
+      victim.blindUntil = 0;
+      spawnParticles(victim.x, victim.y, '#b8e6ff', 30, 220, 0.6);
+      addText(victim.x, victim.y - 50, '长恨复活', '#b8e6ff');
+      notify('👻 长恨复活：100 血', '#b8e6ff', 2);
+      if (isBullMatch() && game.bull && game.bull.phase === 'playing' &&
+          killer && killer.alive && killer !== victim) {
+        addUltPoints(killer, 2);
+      }
+      return;
+    }
 
     victim.alive = false;
     victim.deathX = victim.x;
@@ -3502,7 +3748,7 @@
     var couldRevive = canAngelRevive(victim);
     if (isBullMatch() && game.bull && game.bull.phase === 'playing' && !revivedAngelDeath) {
       if (killer && killer.alive && killer !== victim) addUltPoints(killer, 2);
-      addUltPoints(victim, 1);
+      if (!(victim.char === '👻' && victim.ghostBuffUntil > game.gameTime)) addUltPoints(victim, 1);
     }
 
     if (killer && killer.alive && killer.reviveDeadline) {
@@ -3613,6 +3859,13 @@
     f.damageFlash = 0;
     f.reviveAt = 0;
     clearGoldDot(f);
+    f.ghostClone = null;
+    f.ghostInvisUntil = 0;
+    f.ghostAnchor = null;
+    f.ghostBuffUntil = 0;
+    f.ghostSpeedUntil = 0;
+    f.ghostESpeedUntil = 0;
+    f.blindUntil = 0; // 👻
     f.reviveDeadline = game.gameTime + 10;
     f.aim = Math.atan2((f.isAI ? game.players.player.y : game.players.ai.y) - f.y,
                        (f.isAI ? game.players.player.x : game.players.ai.x) - f.x);
@@ -3928,6 +4181,18 @@
             bestType = 'enemy';
           }
         }
+        if (target.ghostClone) {
+          var gc = target.ghostClone;
+          var tgc = segmentCircleT(b.x, b.y, b.x + b.dx * remaining, b.y + b.dy * remaining,
+            gc.x, gc.y, gc.r + b.radius);
+          if (tgc !== null) {
+            var dgc = tgc * remaining;
+            if (dgc <= bestD) {
+              bestD = dgc;
+              bestType = 'clone';
+            }
+          }
+        }
       }
 
       for (var pi = 0; pi < PLATFORMS.length; pi++) {
@@ -3985,6 +4250,12 @@
       b.x += b.dx * bestD;
       b.y += b.dy * bestD;
       remaining -= bestD;
+
+      if (bestType === 'clone') {
+        destroyGhostClone(target);
+        spawnParticles(b.x, b.y, '#b8e6ff', 10, 160, 0.4);
+        return true;
+      }
 
       if (bestType === 'enemy') {
         if (b.goldDot) {
@@ -4082,6 +4353,16 @@
         }
       }
 
+      var enemyF = b.owner === game.players.player ? game.players.ai : game.players.player;
+      if (enemyF && enemyF.ghostClone) {
+        var cg = enemyF.ghostClone;
+        var tcg = segmentCircleT(b.x, b.y, nx, ny, cg.x, cg.y, cg.r + b.radius);
+        if (tcg !== null && tcg <= hitT) {
+          hitT = tcg;
+          hit = { type: 'clone', target: cg, enemy: enemyF };
+        }
+      }
+
       if (hit) {
         var hx = b.x + (nx - b.x) * hitT;
         var hy = b.y + (ny - b.y) * hitT;
@@ -4089,7 +4370,11 @@
         b.y = hy;
 
         if (b.type === 'rocket') {
+          if (hit.type === 'clone') destroyGhostClone(hit.enemy);
           explosiveDamage(hx, hy, b.owner);
+        } else if (hit.type === 'clone') {
+          destroyGhostClone(hit.enemy);
+          spawnParticles(hx, hy, '#b8e6ff', 10, 140, 0.35);
         } else if (hit.type === 'fighter') {
           damageFighter(hit.target, b.damage, b.owner);
         } else {
@@ -4241,6 +4526,12 @@
       damageFighter(target, 50, roller);
       roller.lastRollHit = game.gameTime;
     }
+    if (target.ghostClone) {
+      var c = target.ghostClone;
+      if (Math.hypot(roller.x - c.x, roller.y - c.y) <= roller.r + c.r) {
+        destroyGhostClone(target);
+      }
+    }
     roller.rollTouching = touching;
   }
 
@@ -4271,6 +4562,9 @@
     if (game.mode !== 'playing') return;
 
     updateLasers();
+    if (game.mode !== 'playing') return;
+
+    updateGhostSkills(dt);
     if (game.mode !== 'playing') return;
 
     checkRollCollisions();
@@ -5049,8 +5343,87 @@
     ctx.restore();
   }
 
+  function drawGhostClone(f) {
+    if (!f || !f.ghostClone) return;
+    var c = f.ghostClone;
+    var self = f === game.players.player;
+    var nameText = f.isAI ? (game.onlineMode ? '对手' : 'AI') : '你';
+
+    ctx.save();
+    if (self) ctx.globalAlpha = 0.45;
+
+    drawGun({
+      x: c.x,
+      y: c.y,
+      aim: c.aim,
+      r: c.r,
+      weapon: c.weapon || f.weapon,
+      rocketMode: false,
+      char: f.char,
+      muzzle: 0
+    });
+
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8, 12, 20, 0.94)';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = CHARS[f.char].color;
+    ctx.stroke();
+
+    ctx.font = '43px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(f.char, c.x, c.y + 2);
+
+    ctx.font = '600 11px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = f.isAI ? 'rgba(255, 120, 130, 0.9)' : 'rgba(120, 235, 250, 0.9)';
+    ctx.fillText(nameText, c.x, c.y - c.r - 16);
+    ctx.restore();
+  }
+
+  function drawGhostAnchor(f) {
+    if (!f || !f.ghostAnchor) return;
+    var a = f.ghostAnchor;
+    var remain = Math.max(0, a.until - game.gameTime);
+
+    ctx.save();
+    ctx.globalAlpha = 0.7 + Math.sin(game.gameTime * 4) * 0.2;
+    ctx.strokeStyle = '#b8e6ff';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.arc(a.x, a.y, 30, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = '800 12px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#b8e6ff';
+    ctx.fillText('锚点 ' + remain.toFixed(1) + 's', a.x, a.y - 40);
+    ctx.restore();
+  }
+
+  function drawBlindOverlay() {
+    var p = game.players.player;
+    if (!p || game.mode !== 'playing' || p.blindUntil <= game.gameTime) return;
+    var remain = p.blindUntil - game.gameTime;
+    var alpha = Math.min(1, remain / 0.3);
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = '220px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(184, 230, 255, 0.85)';
+    ctx.fillText('👻', W / 2, H / 2);
+    ctx.restore();
+  }
+
   function drawFighter(f, now) {
     if (!f) return;
+    if (f === game.players.ai && isGhostInvisible(f)) return;
 
     if (!f.alive) {
       ctx.save();
@@ -5488,6 +5861,24 @@
     var barName = f.isAI ? (game.onlineMode ? '对手 ' : 'AI ') : '你 ';
     ctx.fillText(barName + f.char + '  ' + CHARS[f.char].name, alignRight ? x + w : x, y - 9);
 
+    var hideHp = game.onlineMode && f === game.players.ai;
+    if (hideHp) {
+      ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#eef3fa';
+      var ultText;
+      if (isBullMatch()) {
+        ultText = '大招 ' + (f.ultPoints || 0) + '/' + ultCost(f);
+      } else if (f.rocketMode || isRolling(f) || f.revived ||
+                 (f.ghostBuffUntil && f.ghostBuffUntil > game.gameTime)) {
+        ultText = '大招进行中';
+      } else {
+        ultText = f.qUsed ? '大招已使用' : '大招可用';
+      }
+      ctx.fillText(ultText, alignRight ? x : x + w, y - 9);
+      ctx.restore();
+      return;
+    }
+
     ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#eef3fa';
     ctx.fillText(Math.ceil(f.hp) + ' / ' + f.maxHp, alignRight ? x : x + w, y - 9);
@@ -5561,6 +5952,24 @@
         e: f.eUsed ? '已使用' : (f.hp < f.maxHp ? '回复最多 100' : '生命已满'),
         q: angelQ
       };
+    }
+
+    if (f.char === '👻') {
+      var ghostE;
+      if (isGhostInvisible(f)) ghostE = '隐身 ' + (f.ghostInvisUntil - game.gameTime).toFixed(1) + 's';
+      else if (f.eUsed) ghostE = f.ghostClone ? '分身已放置' : '已使用';
+      else ghostE = '分身 + 隐身 1.5s';
+      var ghostQ;
+      if (f.ghostBuffUntil > game.gameTime) {
+        ghostQ = '长恨 ' + (f.ghostBuffUntil - game.gameTime).toFixed(1) + 's';
+      } else if (isBullMatch()) {
+        ghostQ = bullQStatus(f, '长恨');
+      } else if (f.qUsed) {
+        ghostQ = '已使用';
+      } else {
+        ghostQ = '长恨 10s · 锚点复活';
+      }
+      return { e: ghostE, q: ghostQ };
     }
 
     if (f.char === '🦷') {
@@ -5690,6 +6099,7 @@
     else if (p.char === '😇') eTitle = '小招 · 逢春';
     else if (p.char === '🤣') eTitle = '小招 · 招笑';
     else if (p.char === '🦷') eTitle = '小招 · 回旋爪弹';
+    else if (p.char === '👻') eTitle = '小招 · 大梦';
 
     var qTitle = '大招 · 化蝶';
     var qActive = false;
@@ -5706,6 +6116,12 @@
     } else if (p.char === '🤣') {
       qTitle = '大招 · 大运来了';
       qActive = isRolling(p);
+      qDisabled = isBullMatch()
+        ? ((p.qUsed || !ultReady(p)) && !qActive)
+        : (p.qUsed && !qActive);
+    } else if (p.char === '👻') {
+      qTitle = '大招 · 长恨';
+      qActive = p.ghostBuffUntil > game.gameTime;
       qDisabled = isBullMatch()
         ? ((p.qUsed || !ultReady(p)) && !qActive)
         : (p.qUsed && !qActive);
@@ -5821,6 +6237,10 @@
 
     if (game.players.player) drawFighter(game.players.player, now);
     if (game.players.ai) drawFighter(game.players.ai, now);
+    drawGhostClone(game.players.player);
+    drawGhostClone(game.players.ai);
+    drawGhostAnchor(game.players.player);
+    drawGhostAnchor(game.players.ai);
 
     drawBullets();
     drawLasers();
@@ -5842,6 +6262,8 @@
     ctx.strokeStyle = 'rgba(110, 150, 220, 0.16)';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, W - 2, H - 2);
+
+    drawBlindOverlay();
 
     ctx.restore();
   }
