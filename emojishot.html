@@ -853,7 +853,7 @@
           <div class="tutChar">
             <h4>👻 我很忧郁</h4>
             <ul>
-              <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。释放时会解除定身和减速，但不会解除黄金回旋。分身被摧毁时，以分身为中心半径 150 范围内的敌人致盲 2 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
+              <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。释放时会解除定身和减速，但不会解除黄金回旋。分身被摧毁时，无论距离，敌方致盲 0.5 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
               <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 10 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。10 秒内死亡则在锚点以 100 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；10 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
             </ul>
           </div>
@@ -3514,10 +3514,8 @@
     f.ghostClone = null;
     var enemy = f === game.players.player ? game.players.ai : game.players.player;
     if (enemy && enemy.alive && !isRolling(enemy)) {
-      if (Math.hypot(c.x - enemy.x, c.y - enemy.y) <= 150) {
-        enemy.blindUntil = Math.max(enemy.blindUntil, game.gameTime + 2);
-        addText(enemy.x, enemy.y - 60, '致盲 2s', '#b8e6ff');
-      }
+      enemy.blindUntil = Math.max(enemy.blindUntil, game.gameTime + 0.5);
+      addText(enemy.x, enemy.y - 60, '致盲 0.5s', '#b8e6ff');
     }
     spawnParticles(c.x, c.y, '#b8e6ff', 20, 200, 0.5);
   }
@@ -5416,7 +5414,7 @@
     var p = game.players.player;
     if (!p || game.mode !== 'playing' || p.blindUntil <= game.gameTime) return;
     var remain = p.blindUntil - game.gameTime;
-    var alpha = Math.min(1, remain / 0.3);
+    var alpha = Math.min(1, remain / 0.12);
 
     ctx.save();
     ctx.globalAlpha = alpha;
