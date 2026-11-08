@@ -854,7 +854,7 @@
             <h4>👻 我很忧郁</h4>
             <ul>
               <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。释放时会解除定身和减速，但不会解除黄金回旋。分身被摧毁时，无论距离，敌方致盲 0.5 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
-              <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 10 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。10 秒内死亡则在锚点以 100 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；10 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
+              <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 5 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。5 秒内死亡则在锚点以 50 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；5 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
             </ul>
           </div>
         </section>
@@ -1913,8 +1913,14 @@
       if (action === 'jump') sendGuestAction('jump');
       else if (action === 'drop') sendGuestAction('drop');
       else if (action === 'reload') sendGuestAction('reload');
-      else if (action === 'skillE') sendGuestAction('E');
-      else if (action === 'skillQ') {
+      else if (action === 'skillE') {
+        var gp = game.players.player;
+        if (gp && gp.char === '👻' && !gp.eUsed) {
+          spawnParticles(gp.x, gp.y, '#b8e6ff', 24, 180, 0.55);
+          addText(gp.x, gp.y - 50, '大梦', '#b8e6ff');
+        }
+        sendGuestAction('E');
+      } else if (action === 'skillQ') {
         var gp = game.players.player;
         if (gp && isBullMatch() && gp.char !== '😇' && !gp.qUsed && (gp.ultPoints || 0) < ultCost(gp)) {
           notify('大招点不足：' + (gp.ultPoints || 0) + '/' + ultCost(gp), '#ffd166', 1.2);
@@ -3485,7 +3491,10 @@
     f.ghostSpeedUntil = Math.max(f.ghostSpeedUntil, f.ghostESpeedUntil);
     f.rootUntil = 0;
     f.slowUntil = 0;
-    spawnParticles(f.x, f.y, '#b8e6ff', 24, 180, 0.55);
+    if (f === game.players.player) {
+      spawnParticles(f.x, f.y, '#b8e6ff', 24, 180, 0.55);
+      addText(f.x, f.y - 50, '大梦', '#b8e6ff');
+    }
     return true;
   }
 
@@ -3497,11 +3506,11 @@
     f.ghostAnchor = {
       x: f.x,
       y: f.y,
-      until: game.gameTime + 10,
+      until: game.gameTime + 5,
       owner: f
     };
-    f.ghostBuffUntil = game.gameTime + 10;
-    f.ghostSpeedUntil = Math.max(f.ghostSpeedUntil, game.gameTime + 10);
+    f.ghostBuffUntil = game.gameTime + 5;
+    f.ghostSpeedUntil = Math.max(f.ghostSpeedUntil, game.gameTime + 5);
     spawnParticles(f.x, f.y, '#b8e6ff', 30, 220, 0.6);
     addText(f.x, f.y - 52, '长恨', '#b8e6ff');
     return true;
@@ -3713,7 +3722,7 @@
     if (!victim || !victim.alive) return;
 
     if (victim.char === '👻' && victim.ghostBuffUntil > game.gameTime && victim.ghostAnchor) {
-      victim.hp = 100;
+      victim.hp = 50;
       victim.x = victim.ghostAnchor.x;
       victim.y = victim.ghostAnchor.y;
       victim.vx = 0;
@@ -3731,7 +3740,7 @@
       victim.blindUntil = 0;
       spawnParticles(victim.x, victim.y, '#b8e6ff', 30, 220, 0.6);
       addText(victim.x, victim.y - 50, '长恨复活', '#b8e6ff');
-      notify('👻 长恨复活：100 血', '#b8e6ff', 2);
+      notify('👻 长恨复活：50 血', '#b8e6ff', 2);
       if (isBullMatch() && game.bull && game.bull.phase === 'playing' &&
           killer && killer.alive && killer !== victim) {
         addUltPoints(killer, 2);
@@ -5968,7 +5977,7 @@
       } else if (f.qUsed) {
         ghostQ = '已使用';
       } else {
-        ghostQ = '长恨 10s · 锚点复活';
+        ghostQ = '长恨 5s · 锚点复活';
       }
       return { e: ghostE, q: ghostQ };
     }
