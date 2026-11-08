@@ -574,7 +574,7 @@
           <button type="button" class="choice" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
-          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
         </div>
       </section>
 
@@ -585,7 +585,7 @@
           <button type="button" class="choice" data-value="😡">😡 超级生气暴怒<small>充能疾驰 / 晚安焰火</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
-          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
         </div>
       </section>
 
@@ -700,7 +700,7 @@
           <button type="button" class="choice" data-value="😇">😇 头顶游泳圈<small>逢春 / 化蝶</small></button>
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
-          <button type="button" class="choice" data-value="👻">👻 幽灵<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
         </div>
         <span class="fieldLabel">枪械</span>
         <div class="choices" data-group="onlineWeapon">
@@ -832,14 +832,14 @@
             <h4>😇 头顶游泳圈</h4>
             <ul>
               <li><b>小招 逢春</b>：最多回复 100 点生命，不超过 150。</li>
-              <li><b>大招 化蝶</b>：死亡后 3 秒内可选择释放；满血复活，并在 10 秒内造成击杀，否则再次死亡。</li>
+              <li><b>大招 化蝶</b>：死亡后 3 秒内可选择释放；满血复活，并在 10 秒内造成击杀，否则再次死亡。击杀处于长恨状态并触发锚点复活的👻也算造成击杀。</li>
             </ul>
           </div>
           <div class="tutChar">
             <h4>🤣 乐子</h4>
             <ul>
               <li><b>小招 招笑</b>：向准心方向发射全图蓝色激光，持续 0.2 秒，不造成伤害；命中后对方 2 秒内无法移动、跳跃和下落，主武器射速 -50%，仍可使用技能和射击；火箭不受影响。</li>
-              <li><b>大招 大运来了</b>：持续 4 秒，受到的所有伤害降低 70%（每段伤害向上取整），免疫 debuff，移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身。</li>
+              <li><b>大招 大运来了</b>：持续 4 秒，受到的所有伤害降低 70%（每段伤害向上取整），免疫除黄金回旋外的所有 debuff；黄金回旋仍会生效，但伤害同样减伤。移动速度 +100%，可以跳跃，但无法使用小招和射击；释放时立即解除定身、减速和致盲。</li>
               <li><b>滚动撞击</b>：碰到敌方造成 50 伤害；每次接触计算一次，每秒最多一次，4 秒最多 4 次；滚动会被墙和平台阻挡。</li>
             </ul>
           </div>
@@ -851,9 +851,9 @@
             </ul>
           </div>
           <div class="tutChar">
-            <h4>👻 幽灵</h4>
+            <h4>👻 我很忧郁</h4>
             <ul>
-              <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。分身被摧毁时，以分身为中心半径 150 范围内的敌人致盲 2 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
+              <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。释放时会解除定身和减速，但不会解除黄金回旋。分身被摧毁时，以分身为中心半径 150 范围内的敌人致盲 2 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
               <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 10 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。10 秒内死亡则在锚点以 100 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；10 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
             </ul>
           </div>
@@ -1089,7 +1089,7 @@
     '😇': { name: '头顶游泳圈', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
     '🤣': { name: '乐子', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
     '🦷': { name: '獠牙', color: '#ff6ec7', glow: 'rgba(255, 110, 199, 0.6)' },
-    '👻': { name: '幽灵', color: '#b8e6ff', glow: 'rgba(184, 230, 255, 0.6)' }
+    '👻': { name: '我很忧郁', color: '#b8e6ff', glow: 'rgba(184, 230, 255, 0.6)' }
   };
 
   var loadout = {
@@ -3251,7 +3251,7 @@
           ai.ai.toothECd <= 0 && useToothE(ai)) {
         ai.ai.toothECd = 0.9;
       }
-      if (!rolling && !ai.qUsed && p.alive && !isInvincible(p) && game.gameTime > 1.5 &&
+      if (!rolling && !ai.qUsed && p.alive && game.gameTime > 1.5 &&
           (distance < 380 || isRooted(p))) {
         useToothQ(ai);
       }
@@ -3359,7 +3359,7 @@
     f.rollingUntil = game.gameTime + 4;
     f.rootUntil = 0;
     f.slowUntil = 0;
-    clearGoldDot(f);
+    f.blindUntil = 0;
     f.rollTouching = false;
     f.lastRollHit = -999;
     spawnParticles(f.x, f.y, '#c084fc', 30, 240, 0.7);
@@ -3399,7 +3399,7 @@
   }
 
   function applyGoldDot(f, source) {
-    if (!f || !f.alive || isInvincible(f)) return false;
+    if (!f || !f.alive) return false;
 
     var active = f.goldDotUntil > game.gameTime;
     f.goldDotUntil = game.gameTime + 5;
@@ -3513,7 +3513,7 @@
     var c = f.ghostClone;
     f.ghostClone = null;
     var enemy = f === game.players.player ? game.players.ai : game.players.player;
-    if (enemy && enemy.alive) {
+    if (enemy && enemy.alive && !isRolling(enemy)) {
       if (Math.hypot(c.x - enemy.x, c.y - enemy.y) <= 150) {
         enemy.blindUntil = Math.max(enemy.blindUntil, game.gameTime + 2);
         addText(enemy.x, enemy.y - 60, '致盲 2s', '#b8e6ff');
@@ -3705,6 +3705,13 @@
     if (target.hp <= 0) handleDeath(target, attacker);
   }
 
+  function creditRevivedKiller(killer) {
+    if (!killer || !killer.alive || !killer.reviveDeadline) return;
+    killer.reviveDeadline = 0;
+    var killerName = killer.isAI ? (game.onlineMode ? '对手 ' : 'AI ') : '你 ';
+    notify(killerName + '复活成功：已造成击杀', '#7df7c4', 2.4);
+  }
+
   function handleDeath(victim, killer) {
     if (!victim || !victim.alive) return;
 
@@ -3732,6 +3739,7 @@
           killer && killer.alive && killer !== victim) {
         addUltPoints(killer, 2);
       }
+      creditRevivedKiller(killer);
       return;
     }
 
@@ -3751,11 +3759,7 @@
       if (!(victim.char === '👻' && victim.ghostBuffUntil > game.gameTime)) addUltPoints(victim, 1);
     }
 
-    if (killer && killer.alive && killer.reviveDeadline) {
-      killer.reviveDeadline = 0;
-      var killerName = killer.isAI ? (game.onlineMode ? '对手 ' : 'AI ') : '你 ';
-      notify(killerName + '复活成功：已造成击杀', '#7df7c4', 2.4);
-    }
+    creditRevivedKiller(killer);
 
     if (couldRevive) {
       if (game.onlineMode && game.onlineRole === 'host' && victim === game.players.ai) {
