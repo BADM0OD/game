@@ -1027,7 +1027,8 @@
     var slopes = [];
     var coupleWalls = [];
 
-    var F = [1640, 1340, 1040, 740, 440, 260];
+    // 6 层，每层统一 300；L6 楼板 y=300，到地图顶部有完整 300 空间
+    var F = [1800, 1500, 1200, 900, 600, 300];
     var SHAFTS = [
       { x: 360, w: 480, type: 'left' },
       { x: 1320, w: 480, type: 'middle' },
@@ -1071,14 +1072,30 @@
 
       var step1Y = yLow - (yLow - yHigh) / 3;
       var step2Y = yLow - (yLow - yHigh) * 2 / 3;
+      var cx = MSh.x + MSh.w / 2;
+      var dir = k % 2 === 0 ? 1 : -1;
+      var stepW = 220;
+      var offset = 70;
 
-      // 中井：两级整宽跳台，方便从任意一侧走廊跳入并继续向上
-      platforms.push({ x: MSh.x, y: step1Y, w: MSh.w, h: 18, kType: 'jump' });
-      platforms.push({ x: MSh.x, y: step2Y, w: MSh.w, h: 18, kType: 'jump' });
+      // 中井：220 宽、左右交替偏移的之字形跳台
+      platforms.push({
+        x: cx - stepW / 2 + dir * offset,
+        y: step1Y,
+        w: stepW,
+        h: 18,
+        kType: 'jump'
+      });
+      platforms.push({
+        x: cx - stepW / 2 - dir * offset,
+        y: step2Y,
+        w: stepW,
+        h: 18,
+        kType: 'jump'
+      });
     }
 
     var slotXs = [40, 860, 1820, 2780];
-    for (var fi = 1; fi < F.length; fi++) {
+    for (var fi = 0; fi < F.length - 1; fi++) {
       for (var sj = 0; sj < slotXs.length; sj++) {
         platforms.push({ x: slotXs[sj], y: F[fi] - 150, w: 120, h: 18, kType: 'step' });
       }
@@ -1186,7 +1203,7 @@
     name: '控江中学',
     desc: '6 层教学楼 · 斜坡与跳台 · 可破坏情侣墙 · 垂直作战',
     w: 3200,
-    h: 1720,
+    h: 1860,
     viewW: 1600,
     viewH: 900,
     spawnLeft: 200,
@@ -3249,12 +3266,14 @@
   }
 
   function dropFighter(f) {
-    if (!f.onGround || !f.standing || f.standing.ground || f.standing.kSlope || f.standing.kWallTop) return false;
-    f.dropTimer = 0.12;
+    if (!f.onGround || !f.standing) return false;
+    if (f.standing.ground) return false;
+    if (f.standing.kWallTop) return false;   // 情侣墙顶不允许下落，只能走出边缘
+    f.dropTimer = 0.22;
     f.onGround = false;
     f.standing = null;
-    f.y += 3;
-    f.vy = Math.max(f.vy, 80);
+    f.y += 4;
+    f.vy = Math.max(f.vy, 120);
     return true;
   }
 
@@ -3529,9 +3548,12 @@
         }
       }
       // 站在平台边缘时先停住，等跳跃冷却结束后向上跳，避免直接走空
+      // 跳跃就绪时允许身体少量探出边缘，够到之字形跳台；冷却期间留在安全区内
       if (climb && ai.standing && !ai.standing.ground && !ai.standing.kSlope) {
-        var edgeL2 = ai.standing.x + ai.r + 2;
-        var edgeR2 = ai.standing.x + ai.standing.w - ai.r - 2;
+        var jumpReady = ai.ai.jumpCd <= 0;
+        var reach = jumpReady ? (ai.r - 6) : -6;
+        var edgeL2 = ai.standing.x - reach;
+        var edgeR2 = ai.standing.x + ai.standing.w + reach;
         if (dir > 0 && ai.x >= edgeR2) dir = 0;
         else if (dir < 0 && ai.x <= edgeL2) dir = 0;
       }
@@ -3555,7 +3577,7 @@
         var standR = ai.standing.x + ai.standing.w - ai.r;
         var towardTarget = (climb.tx < ai.x && ai.x <= standL + 4) ||
           (climb.tx > ai.x && ai.x >= standR - 4);
-        if (towardTarget && Math.abs(ai.x - climb.tx) < 160) aligned = true;
+        if (towardTarget && Math.abs(ai.x - climb.tx) < 215) aligned = true;
       }
       var needLos = !climb && !los && Math.abs(dx) < 420;
       if (aligned || needLos) {
@@ -5368,14 +5390,14 @@
 
   function drawSchoolWindow(c, x, y, w, h) {
     c.save();
-    c.fillStyle = '#f7fbff';
+    c.fillStyle = '#3a4d68';
     c.fillRect(x - 4, y - 4, w + 8, h + 8);
     var glass = c.createLinearGradient(0, y, 0, y + h);
-    glass.addColorStop(0, '#c7e8fa');
-    glass.addColorStop(1, '#83b8dc');
+    glass.addColorStop(0, '#2a4a6a');
+    glass.addColorStop(1, '#16283e');
     c.fillStyle = glass;
     c.fillRect(x, y, w, h);
-    c.strokeStyle = 'rgba(255,255,255,0.88)';
+    c.strokeStyle = 'rgba(120,170,220,0.55)';
     c.lineWidth = 2;
     c.beginPath();
     c.moveTo(x + w / 2, y);
@@ -5383,10 +5405,10 @@
     c.moveTo(x, y + h / 2);
     c.lineTo(x + w, y + h / 2);
     c.stroke();
-    c.strokeStyle = 'rgba(60,90,120,0.35)';
+    c.strokeStyle = 'rgba(80,120,170,0.45)';
     c.lineWidth = 1;
     c.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-    c.fillStyle = 'rgba(255,255,255,0.25)';
+    c.fillStyle = 'rgba(140,190,240,0.12)';
     c.beginPath();
     c.moveTo(x + 8, y + h - 8);
     c.lineTo(x + w - 12, y + 8);
@@ -5394,33 +5416,36 @@
     c.lineTo(x + 17, y + h - 8);
     c.closePath();
     c.fill();
-    c.fillStyle = '#d8e2ec';
+    c.fillStyle = '#3a4d68';
     c.fillRect(x - 6, y + h + 2, w + 12, 5);
     c.restore();
   }
 
   function drawSchoolDoor(c, x, y, w, h, label) {
     c.save();
-    c.fillStyle = '#f2f6fa';
+    c.fillStyle = '#3a4d68';
     c.fillRect(x - 4, y - 4, w + 8, h + 8);
     var wood = c.createLinearGradient(x, 0, x + w, 0);
-    wood.addColorStop(0, '#986844');
-    wood.addColorStop(0.5, '#c08b5e');
-    wood.addColorStop(1, '#875636');
+    wood.addColorStop(0, '#4a3322');
+    wood.addColorStop(0.5, '#6a4a30');
+    wood.addColorStop(1, '#3e2a1a');
     c.fillStyle = wood;
     c.fillRect(x, y, w, h);
-    c.strokeStyle = 'rgba(80,45,25,0.5)';
+    c.strokeStyle = 'rgba(20,12,6,0.75)';
     c.lineWidth = 2;
     c.strokeRect(x + 1, y + 1, w - 2, h - 2);
-    c.fillStyle = 'rgba(255,255,255,0.16)';
+    c.fillStyle = 'rgba(160,200,240,0.10)';
     c.fillRect(x + 8, y + 40, w - 16, h * 0.34);
-    c.fillStyle = '#e8c06a';
+    c.fillStyle = '#d8b060';
     c.beginPath();
     c.arc(x + w - 12, y + h * 0.58, 3.2, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = '#f4f8fc';
+    c.fillStyle = '#1a2a3e';
     c.fillRect(x + 10, y + 10, w - 20, 22);
-    c.fillStyle = '#31506f';
+    c.strokeStyle = 'rgba(120,180,240,0.45)';
+    c.lineWidth = 1;
+    c.strokeRect(x + 10.5, y + 10.5, w - 21, 21);
+    c.fillStyle = '#a8d0f0';
     c.font = '700 12px "Segoe UI", "Microsoft YaHei", sans-serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
@@ -5433,22 +5458,22 @@
     cv.width = map.w;
     cv.height = map.h;
     var c = cv.getContext('2d');
-    var floors = map.floors || [1640, 1340, 1040, 740, 440, 140];
+    var floors = map.floors || [1800, 1500, 1200, 900, 600, 300];
     var shafts = map.shafts || [];
 
     var bg = c.createLinearGradient(0, 0, 0, map.h);
-    bg.addColorStop(0, '#edf5fc');
-    bg.addColorStop(0.55, '#dbe8f4');
-    bg.addColorStop(1, '#c6d7e6');
+    bg.addColorStop(0, '#1b2432');
+    bg.addColorStop(0.55, '#141c28');
+    bg.addColorStop(1, '#0d131c');
     c.fillStyle = bg;
     c.fillRect(0, 0, map.w, map.h);
 
     for (var shi = 0; shi < shafts.length; shi++) {
       var shaft = shafts[shi];
       var sg = c.createLinearGradient(shaft.x, 0, shaft.x + shaft.w, 0);
-      sg.addColorStop(0, 'rgba(255,255,255,0.05)');
-      sg.addColorStop(0.5, 'rgba(255,255,255,0.32)');
-      sg.addColorStop(1, 'rgba(255,255,255,0.05)');
+      sg.addColorStop(0, 'rgba(80,120,180,0.03)');
+      sg.addColorStop(0.5, 'rgba(80,120,180,0.10)');
+      sg.addColorStop(1, 'rgba(80,120,180,0.03)');
       c.fillStyle = sg;
       c.fillRect(shaft.x, 0, shaft.w, map.h);
     }
@@ -5467,7 +5492,8 @@
 
     for (var i = 0; i < floors.length; i++) {
       var floorY = floors[i];
-      var top = floorY - 300;
+      var top = (i === floors.length - 1) ? 0 : floors[i + 1];
+      var wallH = floorY - top;
       var segs = floorSegments(i);
 
       for (var si2 = 0; si2 < segs.length; si2++) {
@@ -5475,10 +5501,12 @@
         var b = segs[si2][1];
         if (b - a < 40) continue;
 
-        c.fillStyle = '#e7eef5';
-        c.fillRect(a, top, b - a, floorY - top);
+        // 墙面：深蓝灰
+        c.fillStyle = '#28334a';
+        c.fillRect(a, top, b - a, wallH);
 
-        c.strokeStyle = 'rgba(150,175,200,0.22)';
+        // 瓷砖竖纹
+        c.strokeStyle = 'rgba(90,120,160,0.12)';
         c.lineWidth = 1;
         for (var tx = a + 40; tx < b; tx += 80) {
           c.beginPath();
@@ -5487,27 +5515,34 @@
           c.stroke();
         }
 
-        c.fillStyle = '#8b5d42';
+        // 护墙板：深木色
+        c.fillStyle = '#3a2c20';
         c.fillRect(a, floorY - 46, b - a, 46);
-        c.fillStyle = 'rgba(255,255,255,0.12)';
+        c.fillStyle = 'rgba(120,180,255,0.10)';
         c.fillRect(a, floorY - 46, b - a, 2);
 
-        for (var wx = a + 60; wx < b - 130; wx += 240) {
-          drawSchoolWindow(c, wx, top + 36, 120, 96);
+        // 窗户：夜色玻璃
+        if (wallH >= 180) {
+          for (var wx = a + 50; wx + 120 <= b - 140; wx += 240) {
+            drawSchoolWindow(c, wx, top + 36, 120, 96);
+          }
         }
 
-        if (b - a > 170) {
-          drawSchoolDoor(c, a + 30, floorY - 166, 78, 140,
+        // 门：每段右侧
+        if (wallH >= 180 && b - a > 170) {
+          drawSchoolDoor(c, b - 108, floorY - 166, 78, 140,
             'A' + (i + 1) + '0' + (si2 + 1));
         }
 
-        c.fillStyle = '#31506f';
+        // 楼层号
+        c.fillStyle = 'rgba(120,170,230,0.55)';
         c.font = '800 22px "Microsoft YaHei", sans-serif';
         c.textAlign = 'left';
         c.textBaseline = 'alphabetic';
         c.fillText((i + 1) + 'F', a + 14, floorY - 18);
 
-        c.strokeStyle = 'rgba(255,255,255,0.5)';
+        // 段左边缘竖线
+        c.strokeStyle = 'rgba(80,130,200,0.18)';
         c.lineWidth = 2;
         c.beginPath();
         c.moveTo(a + 1, top);
@@ -5516,26 +5551,28 @@
       }
     }
 
-    c.fillStyle = '#b9c7d5';
+    // 地面
+    c.fillStyle = '#1e2838';
     c.fillRect(0, floors[0], map.w, 60);
-    c.fillStyle = 'rgba(255,255,255,0.58)';
+    c.fillStyle = 'rgba(100,160,230,0.25)';
     c.fillRect(0, floors[0], map.w, 3);
-    c.fillStyle = 'rgba(70,90,110,0.25)';
+    c.fillStyle = 'rgba(0,0,0,0.35)';
     c.fillRect(0, floors[0] + 56, map.w, 4);
 
+    // 各层楼板
     for (var i2 = 1; i2 < floors.length; i2++) {
       var segs2 = floorSegments(i2);
       for (var s2 = 0; s2 < segs2.length; s2++) {
         var aa = segs2[s2][0];
         var bb = segs2[s2][1];
         if (bb - aa < 40) continue;
-        c.fillStyle = '#c7d4e1';
+        c.fillStyle = '#2a3548';
         c.fillRect(aa, floors[i2], bb - aa, 24);
-        c.fillStyle = 'rgba(255,255,255,0.62)';
+        c.fillStyle = 'rgba(120,180,255,0.35)';
         c.fillRect(aa, floors[i2], bb - aa, 3);
-        c.fillStyle = 'rgba(70,90,110,0.22)';
+        c.fillStyle = 'rgba(0,0,0,0.30)';
         c.fillRect(aa, floors[i2] + 21, bb - aa, 3);
-        c.strokeStyle = 'rgba(120,145,170,0.3)';
+        c.strokeStyle = 'rgba(70,100,140,0.22)';
         c.lineWidth = 1;
         for (var fx = aa + 30; fx < bb; fx += 60) {
           c.beginPath();
@@ -5546,22 +5583,23 @@
       }
     }
 
+    // 校牌：深底亮字
     var bw = 360;
     var bx = (map.w - bw) / 2;
     var by = 18;
     var bh = 74;
-    c.fillStyle = 'rgba(30,80,130,0.92)';
+    c.fillStyle = 'rgba(16,36,64,0.96)';
     c.fillRect(bx, by, bw, bh);
-    c.strokeStyle = 'rgba(255,255,255,0.9)';
+    c.strokeStyle = 'rgba(120,190,255,0.85)';
     c.lineWidth = 2;
     c.strokeRect(bx + 2, by + 2, bw - 4, bh - 4);
-    c.fillStyle = '#ffffff';
+    c.fillStyle = '#e8f4ff';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.font = '900 34px "Microsoft YaHei", sans-serif';
     c.fillText('控江中学', bx + bw / 2, by + 30);
     c.font = '700 12px "Segoe UI", sans-serif';
-    c.fillStyle = 'rgba(220,240,255,0.9)';
+    c.fillStyle = 'rgba(140,200,255,0.85)';
     c.fillText('KONGJIANG HIGH SCHOOL', bx + bw / 2, by + 57);
 
     return cv;
@@ -5586,14 +5624,14 @@
       ctx.save();
       ctx.lineCap = 'round';
 
-      ctx.strokeStyle = '#d1dbe5';
+      ctx.strokeStyle = '#4a5a78';
       ctx.lineWidth = 12;
       ctx.beginPath();
       ctx.moveTo(s.x1, s.y1);
       ctx.lineTo(s.x2, s.y2);
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(80,95,110,0.55)';
+      ctx.strokeStyle = 'rgba(10,16,26,0.75)';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(s.x1 - nx * 4, s.y1 - ny * 4);
@@ -5603,14 +5641,14 @@
       for (var d = 0; d < len; d += 26) {
         var px = s.x1 + ux * d;
         var py = s.y1 + uy * d;
-        ctx.strokeStyle = 'rgba(90,105,120,0.22)';
+        ctx.strokeStyle = 'rgba(90,130,180,0.22)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(px + nx * 6, py + ny * 6);
         ctx.lineTo(px - nx * 6, py - ny * 6);
         ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(245,197,66,0.75)';
+        ctx.strokeStyle = 'rgba(255,205,80,0.75)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(px + nx * 3, py + ny * 3);
@@ -5622,14 +5660,14 @@
       var hy1 = s.y1 + ny * 38;
       var hx2 = s.x2 + nx * 38;
       var hy2 = s.y2 + ny * 38;
-      ctx.strokeStyle = '#5d6b7a';
+      ctx.strokeStyle = '#5a7a9a';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(hx1, hy1);
       ctx.lineTo(hx2, hy2);
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(93,107,122,0.8)';
+      ctx.strokeStyle = 'rgba(90,122,154,0.8)';
       ctx.lineWidth = 2;
       for (var d2 = 20; d2 < len; d2 += 80) {
         var bx = s.x1 + ux * d2;
@@ -5650,11 +5688,11 @@
 
       ctx.save();
       if (p.kType === 'ledge') {
-        ctx.fillStyle = '#8598ab';
+        ctx.fillStyle = '#4a5c78';
         ctx.fillRect(p.x, p.y, p.w, p.h);
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillStyle = 'rgba(120,180,255,0.45)';
         ctx.fillRect(p.x, p.y, p.w, 2);
-        ctx.fillStyle = 'rgba(50,70,90,0.3)';
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
         ctx.fillRect(p.x, p.y + p.h - 3, p.w, 3);
       } else if (p.kType === 'jump') {
         var jg = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
@@ -5664,18 +5702,18 @@
         ctx.fillRect(p.x, p.y, p.w, p.h);
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
         ctx.fillRect(p.x, p.y, p.w, 2);
-        ctx.fillStyle = '#2b7f9c';
+        ctx.fillStyle = '#1a5a72';
         ctx.fillRect(p.x + 18, p.y + p.h, 7, 30);
         ctx.fillRect(p.x + p.w - 25, p.y + p.h, 7, 30);
       } else {
         var wg = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
-        wg.addColorStop(0, '#e8d8a0');
-        wg.addColorStop(1, '#b8a060');
+        wg.addColorStop(0, '#d8c078');
+        wg.addColorStop(1, '#9a8448');
         ctx.fillStyle = wg;
         ctx.fillRect(p.x, p.y, p.w, p.h);
         ctx.fillStyle = 'rgba(255,255,255,0.55)';
         ctx.fillRect(p.x, p.y, p.w, 2);
-        ctx.fillStyle = '#8e7438';
+        ctx.fillStyle = '#6a5628';
         ctx.fillRect(p.x + 16, p.y + p.h, 8, 26);
         ctx.fillRect(p.x + p.w - 24, p.y + p.h, 8, 26);
       }
@@ -5744,9 +5782,9 @@
 
     if (game.map && game.map.theme === 'school') {
       var sg = ctx.createLinearGradient(0, 0, 0, WORLD_H);
-      sg.addColorStop(0, '#eaf3fb');
-      sg.addColorStop(0.55, '#d8e5f1');
-      sg.addColorStop(1, '#c3d4e4');
+      sg.addColorStop(0, '#1b2432');
+      sg.addColorStop(0.55, '#141c28');
+      sg.addColorStop(1, '#0d131c');
       ctx.fillStyle = sg;
       ctx.fillRect(0, 0, WORLD_W, WORLD_H);
       return;
