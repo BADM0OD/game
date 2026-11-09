@@ -3319,13 +3319,15 @@
       }
     }
 
-    if (f.vy >= 0 && f.dropTimer <= 0) {
+    if (f.vy >= 0) {
       var land = null;
       var prevFeet = oldY + f.r;
       var feet = f.y + f.r;
 
       for (var i = 0; i < PLATFORMS.length; i++) {
         var pl = PLATFORMS[i];
+        // 下落期间只跳过非地面平台；地面随时兜底，防止在 L1 地面/斜坡底按 S 冲出地图
+        if (f.dropTimer > 0 && !pl.ground) continue;
         var withinX = f.x + f.r > pl.x + 2 && f.x - f.r < pl.x + pl.w - 2;
         if (!withinX) continue;
         var crossed = prevFeet <= pl.y + 2 && feet >= pl.y;
@@ -3336,6 +3338,7 @@
       }
 
       for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
+        if (f.dropTimer > 0) break;
         var w = COUPLE_WALLS[wi];
         if (w.hp <= 0) continue;
         var wallX = f.x + f.r > w.x + 2 && f.x - f.r < w.x + w.w - 2;
