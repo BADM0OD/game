@@ -3897,20 +3897,20 @@
   // 晚安焰火等装备类技能激活中 → 直接切回主武器，无拿枪时间。
   function equipPrimary(f) {
     if (!f || !f.alive) return false;
-    if (f.unarmed) {
+    var hadRocket = !!f.rocketMode;
+    var wasUnarmed = !!f.unarmed;
+    if (!hadRocket && !wasUnarmed) return false;
+    if (hadRocket) {
+      f.rocketMode = false;
+      f.rocketAmmo = 0;
+    }
+    if (wasUnarmed) {
       f.unarmed = false;
       f.drawUntil = game.gameTime + 1.0;
       f.reloading = false;
-      addText(f.x, f.y - 52, '拿枪...', '#e7edf7');
-      return true;
     }
-    if (f.rocketMode) {
-      f.rocketMode = false;
-      f.rocketAmmo = 0;
-      addText(f.x, f.y - 52, '切回主武器', '#e7edf7');
-      return true;
-    }
-    return false;
+    addText(f.x, f.y - 52, wasUnarmed ? '拿枪...' : '切回主武器', '#e7edf7');
+    return true;
   }
 
   // 数字键 3：空手。移速 600、无法射击；切回主武器需 1 秒拿枪。
@@ -6308,6 +6308,7 @@
   }
 
   function drawGun(f) {
+    if (f.unarmed && !f.rocketMode) return; // 空手收枪（装备火箭筒时仍显示）
     var isRocket = f.rocketMode;
 
     ctx.save();
@@ -6564,6 +6565,7 @@
       r: c.r,
       weapon: c.weapon || f.weapon,
       rocketMode: false,
+      unarmed: !!f.unarmed, // 分身枪模与本体一致
       char: f.char,
       muzzle: 0
     });
