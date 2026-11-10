@@ -1642,8 +1642,10 @@
   }
 
   function updateAimPoint() {
-    game.aim.x = clamp(game.camera.x + (game.mouse.x - W / 2) * (game.camW / W), 0, WORLD_W);
-    game.aim.y = clamp(game.camera.y + (game.mouse.y - H / 2) * (game.camH / H), 0, WORLD_H);
+    // 渲染横纵共用 ws = scale * (W / camW)，纵向世界比例同为 camW/W（与 camH/H 不同，沙漠二尤甚）
+    var yRatio = game.camW / W;
+    game.aim.x = clamp(game.camera.x + (game.mouse.x - W / 2) * yRatio, 0, WORLD_W);
+    game.aim.y = clamp(game.camera.y + (game.mouse.y - H / 2) * yRatio, 0, WORLD_H);
   }
 
   function mapDisplayName(key) {
@@ -7362,11 +7364,13 @@
 
   function computeVisionPolygon(f) {
     // 以角色为圆心、准心朝向为中线的 120° 扇形，被平台/箱体/墙体/斜坡遮挡
+    // 角度来源与枪口一致：真人用 game.aim 实时计算（联机 guest 的 f.aim 有同步延迟）
     var RAY_COUNT = 121;
     var MAXL = 4400;
     var HALF = Math.PI / 3;
     var poly = [];
-    var base = f.aim - HALF;
+    var aimA = f.isAI ? f.aim : Math.atan2(game.aim.y - f.y, game.aim.x - f.x);
+    var base = aimA - HALF;
 
     for (var i = 0; i < RAY_COUNT; i++) {
       var a = base + (i / (RAY_COUNT - 1)) * HALF * 2;
