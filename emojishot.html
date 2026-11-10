@@ -763,7 +763,7 @@
           <input type="checkbox" id="visionModeToggle">
           <span>开启扇形视野</span>
         </label>
-        <p class="settingsHint">开启后，视野变为以角色为圆心、准心朝向为中线的 120° 扇形区域，且会被平台、箱体等建筑物遮挡。扇形之外只能看到覆盖阴影的地图——人物、子弹、技能与技能造物全部不可见，只有扇形视野内的东西能看见。</p>
+        <p class="settingsHint">开启后，视野变为以角色为圆心、准心朝向为中线的 120° 扇形区域，仅被情侣墙、箱体等实体掩体遮挡——平台、阶梯、斜坡均可直接透视。扇形之外只能看到覆盖阴影的地图——人物、子弹、技能与技能造物全部不可见，只有扇形视野内的东西能看见。</p>
       </section>
 
       <section class="settingsGroup">
@@ -7350,20 +7350,11 @@
 
   /* ---------------- 视野模式 ---------------- */
 
-  function raySegT(px, py, dx, dy, seg) {
-    // 射线 (px,py)+t*(dx,dy) 与线段 seg 的相交检测，返回射线参数 t（>0）或 null
-    var sx = seg.x2 - seg.x1;
-    var sy = seg.y2 - seg.y1;
-    var den = dx * sy - dy * sx;
-    if (Math.abs(den) < 1e-9) return null;
-    var t = ((seg.x1 - px) * sy - (seg.y1 - py) * sx) / den;
-    var u = ((seg.x1 - px) * dy - (seg.y1 - py) * dx) / den;
-    if (t > 1e-6 && u >= 0 && u <= 1) return t;
-    return null;
-  }
-
   function computeVisionPolygon(f) {
-    // 以角色为圆心、准心朝向为中线的 120° 扇形，被平台/箱体/墙体/斜坡遮挡
+    // 以角色为圆心、准心朝向为中线的 120° 扇形
+    // 遮挡物只有实体掩体：情侣墙与箱体（对应地图规则里的"黑色实体"）
+    // 平台、阶梯、斜坡均为双向可穿透地形，视野直接穿过（否则站在斜坡/楼梯上时
+    // 遮挡线会从脚下穿过，下半扇形全被截断，形状碎裂不成扇形）
     // 角度来源与枪口一致：真人用 game.aim 实时计算（联机 guest 的 f.aim 有同步延迟）
     var RAY_COUNT = 121;
     var MAXL = 4400;
@@ -7384,17 +7375,9 @@
       if (dy > 1e-9) bestT = Math.min(bestT, (WORLD_H - f.y) / dy);
       else if (dy < -1e-9) bestT = Math.min(bestT, -f.y / dy);
 
-      // 平台与箱体/墙体（矩形遮挡）；segmentRectT 返回线段内分数 t，需乘当前线段长换算成世界距离
+      // 实体掩体（情侣墙/箱体，矩形遮挡）；segmentRectT 返回线段内分数 t，需乘当前线段长换算成世界距离
       var ex = f.x + dx * bestT;
       var ey = f.y + dy * bestT;
-      for (var p = 0; p < PLATFORMS.length; p++) {
-        var t = segmentRectT(f.x, f.y, ex, ey, PLATFORMS[p]);
-        if (t !== null && t > 0.001 && t < 1) {
-          bestT = t * bestT;
-          ex = f.x + dx * bestT;
-          ey = f.y + dy * bestT;
-        }
-      }
       for (var w = 0; w < COUPLE_WALLS.length; w++) {
         var cw = COUPLE_WALLS[w];
         if (cw.hp <= 0) continue;
@@ -7405,14 +7388,13 @@
           ey = f.y + dy * bestT;
         }
       }
-      // 斜坡（线段遮挡）
-      for (var s = 0; s < SLOPES.length; s++) {
-        var t3 = raySegT(f.x, f.y, dx, dy, SLOPES[s]);
-        if (t3 !== null && t3 < bestT) bestT = t3;
-      }
 
       poly.push({ x: f.x + dx * bestT, y: f.y + dy * bestT });
     }
+    // 扇形顶点=角色圆心，必须作为第一个顶点加入：
+    // 否则 closePath 会把最后一条射线终点直接连回第一条的终点，这条"弦"
+    // 的位置随射线距离漂移，亮区会整体脱离角色、形状随遮挡忽变（不是扇形）
+    poly.unshift({ x: f.x, y: f.y });
     return poly;
   }
 
