@@ -763,7 +763,7 @@
           <input type="checkbox" id="visionModeToggle">
           <span>开启扇形视野</span>
         </label>
-        <p class="settingsHint">开启后，视野变为以角色为圆心、准心朝向为中线的 120° 扇形区域，仅被情侣墙、箱体等实体掩体遮挡——平台、阶梯、斜坡均可直接透视。扇形之外只能看到覆盖阴影的地图——人物、子弹、技能与技能造物全部不可见，只有扇形视野内的东西能看见。</p>
+        <p class="settingsHint">开启后，视野变为以角色为圆心、准心朝向为中线的 120° 扇形区域，被平台、楼板、地面、情侣墙、箱体等实体遮挡——仅沙漠二的红色双向平台与控江的阶梯跳台、斜坡可透视。扇形之外只能看到覆盖阴影的地图——人物、子弹、技能与技能造物全部不可见，只有扇形视野内的东西能看见。</p>
       </section>
 
       <section class="settingsGroup">
@@ -771,7 +771,7 @@
         <div class="keybindGrid">
           <button type="button" class="keyButton" data-bind-action="left"><span>向左移动</span><b data-bind-label="left">A</b></button>
           <button type="button" class="keyButton" data-bind-action="right"><span>向右移动</span><b data-bind-label="right">D</b></button>
-          <button type="button" class="keyButton" data-bind-action="jump"><span>跳跃</span><b data-bind-label="jump">空格</b></button>
+          <button type="button" class="keyButton" data-bind-action="jump"><span>跳跃</span><b data-bind-label="jump">W</b></button>
           <button type="button" class="keyButton" data-bind-action="drop"><span>下平台</span><b data-bind-label="drop">S</b></button>
           <button type="button" class="keyButton" data-bind-action="reload"><span>换弹</span><b data-bind-label="reload">R</b></button>
           <button type="button" class="keyButton" data-bind-action="shoot"><span>射击</span><b data-bind-label="shoot">左键</b></button>
@@ -803,7 +803,7 @@
           <h3>操控方式</h3>
           <ul>
             <li><b>A / D</b>：左右移动（默认，可在设置中修改）</li>
-            <li><b>空格</b>：跳跃（默认，可在设置中修改）</li>
+            <li><b>W</b>：跳跃（默认，可在设置中修改）</li>
             <li><b>S</b>：从当前平台向下落（默认，可在设置中修改）</li>
             <li><b>鼠标</b>：瞄准，枪支朝向准心</li>
             <li><b>左键</b>：射击（默认，可在设置中修改）</li>
@@ -1162,6 +1162,7 @@
       spawnLeft: 170,
       spawnRight: 1110,
       theme: 'training',
+      visionBlockPlatforms: true,
       platforms: [
         { x: 0, y: 680, w: 1280, h: 40, ground: true },
         { x: 60, y: 575, w: 280, h: 18 },
@@ -1189,6 +1190,7 @@
       spawnLeft: 600,
       spawnRight: 1800,
       theme: 'sand',
+      visionBlockPlatforms: true,
       platforms: [
         { x: 0, y: 1460, w: 2400, h: 40, ground: true },
         { x: 160, y: 1320, w: 380, h: 24 },
@@ -1368,7 +1370,7 @@
   var DEFAULT_BINDINGS = {
     left: 'KeyA',
     right: 'KeyD',
-    jump: 'Space',
+    jump: 'KeyW',
     drop: 'KeyS',
     reload: 'KeyR',
     shoot: 'Mouse0',
@@ -1381,7 +1383,7 @@
     bindings: {
       left: 'KeyA',
       right: 'KeyD',
-      jump: 'Space',
+      jump: 'KeyW',
       drop: 'KeyS',
       reload: 'KeyR',
       shoot: 'Mouse0',
@@ -1395,7 +1397,7 @@
     bindings: {
       left: 'KeyA',
       right: 'KeyD',
-      jump: 'Space',
+      jump: 'KeyW',
       drop: 'KeyS',
       reload: 'KeyR',
       shoot: 'Mouse0',
@@ -1682,6 +1684,8 @@
         incoming.skillE = saved.skillE;
         incoming.skillQ = saved.skillQ;
       }
+      // 旧默认跳跃键 Space 迁移为新默认 KeyW（自定义过非 Space 的不受影响）
+      if (incoming.jump === 'Space') incoming.jump = 'KeyW';
 
       var actions = Object.keys(DEFAULT_BINDINGS);
       var used = {};
@@ -7352,13 +7356,15 @@
 
   function computeVisionPolygon(f) {
     // 以角色为圆心、准心朝向为中线的 120° 扇形
-    // 遮挡物只有实体掩体：情侣墙与箱体（对应地图规则里的"黑色实体"）
-    // 平台、阶梯、斜坡均为双向可穿透地形，视野直接穿过（否则站在斜坡/楼梯上时
-    // 遮挡线会从脚下穿过，下半扇形全被截断，形状碎裂不成扇形）
+    // 遮挡物：楼板/地面类实体 + 情侣墙/箱体（对应地图规则里的"黑色实体"）
+    // 透视：红色双向平台、阶梯跳台/踏板、斜坡（站在斜坡/楼梯上时若被遮挡
+    // 线穿过脚下，下半扇形会被整段截断，形状碎裂不成扇形）
     // 角度来源与枪口一致：真人用 game.aim 实时计算（联机 guest 的 f.aim 有同步延迟）
     var RAY_COUNT = 121;
     var MAXL = 4400;
     var HALF = Math.PI / 3;
+    // 训练场/炙热沙城的普通平台也算实体，遮挡视野；控江/沙漠二按各自规则（阶梯/红色平台透视）
+    var blockThin = !!(game.map && game.map.visionBlockPlatforms);
     var poly = [];
     var aimA = f.isAI ? f.aim : Math.atan2(game.aim.y - f.y, game.aim.x - f.x);
     var base = aimA - HALF;
@@ -7375,9 +7381,22 @@
       if (dy > 1e-9) bestT = Math.min(bestT, (WORLD_H - f.y) / dy);
       else if (dy < -1e-9) bestT = Math.min(bestT, -f.y / dy);
 
-      // 实体掩体（情侣墙/箱体，矩形遮挡）；segmentRectT 返回线段内分数 t，需乘当前线段长换算成世界距离
+      // 楼板/地面类实体遮挡；segmentRectT 返回线段内分数 t，需乘当前线段长换算成世界距离
+      // 遮挡：黑色实心楼板(kNoDrop)、地面(ground)、走廊楼板(corridor)、情侣墙/箱体
+      // 透视：红色双向平台(red)、阶梯跳台/踏板(jump/step/ledge)、斜坡
       var ex = f.x + dx * bestT;
       var ey = f.y + dy * bestT;
+      for (var p = 0; p < PLATFORMS.length; p++) {
+        var pf = PLATFORMS[p];
+        if (pf.red) continue;
+        if (!pf.kNoDrop && !pf.ground && pf.kType !== 'corridor' && !(blockThin && !pf.kType)) continue;
+        var t = segmentRectT(f.x, f.y, ex, ey, pf);
+        if (t !== null && t > 0.001 && t < 1) {
+          bestT = t * bestT;
+          ex = f.x + dx * bestT;
+          ey = f.y + dy * bestT;
+        }
+      }
       for (var w = 0; w < COUPLE_WALLS.length; w++) {
         var cw = COUPLE_WALLS[w];
         if (cw.hp <= 0) continue;
