@@ -647,7 +647,7 @@
         </button>
         <button type="button" class="choice" data-value="desert2">
           🏜️ 沙漠二
-          <small>垂直 5 层 · A/B 双包点布防 · 攻守路线分明 · 可摧毁箱体</small>
+          <small>垂直 5 层 · A/B 双包点布防 · 攻守路线分明 · 箱体不可摧毁 · 子弹穿透减伤</small>
         </button>
       </div>
 
@@ -721,7 +721,7 @@
           <button type="button" class="choice selected" data-value="training">🏙️ 训练场<small>经典对称竞技场</small></button>
           <button type="button" class="choice" data-value="sand">🔥 炙热沙城<small>大地图 · 垂直作战</small></button>
           <button type="button" class="choice" data-value="kongjiang">🏫 控江中学<small>6 层 · 斜坡跳台 · 情侣墙</small></button>
-          <button type="button" class="choice" data-value="desert2">🏜️ 沙漠二<small>垂直 5 层 · A/B 包点 · 箱体掩体</small></button>
+          <button type="button" class="choice" data-value="desert2">🏜️ 沙漠二<small>垂直 5 层 · A/B 包点 · 箱体不可摧毁</small></button>
         </div>
         <p class="settingsHint" id="onlineMapHint">地图由房主选择，加入者同步显示。</p>
       </section>
@@ -898,9 +898,9 @@
             <li>炙热沙城采用摄像机跟随和轻微缩放；所有平台仍然可以按 S 下落。</li>
             <li>控江中学：左井和右井是斜坡（可直接走上去），中井是水平跳台（需要跳）。L2 - L6 每层有 2 面 👫 情侣墙，50 血，可被子弹、回旋爪弹、火箭、激光破坏；墙顶可以站立。</li>
             <li>控江中学的走廊里有木色跳台，高度 = 一次跳跃，站在跳台上再跳一次可到上一层。</li>
-            <li>沙漠二：垂直 5 层黑色实心楼板，不能按 S 下落，除非站在<span style="color:#ff6a52;">红色平台</span>上；红色平台可站位、可从下方跳穿、可按 S 下穿。</li>
+            <li>沙漠二：垂直 5 层黑色实心楼板，不能按 S 下落、也不能踩箱子或平台从正下方跳上去，只能走<span style="color:#ff6a52;">红色平台</span>；红色平台可站位、可从下方跳穿、可按 S 下穿。</li>
             <li>沙漠二：橙色虚线框为 A / B 包点；攻方出生在最左，守方 3 人集中出生在地面层中部偏右；A 点走 A 井直上，B 点走左侧竖井下到地下 1，再经中洞入包点。</li>
-            <li>沙漠二：木色箱体是掩体，挡子弹但可被击毁（90 血）。</li>
+            <li>沙漠二：木色箱体不可摧毁，但子弹可以穿透——每穿过一个箱子，子弹伤害减半（向下取整）。</li>
             <li>死斗和斗牛都可以选择三张地图；斗牛整场固定使用同一张地图。</li>
           </ul>
         </section>
@@ -1266,17 +1266,16 @@
     red(3430, 700, 120);     // B 井 地下 1 踏板
     red(3420, 800, 140);     // B 井 地下 1 缝
     red(3430, 900, 120);     // B 井 地下 2 踏板（进 B）
+    red(250, 900, 180);      // 地下 2 左侧踏板（底层掩体）
+    red(1750, 900, 160);     // 地下 2 中部踏板
+    red(3200, 900, 140);     // 地下 2 右侧踏板
 
-    // 箱体掩体（可击毁）
-    crate(800, 100, 100, 100); crate(3100, 100, 100, 100);
-    crate(760, 300, 100, 100); crate(2050, 300, 100, 100);
-    crate(2600, 300, 100, 100); crate(2740, 300, 100, 100); crate(2870, 300, 100, 100);
-    crate(200, 500, 100, 100); crate(700, 500, 100, 100);
-    crate(1980, 500, 120, 100); crate(2760, 500, 100, 100);
-    crate(1850, 700, 100, 100); crate(2700, 700, 100, 100);
-    crate(700, 900, 100, 100); crate(1000, 900, 100, 100);
-    crate(2150, 900, 100, 100); crate(2800, 900, 100, 100);
-    crate(3560, 900, 100, 100); crate(3720, 900, 100, 100);
+    // 箱体掩体（不可摧毁 · 子弹可穿透，每穿一个伤害减半 · 全图均匀分布）
+    crate(900, 100, 100, 100);
+    crate(1000, 300, 100, 100); crate(2100, 300, 100, 100);
+    crate(500, 500, 100, 100); crate(1900, 500, 100, 100); crate(3000, 500, 100, 100);
+    crate(1500, 700, 100, 100); crate(2800, 700, 100, 100);
+    crate(1000, 900, 100, 100); crate(3650, 900, 100, 100);
 
     // 黑色实心楼板（红色平台之后追加：站立判定的并列归属会取数组中靠前者，
     // 红缝在前保证楼板/红缝边界优先吸附为红缝——可站立也可按 S 下穿）
@@ -1300,7 +1299,7 @@
   MAPS.desert2 = {
     key: 'desert2',
     name: '沙漠二',
-    desc: '垂直 5 层 · A/B 双包点布防 · 攻守路线分明 · 可摧毁箱体掩体',
+    desc: '垂直 5 层 · A/B 双包点布防 · 攻守路线分明 · 箱体不可摧毁（子弹穿透减伤）',
     w: 4000,
     h: 1040,
     viewW: 1600,
@@ -1836,6 +1835,7 @@
 
   function damageCoupleWall(w, amount) {
     if (!w || w.hp <= 0) return;
+    if (w.crate) return; // 沙漠二箱体：不可摧毁
     w.hp = Math.max(0, w.hp - amount);
     w.flash = 0.15;
     spawnParticles(w.x + w.w / 2, w.y + w.h / 2, '#ff9ec4', 10, 150, 0.4);
@@ -1857,6 +1857,7 @@
     }
     for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
       var w = COUPLE_WALLS[wi];
+      if (w.crate) continue; // 箱体不挡视线（子弹可穿透）
       if (w.hp > 0 && segmentRectT(a.x, a.y, b.x, b.y, w) !== null) return false;
     }
     return true;
@@ -3465,6 +3466,21 @@
       }
     }
 
+    // 沙漠二黑色实心楼板：从下方起跳也会被顶住（不能借箱子/平台从正下方跳上上层）
+    if (f.vy < 0) {
+      var headPrev = oldY - f.r;
+      var head = f.y - f.r;
+      for (var ci = 0; ci < PLATFORMS.length; ci++) {
+        var cp = PLATFORMS[ci];
+        if (!cp.kNoDrop) continue;
+        var cb = cp.y + cp.h;
+        if (headPrev >= cb && head < cb && f.x > cp.x && f.x < cp.x + cp.w) {
+          f.y = cb + f.r;
+          f.vy = 0;
+        }
+      }
+    }
+
     if (f.y < f.r) {
       f.y = f.r;
       if (f.vy < 0) f.vy = 0;
@@ -3543,6 +3559,7 @@
     for (var i = 0; i < PLATFORMS.length; i++) {
       var pl = PLATFORMS[i];
       if (pl.ground) continue;
+      if (pl.kNoDrop && f.x > pl.x && f.x < pl.x + pl.w) continue; // 黑色楼板不可从正下方跳上，别让 AI 白跳
 
       var rise = (f.y + f.r) - pl.y;
       if (rise < 30 || rise > 140) continue;
@@ -3614,6 +3631,7 @@
     if (!los && COUPLE_WALLS.length) {
       for (var lwi = 0; lwi < COUPLE_WALLS.length; lwi++) {
         var lw = COUPLE_WALLS[lwi];
+        if (lw.crate) continue; // 箱体不挡视线（子弹可穿透）
         if (lw.hp > 0 && segmentRectT(ai.x, ai.y, p.x, p.y, lw) !== null) {
           wallBlock = true;
           break;
@@ -3709,10 +3727,13 @@
     ai.ai.dropCd = Math.max(0, ai.ai.dropCd - dt);
     if (ai.ai.toothECd) ai.ai.toothECd = Math.max(0, ai.ai.toothECd - dt);
 
-    var wallAhead = (!rooted && ai.onGround && !climb && dir !== 0) ? aiWallAheadBlocking(ai, dir) : null;
+    var wallAhead = (!rooted && ai.onGround && dir !== 0) ? aiWallAheadBlocking(ai, dir) : null;
     if (wallAhead) {
-      // 只有玩家确实被挡在墙另一侧时才需要翻越
+      // 只有玩家或攀爬目标确实被挡在墙另一侧时才需要翻越
       var beyond = dir > 0 ? p.x > wallAhead.x + wallAhead.w : p.x < wallAhead.x;
+      if (!beyond && climb) {
+        beyond = dir > 0 ? climb.tx > wallAhead.x + wallAhead.w : climb.tx < wallAhead.x;
+      }
       if (!beyond) wallAhead = null;
     }
     if (wallAhead) {
@@ -3722,8 +3743,8 @@
       ai.ai.jumpCd = 0.95;
     } else if (!rooted && ai.onGround && ai.ai.jumpCd <= 0) {
       var aligned = climb && Math.abs(ai.x - climb.tx) < 8;
-      // 控江中学中井：目标平台在斜上方但水平差较大时，允许从平台边缘起跳
-      if (!aligned && climb && game.mapKey === 'kongjiang' && ai.standing &&
+      // 控江中学中井 / 沙漠二横跳：目标平台在斜上方但水平差较大时，允许从平台边缘起跳
+      if (!aligned && climb && (game.mapKey === 'kongjiang' || game.mapKey === 'desert2') && ai.standing &&
           !ai.standing.ground && !ai.standing.kSlope) {
         var standL = ai.standing.x + ai.r;
         var standR = ai.standing.x + ai.standing.w - ai.r;
@@ -3906,7 +3927,8 @@
       color: '#4da3ff',
       owner: f,
       life: Infinity,
-      spin: 0
+      spin: 0,
+      crateHits: []
     });
 
     spawnParticles(sx, sy, '#4da3ff', 14, 170, 0.35, angle);
@@ -3957,7 +3979,8 @@
       owner: f,
       life: Infinity,
       spin: 0,
-      goldDot: true
+      goldDot: true,
+      crateHits: []
     });
 
     spawnParticles(f.x, f.y, '#ffd166', 22, 200, 0.5, angle);
@@ -4140,7 +4163,8 @@
       radius: w.radius,
       color: w.color,
       owner: f,
-      life: 1.6
+      life: 1.6,
+      crateHits: []
     });
 
     f.mag--;
@@ -4179,7 +4203,8 @@
       radius: 8,
       color: '#ffb02e',
       owner: f,
-      life: 3.5
+      life: 3.5,
+      crateHits: []
     });
 
     f.rocketMode = false;
@@ -4749,6 +4774,7 @@
       for (var bwi = 0; bwi < COUPLE_WALLS.length; bwi++) {
         var bw = COUPLE_WALLS[bwi];
         if (bw.hp <= 0) continue;
+        if (bw.crate) continue; // 箱体：穿透，不反弹
         var bhr = rayRect(b.x, b.y, b.dx, b.dy, bw, b.radius);
         if (bhr && bhr.t > 0.001 && bhr.t < bestD) {
           bestD = bhr.t;
@@ -4756,6 +4782,20 @@
           bestNx = bhr.nx;
           bestNy = bhr.ny;
           bestWall = bw;
+        }
+      }
+
+      // 穿过箱体：每穿一个伤害减半（向下取整）
+      if (b.crateHits) {
+        for (var bci = 0; bci < COUPLE_WALLS.length; bci++) {
+          var bcw = COUPLE_WALLS[bci];
+          if (!bcw.crate || bcw.hp <= 0) continue;
+          if (b.crateHits.indexOf(bcw) >= 0) continue;
+          var bct = rayRect(b.x, b.y, b.dx, b.dy, bcw, b.radius);
+          if (bct && bct.t > 0.001 && bct.t < remaining) {
+            b.crateHits.push(bcw);
+            b.damage = Math.floor(b.damage / 2);
+          }
         }
       }
 
@@ -4898,10 +4938,26 @@
       for (var cwi = 0; cwi < COUPLE_WALLS.length; cwi++) {
         var cw = COUPLE_WALLS[cwi];
         if (cw.hp <= 0) continue;
+        if (cw.crate) continue; // 箱体：子弹穿透，不拦截
         var tw = segmentRectT(b.x, b.y, nx, ny, cw);
         if (tw !== null && tw < hitT) {
           hitT = tw;
           hit = { type: 'wall', wall: cw };
+        }
+      }
+
+      // 穿过箱体：每穿一个伤害减半（向下取整）
+      if (b.crateHits) {
+        for (var cri = 0; cri < COUPLE_WALLS.length; cri++) {
+          var crw = COUPLE_WALLS[cri];
+          if (!crw.crate || crw.hp <= 0) continue;
+          if (b.crateHits.indexOf(crw) >= 0) continue;
+          var ctw = segmentRectT(b.x, b.y, nx, ny, crw);
+          if (ctw !== null) {
+            b.crateHits.push(crw);
+            b.damage = Math.floor(b.damage / 2);
+            spawnParticles(b.x + (nx - b.x) * ctw, b.y + (ny - b.y) * ctw, '#e0b478', 4, 90, 0.25);
+          }
         }
       }
 
@@ -5890,16 +5946,8 @@
       }
 
       if (w.crate) {
-        // 沙漠二：木质箱体掩体
+        // 沙漠二：木质箱体掩体（不可摧毁）
         ctx.save();
-        if (w.hp <= 0) {
-          ctx.globalAlpha = 0.15;
-          ctx.strokeStyle = '#caa06a';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(w.x, w.y, w.w, w.h);
-          ctx.restore();
-          continue;
-        }
         var cg2 = ctx.createLinearGradient(w.x, w.y, w.x, w.y + w.h);
         cg2.addColorStop(0, '#d9b170');
         cg2.addColorStop(1, '#a97d42');
@@ -5916,23 +5964,6 @@
         ctx.moveTo(w.x + w.w - 6, w.y + 6);
         ctx.lineTo(w.x + 6, w.y + w.h - 6);
         ctx.stroke();
-
-        var cbarW = w.w;
-        var cbarY = w.y - 12;
-        ctx.fillStyle = 'rgba(20,12,4,0.75)';
-        ctx.fillRect(w.x, cbarY, cbarW, 6);
-        var cratio = clamp(w.hp / w.maxHp, 0, 1);
-        ctx.fillStyle = cratio > 0.5 ? '#e8c98a' : (cratio > 0.25 ? '#ffd166' : '#ff5a5f');
-        ctx.fillRect(w.x, cbarY, cbarW * cratio, 6);
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(w.x + 0.5, cbarY + 0.5, cbarW - 1, 6);
-
-        if (w.flash > 0) {
-          ctx.globalAlpha = clamp(w.flash / 0.15, 0, 1) * 0.45;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(w.x, w.y, w.w, w.h);
-        }
         ctx.restore();
         continue;
       }
