@@ -606,16 +606,16 @@
       <section class="team">
         <h2><span class="dot playerDot"></span>你</h2>
         <div class="choices" data-group="playerWeapon">
-          <button type="button" class="choice selected" data-value="AK">AK<small>25 发/弹夹 · 4 发/秒 · 40 伤害</small></button>
-          <button type="button" class="choice" data-value="M4">M4<small>30 发/弹夹 · 5 发/秒 · 35 伤害</small></button>
+          <button type="button" class="choice selected" data-value="AK">AK<small>25 发/弹夹 · 6 发/秒 · 40 伤害</small></button>
+          <button type="button" class="choice" data-value="M4">M4<small>30 发/弹夹 · 7.5 发/秒 · 35 伤害</small></button>
         </div>
       </section>
 
       <section class="team">
         <h2><span class="dot aiDot"></span>AI</h2>
         <div class="choices" data-group="aiWeapon">
-          <button type="button" class="choice selected" data-value="M4">M4<small>30 发/弹夹 · 5 发/秒 · 35 伤害</small></button>
-          <button type="button" class="choice" data-value="AK">AK<small>25 发/弹夹 · 4 发/秒 · 40 伤害</small></button>
+          <button type="button" class="choice selected" data-value="M4">M4<small>30 发/弹夹 · 7.5 发/秒 · 35 伤害</small></button>
+          <button type="button" class="choice" data-value="AK">AK<small>25 发/弹夹 · 6 发/秒 · 40 伤害</small></button>
         </div>
       </section>
 
@@ -713,8 +713,8 @@
         </div>
         <span class="fieldLabel">枪械</span>
         <div class="choices" data-group="onlineWeapon">
-          <button type="button" class="choice selected" data-value="AK">AK<small>25 发/弹夹 · 4 发/秒 · 40 伤害</small></button>
-          <button type="button" class="choice" data-value="M4">M4<small>30 发/弹夹 · 5 发/秒 · 35 伤害</small></button>
+          <button type="button" class="choice selected" data-value="AK">AK<small>25 发/弹夹 · 6 发/秒 · 40 伤害</small></button>
+          <button type="button" class="choice" data-value="M4">M4<small>30 发/弹夹 · 7.5 发/秒 · 35 伤害</small></button>
         </div>
         <span class="fieldLabel">地图</span>
         <div class="choices onlineMapChoices" data-group="onlineMap">
@@ -810,7 +810,7 @@
             <li><b>小招 / 大招</b>：默认 <b>E</b> / <b>Q</b>，可在设置中修改</li>
             <li><b>R</b>：换弹，耗时 2.5 秒（默认，可在设置中修改）</li>
             <li><b>1</b>：装备主武器。空手时按 1 需 1 秒拿枪时间，拿枪时无法射击；装备类技能（如 😡 晚安焰火）激活时按 1 直接切回主武器，无拿枪时间。</li>
-            <li><b>3</b>：空手。无法射击与换弹，但移速 600，比持枪更快。</li>
+            <li><b>3</b>：空手。无法射击与换弹，但移速 500，比持枪更快。</li>
             <li>移动、跳跃、下平台、换弹、射击、小招、大招都可以绑定键盘按键或鼠标按键，包括左键、右键、中键/滚轮、侧键和滚轮上/下。</li>
           </ul>
         </section>
@@ -884,8 +884,8 @@
         <section class="tutSection">
           <h3>枪械说明</h3>
           <div class="tutWeapons">
-            <div><strong>AK</strong><span>25 发/弹夹 · 4 发/秒 · 40 伤害 · 三角机匣 · 木质护木</span></div>
-            <div><strong>M4</strong><span>30 发/弹夹 · 5 发/秒 · 35 伤害 · 菱形机匣 · 战术护木</span></div>
+            <div><strong>AK</strong><span>25 发/弹夹 · 6 发/秒 · 40 伤害 · 三角机匣 · 木质护木</span></div>
+            <div><strong>M4</strong><span>30 发/弹夹 · 7.5 发/秒 · 35 伤害 · 菱形机匣 · 战术护木</span></div>
           </div>
           <ul>
             <li>AK 与 M4 的子弹飞行速度相同，均为 1850；AK 伤害更高但射速更慢。</li>
@@ -1033,8 +1033,8 @@
   var W = 1280;
   var H = 720;
   var GRAVITY = 2000;
-  var BASE_SPEED = 500;
-  var UNARMED_SPEED = 600;   // 空手移速
+  var BASE_SPEED = 400;
+  var UNARMED_SPEED = 500;   // 空手移速
   var JUMP_VELOCITY = 1000;  // 起跳初速
   var JUMP_HEIGHT = 250;     // 实际跳跃顶点 v²/2g = 250（AI 寻路判定用）
   var R = 25;
@@ -1323,8 +1323,8 @@
   var GROUND_Y = GROUND.y;
 
   var WEAPONS = {
-    AK: { name: 'AK', interval: 0.125, damage: 40, speed: 1900, color: '#ffb02e', radius: 3.4, mag: 25 },
-    M4: { name: 'M4', interval: 0.1, damage: 35, speed: 1900, color: '#5ad7ff', radius: 3.1, mag: 30 }
+    AK: { name: 'AK', interval: 1 / 6, damage: 40, speed: 1900, color: '#ffb02e', radius: 3.4, mag: 25 },   // 6 发/秒
+    M4: { name: 'M4', interval: 1 / 7.5, damage: 35, speed: 1900, color: '#5ad7ff', radius: 3.1, mag: 30 } // 7.5 发/秒
   };
 
   var CHARS = {
@@ -1958,7 +1958,7 @@
       buffUntil: 0,
       rocketMode: false,
       rocketAmmo: 0,
-      unarmed: false, // 数字键 3：空手（移速 600，无法射击）
+      unarmed: false, // 数字键 3：空手（移速 500，无法射击）
       drawUntil: 0,   // 空手→主武器的 1 秒拿枪时间，期间无法射击
       revived: false,
       reviveDeadline: 0,
@@ -3749,7 +3749,7 @@
       }
     }
 
-    var maxSpeed = 470 * (rolling ? 2 : 1) * (ai.buffUntil > game.gameTime ? 1.2 : 1); // 320/340 ≈ 0.94，随新移速等比放大
+    var maxSpeed = 376 * (rolling ? 2 : 1) * (ai.buffUntil > game.gameTime ? 1.2 : 1); // 470×0.8，随玩家持枪移速 400 等比缩放
     if (ai.ghostSpeedUntil > game.gameTime) maxSpeed *= 1.5;
     accelerate(ai, dir, maxSpeed, dt);
     if (rooted) ai.vx = 0;
@@ -3913,7 +3913,7 @@
     return true;
   }
 
-  // 数字键 3：空手。移速 600、无法射击；切回主武器需 1 秒拿枪。
+  // 数字键 3：空手。移速 500、无法射击；切回主武器需 1 秒拿枪。
   function unarmFighter(f) {
     if (!f || !f.alive || f.unarmed) return false;
     f.unarmed = true;
@@ -7286,7 +7286,9 @@
     if (p.unarmed) {
       ctx.fillText('空手 · 移速提升', 32, 109);
     } else {
-      ctx.fillText(w1.name + '  ' + w1.damage + ' 伤害 · ' + Math.round(1 / w1.interval) + ' 发/秒', 32, 109);
+      var rate = 1 / w1.interval;
+      var rateText = Math.abs(rate - Math.round(rate)) < 0.05 ? String(Math.round(rate)) : rate.toFixed(1);
+      ctx.fillText(w1.name + '  ' + w1.damage + ' 伤害 · ' + rateText + ' 发/秒', 32, 109);
     }
 
     ctx.font = '700 12px "Segoe UI", "Microsoft YaHei", sans-serif';
