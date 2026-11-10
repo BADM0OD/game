@@ -1504,7 +1504,8 @@
       transitionUntil: 0,
       lastWinner: null,
       matchWinner: null,
-      reason: ''
+      reason: '',
+      spawnSwapped: false // 本局出生点是否互换（玩家右/AI左）
     };
   }
 
@@ -1988,7 +1989,7 @@
     beginLocalMatch(selectedMatch.mode === 'bullfight' ? 'bullfight' : 'duel');
   }
 
-  function beginLocalMatch(matchType) {
+  function beginLocalMatch(matchType, forcedSpawnSwap) {
     matchType = validMatchMode(matchType);
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     menuEl.hidden = true;
@@ -2004,8 +2005,17 @@
     game.absoluteAim = false;
     net.onlineGame = false;
     applyMap(selectedMatch.map);
-    game.players.player = createFighter(loadout.playerChar, loadout.playerWeapon, false, game.map.spawnLeft, game.map.spawnLeftY);
-    game.players.ai = createFighter(loadout.aiChar, loadout.aiWeapon, true, game.map.spawnRight, game.map.spawnRightY);
+    // 出生点互换：死斗每局随机；斗牛第 1 局随机，续局由 startNextBullRound 按轮换规则传入
+    var spawnSwapped = typeof forcedSpawnSwap === 'boolean'
+      ? forcedSpawnSwap
+      : Math.random() < 0.5;
+    if (game.bull) game.bull.spawnSwapped = spawnSwapped;
+    var spL = game.map.spawnLeft, spLY = game.map.spawnLeftY;
+    var spR = game.map.spawnRight, spRY = game.map.spawnRightY;
+    game.players.player = createFighter(loadout.playerChar, loadout.playerWeapon, false,
+      spawnSwapped ? spR : spL, spawnSwapped ? spRY : spLY);
+    game.players.ai = createFighter(loadout.aiChar, loadout.aiWeapon, true,
+      spawnSwapped ? spL : spR, spawnSwapped ? spLY : spRY);
     game.players.player.aim = Math.atan2(game.players.ai.y - game.players.player.y, game.players.ai.x - game.players.player.x);
     game.players.ai.aim = Math.atan2(game.players.player.y - game.players.ai.y, game.players.player.x - game.players.ai.x);
 
@@ -4628,8 +4638,15 @@
       return;
     }
 
-    beginLocalMatch('bullfight');
+    // 出生点轮换：第 13 局互换；加时赛（双方均 ≥12 分）每局互换；其余保持
+    var prevSwap = !!oldBull.spawnSwapped;
+    var nextRound = oldBull.round + 1;
+    var overtimeNow = oldBull.scoreHost >= 12 && oldBull.scoreGuest >= 12;
+    var swapNow = nextRound === 13 ? !prevSwap : (overtimeNow ? !prevSwap : prevSwap);
+
+    beginLocalMatch('bullfight', swapNow);
     game.bull = oldBull;
+    game.bull.spawnSwapped = swapNow; // beginLocalMatch 里标记记在新对象上，还原后同步回来
     game.bull.round += 1;
     game.bull.phase = 'playing';
     game.bull.transitionUntil = 0;
