@@ -5178,18 +5178,6 @@
       var dx = Math.cos(laser.angle);
       var dy = Math.sin(laser.angle);
 
-      var wallHit = null;
-      var wallT = Infinity;
-      for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
-        var w = COUPLE_WALLS[wi];
-        if (w.hp <= 0) continue;
-        var wh = rayRect(laser.x, laser.y, dx, dy, w, 2);
-        if (wh && wh.t > 0.001 && wh.t < wallT) {
-          wallT = wh.t;
-          wallHit = w;
-        }
-      }
-
       var target = f === p ? ai : p;
       var targetT = Infinity;
       if (target && target.alive && !isInvincible(target)) {
@@ -5201,12 +5189,7 @@
         }
       }
 
-      if (wallHit && wallT < targetT) {
-        damageCoupleWall(wallHit, 25);
-        laser.hit = true;
-        continue;
-      }
-
+      // 射线无视一切墙体（平台、箱子、情侣墙均不阻挡）
       if (targetT !== Infinity) {
         if (applyRoot(target, 2, true)) laser.hit = true;
       }
