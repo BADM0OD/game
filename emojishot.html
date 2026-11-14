@@ -576,6 +576,7 @@
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
           <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="🌵">🌵 火龙果之母<small>针 / 猪肉</small></button>
         </div>
       </section>
 
@@ -587,6 +588,7 @@
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
           <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="🌵">🌵 火龙果之母<small>针 / 猪肉</small></button>
         </div>
       </section>
 
@@ -710,6 +712,7 @@
           <button type="button" class="choice" data-value="🤣">🤣 乐子<small>招笑 / 大运来了</small></button>
           <button type="button" class="choice" data-value="🦷">🦷 獠牙<small>回旋爪弹 / 黄金回旋</small></button>
           <button type="button" class="choice" data-value="👻">👻 我很忧郁<small>大梦 / 长恨</small></button>
+          <button type="button" class="choice" data-value="🌵">🌵 火龙果之母<small>针 / 猪肉</small></button>
         </div>
         <span class="fieldLabel">枪械</span>
         <div class="choices" data-group="onlineWeapon">
@@ -834,7 +837,7 @@
             <li>比分达到 12:12 后进入加时，必须领先对方 2 分才能获胜。</li>
             <li>每小局重置生命、位置、弹药和 E 技能使用次数；大招点跨小局保留。</li>
             <li>击杀获得 2 个大招点，被击杀获得 1 个大招点；小局平局时无人得分，重开下一小局。</li>
-            <li>大招点需求：😡 7 点、😇 6 点、🤣 7 点、🦷 7 点。每场斗牛开局 0 点，点满后才能释放大招，释放后点数清空，之后可以重新积攒。</li>
+            <li>大招点需求：😡 7 点、😇 6 点、🤣 7 点、🦷 7 点、👻 8 点、🌵 8 点。每场斗牛开局 0 点，点满后才能释放大招，释放后点数清空，之后可以重新积攒。</li>
             <li>😇 开大复活后的 10 秒内被击杀：击杀者不获得大招点，😇 也不获得被击杀的大招点。她在这 10 秒内击杀对方则正常获得 2 点。</li>
             <li>😇 有大招时死亡，选择不复活则本小局判给对方；选择复活后，本小局等她再次死亡或击杀对方后结算。</li>
             <li>开大复活后的 😇 若 10 秒内未造成击杀而再次死亡，本小局判给对方，双方都不获得这次死亡的大招点。</li>
@@ -877,6 +880,13 @@
             <ul>
               <li><b>小招 大梦</b>：原地留下一个永久存在、1 血的分身（自己看半透明，敌方视角与真身完全一致，包括名字和判定体积；空中释放会落到地面）。释放后 1.5 秒内本体隐形、移速 +50%；隐身期间开枪、被击中或使用大招都会提前破隐。释放时会解除定身和减速，但不会解除黄金回旋。分身被摧毁时，无论距离，敌方致盲 0.5 秒（画面全白 + 巨大 👻，HUD 也遮挡；仍可移动和射击）。分身被摧毁不算击杀、不加点。死斗每局 1 次。</li>
               <li><b>大招 长恨</b>：原地留下锚点（蓝白色，敌人可见），持续 5 秒。期间移速 +50%、主武器射速 +50%（子弹速度不变，与减速 debuff 加减法叠加）。5 秒内死亡则在锚点以 50 血复活，不结束小局、给对手 2 点大招点、不给小局分，清空 debuff，不重置 E，剩余移速/射速 buff 结束；5 秒内未死亡则保留当前状态瞬移回锚点，同时结束 Q 的 buff。杀死长恨状态的 👻 获得 2 点大招点，长恨 👻 击杀敌人获得 2 点，👻 在长恨状态下被击杀不获得被击杀的 1 点。斗牛需 8 点大招点。</li>
+            </ul>
+          </div>
+          <div class="tutChar">
+            <h4>🌵 火龙果之母</h4>
+            <ul>
+              <li><b>小招 针</b>：向准心方向发射一颗绿色子弹，飞行速度 2000。撞到任何障碍物（墙体、平台、地面、箱子、情侣墙、屏幕边界）后立即爆开，不破坏障碍物；在爆开处生成半径 100 的淡绿色腐蚀区域，持续 10 秒，区域内的所有角色每 0.1 秒失去 5 点血（含自己）。</li>
+              <li><b>大招 猪肉</b>：进入持续 10 秒的猪肉状态，获得 150 点猪肉护甲（优先于生命承伤）。期间无法使用主武器、无法切换空手，左键改为发射半径 25 的 👊：飞行速度 1900、每秒 5 发、命中造成 50 伤害。可再次按 Q 提前结束，状态结束时剩余护甲立即消失。斗牛需 8 点大招点。</li>
             </ul>
           </div>
         </section>
@@ -1332,7 +1342,8 @@
     '😇': { name: '头顶游泳圈', color: '#67e8f9', glow: 'rgba(103, 232, 249, 0.5)' },
     '🤣': { name: '乐子', color: '#c084fc', glow: 'rgba(192, 132, 252, 0.55)' },
     '🦷': { name: '獠牙', color: '#ff6ec7', glow: 'rgba(255, 110, 199, 0.6)' },
-    '👻': { name: '我很忧郁', color: '#b8e6ff', glow: 'rgba(184, 230, 255, 0.6)' }
+    '👻': { name: '我很忧郁', color: '#b8e6ff', glow: 'rgba(184, 230, 255, 0.6)' },
+    '🌵': { name: '火龙果之母', color: '#7ee08a', glow: 'rgba(126, 224, 138, 0.6)' }
   };
 
   var loadout = {
@@ -1342,7 +1353,7 @@
     aiWeapon: 'M4'
   };
 
-  var ULT_COST = { '😡': 7, '😇': 6, '🤣': 7, '🦷': 7, '👻': 8 };
+  var ULT_COST = { '😡': 7, '😇': 6, '🤣': 7, '🦷': 7, '👻': 8, '🌵': 8 };
   var BULL_WIN_SCORE = 13;
   var selectedMatch = { opponent: 'ai', mode: 'duel', map: 'training' };
 
@@ -1418,6 +1429,7 @@
     aim: { x: W / 2, y: H / 2 },
     players: { player: null, ai: null },
     bullets: [],
+    zones: [],
     particles: [],
     texts: [],
     explosions: [],
@@ -1958,6 +1970,8 @@
       buffUntil: 0,
       rocketMode: false,
       rocketAmmo: 0,
+      porkUntil: 0,   // 🌵 猪肉状态结束时间
+      porkArmor: 0,   // 🌵 猪肉护甲（优先承伤）
       unarmed: false, // 数字键 3：空手（移速 500，无法射击）
       drawUntil: 0,   // 空手→主武器的 1 秒拿枪时间，期间无法射击
       revived: false,
@@ -2012,6 +2026,7 @@
     game.players.ai.aim = Math.atan2(game.players.player.y - game.players.ai.y, game.players.player.x - game.players.ai.x);
 
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -2583,6 +2598,7 @@
       game.players.player.x - game.players.ai.x);
 
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -2629,6 +2645,7 @@
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -2670,6 +2687,7 @@
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -2709,6 +2727,7 @@
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -2814,6 +2833,8 @@
       reviveDeadline: f.reviveDeadline,
       buffUntil: f.buffUntil,
       rocketMode: f.rocketMode,
+      porkUntil: f.porkUntil || 0,
+      porkArmor: f.porkArmor || 0,
       unarmed: !!f.unarmed,
       drawUntil: f.drawUntil || 0,
       qUsed: f.qUsed,
@@ -2892,6 +2913,9 @@
       guest: snapFighter(game.players.ai),
       bullets: bullets,
       explosions: explosions,
+      zones: game.zones.map(function (z) {
+        return { x: z.x, y: z.y, r: z.r, until: z.until };
+      }),
       notice: game.notice,
       matchType: game.matchType,
       mapKey: game.mapKey,
@@ -2930,6 +2954,8 @@
     local.reviveDeadline = data.reviveDeadline;
     local.buffUntil = data.buffUntil;
     local.rocketMode = data.rocketMode;
+    local.porkUntil = data.porkUntil || 0;
+    local.porkArmor = data.porkArmor || 0;
     local.unarmed = !!data.unarmed;
     local.drawUntil = data.drawUntil || 0;
     local.qUsed = data.qUsed;
@@ -3016,6 +3042,9 @@
 
     game.explosions = (data.explosions || []).map(function (ex) {
       return { x: ex.x, y: ex.y, life: ex.life, maxLife: ex.maxLife, maxR: ex.maxR };
+    });
+    game.zones = (data.zones || []).map(function (z) {
+      return { x: z.x, y: z.y, r: z.r, until: z.until, nextTick: 0, owner: null };
     });
     game.notice = data.notice || null;
     if (data.matchType) game.matchType = validMatchMode(data.matchType);
@@ -3259,6 +3288,7 @@
     game.players.player = null;
     game.players.ai = null;
     game.bullets = [];
+    game.zones = [];
     game.particles = [];
     game.texts = [];
     game.explosions = [];
@@ -3352,6 +3382,7 @@
     f.muzzle = Math.max(0, f.muzzle - dt);
     f.damageFlash = Math.max(0, f.damageFlash - dt);
     f.dropTimer = Math.max(0, f.dropTimer - dt);
+    if (f.porkUntil > 0 && game.gameTime >= f.porkUntil) endPorkState(f, false);
     if (f.reloading && game.gameTime >= f.reloadEnd) finishReload(f);
   }
 
@@ -3824,6 +3855,12 @@
     } else if (ai.char === '👻') {
       if (!ai.eUsed && (rooted || ai.hp < 100) && game.gameTime > 1.5) useGhostE(ai);
       if (!ai.qUsed && ultReady(ai) && distance < 400 && game.gameTime > 3) useGhostQ(ai);
+    } else if (ai.char === '🌵') {
+      if (!ai.eUsed && !rolling && p.alive && game.gameTime > 1.5) useNeedleE(ai);
+      if (!rolling && ai.porkUntil <= game.gameTime && game.gameTime > 3 &&
+          (distance < 480 || ai.hp < 100)) {
+        usePorkQ(ai);
+      }
     }
 
     if (aiBlind) {
@@ -3916,6 +3953,10 @@
   // 数字键 3：空手。移速 500、无法射击；切回主武器需 1 秒拿枪。
   function unarmFighter(f) {
     if (!f || !f.alive || f.unarmed) return false;
+    if (f.porkUntil > game.gameTime) {
+      addText(f.x, f.y - 52, '猪肉状态无法空手', '#ffb8c6');
+      return false;
+    }
     f.unarmed = true;
     f.drawUntil = 0;
     f.rocketMode = false;
@@ -3939,6 +3980,161 @@
     spawnParticles(f.x + Math.cos(angle) * (f.r + 18), f.y + Math.sin(angle) * (f.r + 18),
       '#6ec6ff', 14, 180, 0.3, angle);
     return true;
+  }
+
+  /* ---------------- 🌵 火龙果之母 ---------------- */
+
+  var ACID_RADIUS = 100;
+  var ACID_DURATION = 10;
+  var ACID_TICK = 0.1;
+  var ACID_TICK_DAMAGE = 5;
+  var PORK_DURATION = 10;
+  var PORK_ARMOR = 150;
+  var PUNCH_INTERVAL = 0.2; // 5 发/秒
+
+  function spawnAcidZone(x, y, owner) {
+    game.zones.push({
+      x: x,
+      y: y,
+      r: ACID_RADIUS,
+      until: game.gameTime + ACID_DURATION,
+      nextTick: game.gameTime + ACID_TICK,
+      owner: owner || null
+    });
+    spawnParticles(x, y, '#b6f5c1', 20, 190, 0.5);
+  }
+
+  // 小招 · 针：绿色子弹，撞到任何障碍（平台/箱体/情侣墙/屏幕边界）即爆开成腐蚀区域
+  function useNeedleE(f) {
+    if (!f || !f.alive || f.eUsed || isRolling(f)) return false;
+    f.eUsed = true;
+
+    var angle = f.isAI ? f.aim : Math.atan2(game.aim.y - f.y, game.aim.x - f.x);
+    var sx = f.x + Math.cos(angle) * (f.r + 18);
+    var sy = f.y + Math.sin(angle) * (f.r + 18);
+
+    game.bullets.push({
+      type: 'needle',
+      x: sx,
+      y: sy,
+      px: sx,
+      py: sy,
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+      speed: 2000,
+      damage: 0,
+      radius: 5,
+      color: '#6dfb8f',
+      owner: f,
+      life: 3
+    });
+
+    spawnParticles(sx, sy, '#6dfb8f', 12, 150, 0.3, angle);
+    return true;
+  }
+
+  // 大招 · 猪肉：10 秒猪肉状态（150 护甲 + 左键 👊），再次按 Q 提前结束
+  function usePorkQ(f) {
+    if (!f || !f.alive || isRolling(f)) return false;
+    if (f.porkUntil > game.gameTime) {
+      endPorkState(f, true);
+      return true;
+    }
+    if (!canUseUltQ(f)) return false;
+
+    f.qUsed = true;
+    spendUlt(f);
+    f.porkUntil = game.gameTime + PORK_DURATION;
+    f.porkArmor = PORK_ARMOR;
+    f.rocketMode = false;
+    f.rocketAmmo = 0;
+    f.unarmed = false;
+    f.drawUntil = 0;
+    f.reloading = false;
+
+    spawnParticles(f.x, f.y, '#ffb8c6', 30, 220, 0.65);
+    addText(f.x, f.y - 52, '猪肉状态', '#ffb8c6');
+    if (f === game.players.player) notify('猪肉状态：150 护甲 · 左键 👊', '#ffb8c6', 2);
+    return true;
+  }
+
+  function endPorkState(f, manual) {
+    if (!f) return;
+    var leftArmor = f.porkArmor || 0;
+    f.porkUntil = 0;
+    f.porkArmor = 0;
+    if (!f.alive) return;
+    spawnParticles(f.x, f.y, '#ffb8c6', 18, 160, 0.45);
+    if (manual) {
+      addText(f.x, f.y - 52, leftArmor > 0 ? '猪肉结束 · 护甲消散' : '猪肉结束', '#9aa4b5');
+    }
+  }
+
+  function firePunch(f) {
+    if (!f || !f.alive) return false;
+    if (f.ghostInvisUntil > game.gameTime) f.ghostInvisUntil = 0;
+
+    var angle = f.aim;
+    if (f.isAI) angle += rand(-0.05, 0.05);
+
+    var mx = f.x + Math.cos(angle) * (f.r + 30);
+    var my = f.y + Math.sin(angle) * (f.r + 30);
+
+    game.bullets.push({
+      type: 'punch',
+      x: mx,
+      y: my,
+      px: mx,
+      py: my,
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+      speed: 1900,
+      damage: 50,
+      radius: 25,
+      color: '#ffb8c6',
+      owner: f,
+      life: 1.4,
+      crateHits: []
+    });
+
+    f.fireCd = PUNCH_INTERVAL;
+    f.muzzle = 0.06;
+    spawnParticles(mx, my, '#ffb8c6', 8, 130, 0.25, angle);
+    return true;
+  }
+
+  // 腐蚀区域结算：区域内的角色每 0.1 秒失去 5 点血
+  function updateZones() {
+    for (var i = game.zones.length - 1; i >= 0; i--) {
+      var z = game.zones[i];
+      if (game.gameTime >= z.until) {
+        game.zones.splice(i, 1);
+        continue;
+      }
+
+      var guard = 0;
+      while (z.nextTick <= game.gameTime && z.nextTick <= z.until && guard < 20) {
+        guard++;
+        z.nextTick += ACID_TICK;
+
+        var fighters = [game.players.player, game.players.ai];
+        for (var j = 0; j < fighters.length; j++) {
+          var f = fighters[j];
+          if (!f || !f.alive) continue;
+          if (Math.hypot(f.x - z.x, f.y - z.y) > z.r + f.r) continue;
+          damageFighter(f, ACID_TICK_DAMAGE, z.owner, { quiet: true });
+          if (game.mode !== 'playing') return;
+        }
+
+        // 分身同样会被腐蚀
+        for (var k = 0; k < fighters.length; k++) {
+          var owner = fighters[k];
+          if (!owner || !owner.ghostClone) continue;
+          var c = owner.ghostClone;
+          if (Math.hypot(c.x - z.x, c.y - z.y) <= z.r + c.r) destroyGhostClone(owner);
+        }
+      }
+    }
   }
 
   function applyRoot(f, duration, slow) {
@@ -4171,6 +4367,7 @@
     else if (f.char === '🤣') useLaser(f);
     else if (f.char === '🦷') useToothE(f);
     else if (f.char === '👻') useGhostE(f);
+    else if (f.char === '🌵') useNeedleE(f);
   }
 
   function useFighterQ(f) {
@@ -4179,6 +4376,7 @@
     if (f.char === '🤣') return useRoll(f);
     if (f.char === '🦷') return useToothQ(f);
     if (f.char === '👻') return useGhostQ(f);
+    if (f.char === '🌵') return usePorkQ(f);
     return false;
   }
 
@@ -4198,7 +4396,9 @@
   /* ---------------- 射击 ---------------- */
 
   function fireBullet(f) {
-    if (!f || !f.alive || f.reloading || isRolling(f)) return false;
+    if (!f || !f.alive || isRolling(f)) return false;
+    if (f.porkUntil > game.gameTime) return firePunch(f); // 🌵 猪肉状态：左键改为 👊
+    if (f.reloading) return false;
     if (f.unarmed || f.drawUntil > game.gameTime) return false; // 空手 / 拿枪中无法射击
     if (f.ghostInvisUntil > game.gameTime) f.ghostInvisUntil = 0;
 
@@ -4305,15 +4505,35 @@
     }
   }
 
-  function damageFighter(target, amount, attacker) {
+  function damageFighter(target, amount, attacker, opts) {
     if (!target || !target.alive || game.mode !== 'playing') return;
+    var quiet = !!(opts && opts.quiet);
     if (target.ghostInvisUntil > game.gameTime) target.ghostInvisUntil = 0;
     var damage = amount;
     if (isRolling(target)) damage = Math.max(1, Math.ceil(amount * 0.3));
+
+    // 🌵 猪肉护甲优先承伤
+    if (target.porkArmor > 0 && damage > 0) {
+      var absorbed = Math.min(target.porkArmor, damage);
+      target.porkArmor -= absorbed;
+      damage -= absorbed;
+      if (target.porkArmor <= 0) target.porkArmor = 0;
+      if (!quiet) {
+        addText(target.x, target.y - target.r - 8, '-' + absorbed + ' 护甲', '#ffb8c6');
+        spawnParticles(target.x, target.y, '#ffb8c6', 7, 110, 0.3);
+      }
+      if (damage <= 0) {
+        target.damageFlash = 0.14;
+        return;
+      }
+    }
+
     target.hp = Math.max(0, target.hp - damage);
     target.damageFlash = 0.14;
-    addText(target.x, target.y - target.r - 8, String(damage), attacker === game.players.player ? '#ffffff' : '#ff8f95');
-    spawnParticles(target.x, target.y, CHARS[target.char].color, 9, 130, 0.35);
+    if (!quiet) {
+      addText(target.x, target.y - target.r - 8, String(damage), attacker === game.players.player ? '#ffffff' : '#ff8f95');
+      spawnParticles(target.x, target.y, CHARS[target.char].color, 9, 130, 0.35);
+    }
 
     if (target.hp <= 0) handleDeath(target, attacker);
   }
@@ -4362,6 +4582,8 @@
     victim.vx = 0;
     victim.vy = 0;
     victim.rocketMode = false;
+    victim.porkUntil = 0;
+    victim.porkArmor = 0;
     clearGoldDot(victim);
     spawnParticles(victim.x, victim.y, CHARS[victim.char].color, 34, 260, 0.7);
 
@@ -4472,6 +4694,8 @@
     f.laser = null;
     f.rocketMode = false;
     f.rocketAmmo = 0;
+    f.porkUntil = 0;
+    f.porkArmor = 0;
     f.fireCd = 0.4;
     f.damageFlash = 0;
     f.reviveAt = 0;
@@ -4949,9 +5173,66 @@
     return false;
   }
 
+  function updateNeedleBullet(b, dt) {
+    b.life -= dt;
+    var nx = b.x + b.dx * b.speed * dt;
+    var ny = b.y + b.dy * b.speed * dt;
+    var hitT = 1;
+
+    for (var pi = 0; pi < PLATFORMS.length; pi++) {
+      var pt = segmentRectT(b.x, b.y, nx, ny, PLATFORMS[pi]);
+      if (pt !== null && pt < hitT) hitT = pt;
+    }
+
+    // 箱体与情侣墙同样会让针爆开（但不造成破坏）
+    for (var wi = 0; wi < COUPLE_WALLS.length; wi++) {
+      var cw = COUPLE_WALLS[wi];
+      if (cw.hp <= 0) continue;
+      var wt = segmentRectT(b.x, b.y, nx, ny, cw);
+      if (wt !== null && wt < hitT) hitT = wt;
+    }
+
+    var target = b.owner === game.players.player ? game.players.ai : game.players.player;
+    if (target && target.alive) {
+      var tc = segmentCircleT(b.x, b.y, nx, ny, target.x, target.y, target.r + b.radius);
+      if (tc !== null && tc < hitT) hitT = tc;
+    }
+    if (target && target.ghostClone) {
+      var cg = target.ghostClone;
+      var gcT = segmentCircleT(b.x, b.y, nx, ny, cg.x, cg.y, cg.r + b.radius);
+      if (gcT !== null && gcT < hitT) hitT = gcT;
+    }
+
+    var hx = b.x + (nx - b.x) * hitT;
+    var hy = b.y + (ny - b.y) * hitT;
+
+    var outOfWorld = hx < 0 || hx > WORLD_W || hy < 0 || hy > WORLD_H;
+    if (hitT < 1 || outOfWorld || b.life <= 0) {
+      var bx = clamp(hx, 0, WORLD_W);
+      var by = clamp(hy, 0, WORLD_H);
+      b.x = bx;
+      b.y = by;
+      spawnParticles(bx, by, '#6dfb8f', 14, 180, 0.4);
+      spawnAcidZone(bx, by, b.owner);
+      return true;
+    }
+
+    b.x = hx;
+    b.y = hy;
+    return false;
+  }
+
   function updateBullets(dt) {
     for (var i = game.bullets.length - 1; i >= 0; i--) {
       var b = game.bullets[i];
+
+      if (b.type === 'needle') {
+        if (updateNeedleBullet(b, dt)) {
+          game.bullets.splice(i, 1);
+          if (game.mode !== 'playing') return;
+        }
+        continue;
+      }
 
       if (b.type === 'bounce') {
         if (updateBounceBullet(b, dt)) {
@@ -5252,6 +5533,9 @@
     if (game.mode !== 'playing') return;
 
     updateBullets(dt);
+    if (game.mode !== 'playing') return;
+
+    updateZones();
     if (game.mode !== 'playing') return;
 
     updateGoldDots();
@@ -6292,6 +6576,7 @@
 
   function drawGun(f) {
     if (f.unarmed && !f.rocketMode) return; // 空手收枪（装备火箭筒时仍显示）
+    if (f.porkUntil > game.gameTime) return; // 🌵 猪肉状态：收枪，左键为 👊
     var isRocket = f.rocketMode;
 
     ctx.save();
@@ -6658,6 +6943,20 @@
       ctx.restore();
     }
 
+    if (f.porkUntil > game.gameTime) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 184, 198, ' + (0.55 + Math.sin(now / 120) * 0.2) + ')';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r + 9 + Math.sin(now / 160) * 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r + 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 184, 198, 0.12)';
+      ctx.fill();
+      ctx.restore();
+    }
+
     if (reviveLeft > 0) {
       ctx.save();
       ctx.strokeStyle = 'rgba(103, 232, 249, ' + (0.5 + Math.sin(now / 140) * 0.2) + ')';
@@ -6666,9 +6965,7 @@
       ctx.arc(f.x, f.y, f.r + 6, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    }
-
-    if (rolling) {
+    }    if (rolling) {
       ctx.save();
       ctx.strokeStyle = 'rgba(192, 132, 252, ' + (0.55 + Math.sin(now / 80) * 0.2) + ')';
       ctx.lineWidth = 4;
@@ -6781,6 +7078,16 @@
       ctx.restore();
     }
 
+    if (f.porkUntil > game.gameTime) {
+      ctx.save();
+      ctx.font = '800 11px "Segoe UI", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffb8c6';
+      ctx.fillText('猪肉 ' + Math.max(0, f.porkUntil - game.gameTime).toFixed(1) + 's · 护甲 ' +
+        Math.ceil(f.porkArmor || 0), f.x, f.y - f.r - 76);
+      ctx.restore();
+    }
+
     if (f.reloading) {
       var reloadProgress = clamp(1 - Math.max(0, f.reloadEnd - game.gameTime) / RELOAD_TIME, 0, 1);
 
@@ -6796,6 +7103,42 @@
       ctx.strokeStyle = '#ffb02e';
       ctx.lineWidth = 3;
       ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawZones() {
+    for (var i = 0; i < game.zones.length; i++) {
+      var z = game.zones[i];
+      var left = z.until - game.gameTime;
+      if (left <= 0) continue;
+      var fade = clamp(left / 0.8, 0, 1);
+      var pulse = 0.75 + Math.sin(game.gameTime * 4) * 0.2;
+
+      ctx.save();
+
+      ctx.globalAlpha = 0.2 * fade;
+      ctx.fillStyle = '#a8f7b6';
+      ctx.beginPath();
+      ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = 'rgba(140, 245, 165, ' + (0.7 * pulse) + ')';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.globalAlpha = 0.45 * fade;
+      ctx.strokeStyle = 'rgba(200, 255, 210, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([10, 8]);
+      ctx.lineDashOffset = -game.gameTime * 24;
+      ctx.beginPath();
+      ctx.arc(z.x, z.y, z.r - 9, 0, Math.PI * 2);
+      ctx.stroke();
+
       ctx.restore();
     }
   }
@@ -6864,6 +7207,47 @@
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = '#ffd166';
         ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+
+      if (b.type === 'needle') {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(109, 251, 143, 0.42)';
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.moveTo(b.x - b.dx * 22, b.y - b.dy * 22);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(109, 251, 143, 0.25)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#d6ffe2';
+        ctx.fill();
+        ctx.restore();
+        continue;
+      }
+
+      if (b.type === 'punch') {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 184, 198, 0.22)';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = '48px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('👊', b.x, b.y + 2);
         ctx.restore();
         continue;
       }
@@ -7059,7 +7443,8 @@
       if (isBullMatch()) {
         ultText = '大招 ' + (f.ultPoints || 0) + '/' + ultCost(f);
       } else if (f.rocketMode || isRolling(f) || f.revived ||
-                 (f.ghostBuffUntil && f.ghostBuffUntil > game.gameTime)) {
+                 (f.ghostBuffUntil && f.ghostBuffUntil > game.gameTime) ||
+                 f.porkUntil > game.gameTime) {
         ultText = '大招进行中';
       } else {
         ultText = f.qUsed ? '大招已使用' : '大招可用';
@@ -7071,7 +7456,9 @@
 
     ctx.font = '800 13px "Segoe UI", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#eef3fa';
-    ctx.fillText(Math.ceil(f.hp) + ' / ' + f.maxHp, alignRight ? x : x + w, y - 9);
+    var hpText = Math.ceil(f.hp) + ' / ' + f.maxHp;
+    if (f.porkArmor > 0) hpText += '  + 护甲 ' + Math.ceil(f.porkArmor);
+    ctx.fillText(hpText, alignRight ? x : x + w, y - 9);
 
     ctx.fillStyle = 'rgba(255,255,255,0.08)';
     ctx.fillRect(x, y, w, 15);
@@ -7084,6 +7471,14 @@
     ctx.strokeStyle = 'rgba(255,255,255,0.18)';
     ctx.lineWidth = 1;
     ctx.strokeRect(x + 0.5, y + 0.5, w - 1, 14);
+
+    if (f.porkArmor > 0) {
+      var aRatio = clamp(f.porkArmor / PORK_ARMOR, 0, 1);
+      var aw = w * aRatio;
+      var ax = alignRight ? x + w - aw : x;
+      ctx.fillStyle = 'rgba(255, 184, 198, 0.9)';
+      ctx.fillRect(ax, y + 18, aw, 5);
+    }
 
     var statusBits = [];
     if (isBullMatch()) {
@@ -7142,6 +7537,24 @@
         e: f.eUsed ? '已使用' : (f.hp < f.maxHp ? '回复最多 100' : '生命已满'),
         q: angelQ
       };
+    }
+
+    if (f.char === '🌵') {
+      var cactusE;
+      if (f.eUsed) cactusE = '已使用';
+      else cactusE = '腐蚀针 · 每 0.1s 5 伤害';
+      var cactusQ;
+      if (f.porkUntil > game.gameTime) {
+        cactusQ = '猪肉 ' + (f.porkUntil - game.gameTime).toFixed(1) + 's · 护甲 ' +
+          Math.ceil(f.porkArmor || 0) + '（再按 Q 结束）';
+      } else if (isBullMatch()) {
+        cactusQ = bullQStatus(f, '猪肉 10s · 护甲 150');
+      } else if (f.qUsed) {
+        cactusQ = '已使用';
+      } else {
+        cactusQ = '猪肉 10s · 护甲 150';
+      }
+      return { e: cactusE, q: cactusQ };
     }
 
     if (f.char === '👻') {
@@ -7302,6 +7715,7 @@
     else if (p.char === '🤣') eTitle = '小招 · 招笑';
     else if (p.char === '🦷') eTitle = '小招 · 回旋爪弹';
     else if (p.char === '👻') eTitle = '小招 · 大梦';
+    else if (p.char === '🌵') eTitle = '小招 · 针';
 
     var qTitle = '大招 · 化蝶';
     var qActive = false;
@@ -7324,6 +7738,12 @@
     } else if (p.char === '👻') {
       qTitle = '大招 · 长恨';
       qActive = p.ghostBuffUntil > game.gameTime;
+      qDisabled = isBullMatch()
+        ? ((p.qUsed || !ultReady(p)) && !qActive)
+        : (p.qUsed && !qActive);
+    } else if (p.char === '🌵') {
+      qTitle = '大招 · 猪肉';
+      qActive = p.porkUntil > game.gameTime;
       qDisabled = isBullMatch()
         ? ((p.qUsed || !ultReady(p)) && !qActive)
         : (p.qUsed && !qActive);
@@ -7498,6 +7918,7 @@
   }
 
   function drawWorldEntities(now) {
+    drawZones();
     if (game.players.player) drawFighter(game.players.player, now);
     if (game.players.ai) drawFighter(game.players.ai, now);
     drawGhostClone(game.players.player);
