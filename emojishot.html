@@ -886,7 +886,7 @@
             <h4>🌵 火龙果之母</h4>
             <ul>
               <li><b>小招 针</b>：向准心方向发射一颗绿色子弹，飞行速度 2000。撞到任何障碍物（墙体、平台、地面、箱子、情侣墙、屏幕边界）后立即爆开，不破坏障碍物；在爆开处生成半径 100 的淡绿色腐蚀区域，持续 10 秒，区域内的所有角色每 0.1 秒失去 5 点血（含自己）。</li>
-              <li><b>大招 猪肉</b>：进入持续 10 秒的猪肉状态，获得 150 点猪肉护甲（优先于生命承伤）。期间无法使用主武器、无法切换空手，左键改为发射半径 25 的 👊：飞行速度 1900、每秒 5 发、命中造成 50 伤害。可再次按 Q 提前结束，状态结束时剩余护甲立即消失。斗牛需 8 点大招点。</li>
+              <li><b>大招 猪肉</b>：进入持续 3 秒的猪肉状态，获得 150 点猪肉护甲（优先于生命承伤）。期间无法使用主武器、无法切换空手，左键改为发射半径 25 的 👊：飞行速度 1900、每秒 5 发、命中造成 50 伤害。可再次按 Q 提前结束，状态结束时剩余护甲立即消失。斗牛需 8 点大招点。</li>
             </ul>
           </div>
         </section>
@@ -3988,7 +3988,7 @@
   var ACID_DURATION = 10;
   var ACID_TICK = 0.1;
   var ACID_TICK_DAMAGE = 5;
-  var PORK_DURATION = 10;
+  var PORK_DURATION = 3;
   var PORK_ARMOR = 150;
   var PUNCH_INTERVAL = 0.2; // 5 发/秒
 
@@ -4033,7 +4033,7 @@
     return true;
   }
 
-  // 大招 · 猪肉：10 秒猪肉状态（150 护甲 + 左键 👊），再次按 Q 提前结束
+  // 大招 · 猪肉：3 秒猪肉状态（150 护甲 + 左键 👊），再次按 Q 提前结束
   function usePorkQ(f) {
     if (!f || !f.alive || isRolling(f)) return false;
     if (f.porkUntil > game.gameTime) {
@@ -7548,11 +7548,11 @@
         cactusQ = '猪肉 ' + (f.porkUntil - game.gameTime).toFixed(1) + 's · 护甲 ' +
           Math.ceil(f.porkArmor || 0) + '（再按 Q 结束）';
       } else if (isBullMatch()) {
-        cactusQ = bullQStatus(f, '猪肉 10s · 护甲 150');
+        cactusQ = bullQStatus(f, '猪肉 3s · 护甲 150');
       } else if (f.qUsed) {
         cactusQ = '已使用';
       } else {
-        cactusQ = '猪肉 10s · 护甲 150';
+        cactusQ = '猪肉 3s · 护甲 150';
       }
       return { e: cactusE, q: cactusQ };
     }
