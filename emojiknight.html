@@ -1411,6 +1411,105 @@ button:disabled {
 .unlockcard .mapUav { background: #e9edf7; border-color: #aeb9d0; }
 
 
+/* ---------- 存档主页 ---------- */
+.homeHead {
+  display: flex;
+  gap: 26px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.homeLabel {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #8296b8;
+  margin-bottom: 7px;
+}
+
+.saveNameInput {
+  width: 300px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 170, 255, .3);
+  background: rgba(9, 13, 22, .85);
+  color: #eaf4ff;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.saveNameInput:focus {
+  outline: none;
+  border-color: rgba(127, 224, 255, .85);
+  box-shadow: 0 0 14px rgba(127, 224, 255, .3);
+}
+
+.avatarRow { display: flex; gap: 8px; }
+
+.avatarPick {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  background: rgba(9, 13, 22, .85);
+  border: 1px solid rgba(120, 170, 255, .2);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.avatarPick:hover { border-color: rgba(160, 215, 255, .6); }
+
+.avatarPick.on {
+  border-color: rgba(255, 209, 102, .9);
+  box-shadow: 0 0 12px rgba(255, 209, 102, .45);
+}
+
+.worldRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 4px;
+}
+
+.worldBar {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(120, 170, 255, .18);
+  overflow: hidden;
+}
+
+.worldBar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #7fe0ff, #a6f0d0);
+  transition: width .3s;
+}
+
+.worldBar span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #07121e;
+}
+
+.worldLv {
+  font-size: 13px;
+  color: #cfe0f5;
+  white-space: nowrap;
+}
+
+.worldLv b {
+  color: #ffd166;
+  font-size: 17px;
+}
+
 </style>
 </head>
 <body>
@@ -1536,16 +1635,25 @@ const CFG = {
   ult: { perHit: 5, perPerfectBlock: 10 },
 
   upgrade: {
-    level: { max: 10, gold: 20, hp: 100, atk: 10, def: 1 },
+    // 世界等级决定上限：角色等级 = maxPerWorld * 世界等级，技能等级 = 5 * 世界等级
+    level: { maxPerWorld: 10, goldBase: 10, hp: 100, atk: 10, def: 1 },
+    skillMaxPerWorld: 5,
+    skillGoldBase: 10,
+    skillMatStart: 1,
+    skillMatStep: 2,
     // 每项独立升级，需在角色面板中单击选中
     skills: {
       liuhanyi: {
         e: { upgradable: false },
-        q: { max: 10, gold: 10, dianmo: 1, multStep: 0.05 }
+        q: { mat: 'dianmo', multStep: 0.05 }
       },
       nengrongze: {
-        e: { max: 10, gold: 10, gear: 1, hpRatioStep: 0.05, splashStep: 0.05 },
-        q: { max: 10, gold: 10, gear: 1, multStep: 0.05 }
+        e: { mat: 'gear', hpRatioStep: 0.05, splashStep: 0.05 },
+        q: { mat: 'gear', multStep: 0.05 }
+      },
+      liumo: {
+        e: { mat: 'haochengji', multStep: 0.10 },
+        q: { mat: 'haochengji' }
       }
     }
   },
@@ -1729,8 +1837,8 @@ const CFG = {
         desc: '进入隐匿 10 秒：移速 +50%，敌人无法发现。攻击 / 受击 / 冲刺会解除隐匿。<br><span class="mult">倍率：破隐一击 ×2</span>'
       },
       q: {
-        id: 'awake', name: '睡醒了', duration: 10, icon: '😴',
-        desc: '10 秒内普攻变为纸球，每 0.5 秒发射一发，纸球存在 2 秒；持续期间无法获得终结点，切换角色会提前结束，且不显示武器。<br><span class="mult">倍率：纸球 60%（每级 +5%）</span>'
+        id: 'awake', name: '睡醒了', duration: 10, icon: '😴', cd: 15,
+        desc: '10 秒内普攻变为纸球，每 0.5 秒发射一发，纸球存在 2 秒；持续期间无法获得终结点，切换角色会提前结束，且不显示武器。<br><span class="mult">倍率：纸球 60%（每级 +5%）</span><br><span class="mult">CD：15 秒</span>'
       },
       lightMult: 0.5,
       heavyMult: 0.75
@@ -1776,8 +1884,33 @@ const CFG = {
         desc: '获得护盾，最多持续 10 秒；护盾受到伤害时，向周围半径 50 的范围溅射一次范围伤害。冷却 15 秒，可升级。<br><span class="mult">倍率：护盾 10% 生命上限（每级 +5%），反伤 30%（每级 +5%）</span>'
       },
       q: {
-        id: 'sprout', name: '交际花', duration: 10, icon: '🌵',
-        desc: '头顶召唤半径 10 的 🌵 虚影，持续 10 秒且切换角色不会消失；场上角色普攻 / 重击 / 纸球出手时，向攻击方向发射尖刺。持续期间能荣泽可以获取终结点，可升级。<br><span class="mult">倍率：尖刺 30%（每级 +5%，按能荣泽数值），每 0.5 秒最多触发一次</span>'
+        id: 'sprout', name: '交际花', duration: 10, icon: '🌵', cd: 15,
+        desc: '头顶召唤半径 10 的 🌵 虚影，持续 10 秒且切换角色不会消失；场上角色普攻 / 重击 / 纸球出手时，向攻击方向发射尖刺。持续期间能荣泽可以获取终结点，可升级。<br><span class="mult">倍率：尖刺 30%（每级 +5%，按能荣泽数值），每 0.5 秒最多触发一次</span><br><span class="mult">CD：15 秒</span>'
+      },
+      lightMult: 0.5,
+      heavyMult: 0.75
+    },
+    liumo: {
+      id: 'liumo',
+      name: '鎏知寞',
+      emoji: '🐱',
+      emojiScale: 1.0,
+      bg: '#4a4a52',
+      edge: '#2b2b30',
+      hpMax: 1000,
+      atk: 100,
+      def: 100,
+      critRate: 0.10,
+      critDmg: 1.5,
+      ultMax: 60,
+      ultColor: '#c9c9d6',
+      e: {
+        id: 'crash', name: '坠机', cd: 10, icon: '💥',
+        desc: '向最近的敌人上方跃起（跃起速度 500），随后从空中下砸（速度 600），造成半径 100 的范围伤害。<br><span class="mult">倍率：80%（每级 +10%）</span><br><span class="mult">CD：10 秒</span>'
+      },
+      q: {
+        id: 'book', name: '一心只读圣贤书', cd: 20, duration: 2, icon: '📖',
+        desc: '向前方发射半径 40 的 📖 虚影，不会因命中而消失，可以持续穿过敌人，撞到障碍物会被阻挡，最多飞行 2 秒。命中敌人后在其头顶留下 📖 印记 10 秒；场上角色命中带印记的敌人时，为鎏知寞回复 10% 生命上限，每秒最多触发一次。<br><span class="mult">CD：20 秒</span>'
       },
       lightMult: 0.5,
       heavyMult: 0.75
@@ -1788,6 +1921,7 @@ const CFG = {
 const SAVE_KEY = 'emojiknight.save.v1';
 const SETTINGS_KEY = 'emojiknight.settings.v1';
 const SAVE_VERSION = 1;
+const AVATARS = ['👻', '🌵', '🐱', '🐕', '🐷', '🙄'];
 
 </script>
 <script>
@@ -2393,6 +2527,7 @@ class CharacterState {
     this.hp = this.hpMax;
     this.ult = 0;
     this.eCd = 0;
+    this.qCd = 0;
     this.stealth = 0;
     this.awake = 0;
     this.weapon = null;
@@ -2589,6 +2724,21 @@ class Player {
     if (this.dead) return;
     const ch = this.ch;
 
+    if (this.crash) {
+      this.anim += dt;
+      this.invuln = Math.max(0, this.invuln - dt);
+      this.hurtFlash = Math.max(0, this.hurtFlash - dt);
+      for (const c of this.characters) {
+        c.eCd = Math.max(0, c.eCd - wdt);
+        c.qCd = Math.max(0, (c.qCd || 0) - wdt);
+        if (c.sprout > 0) c.sprout = Math.max(0, c.sprout - wdt);
+      }
+      if (ch.stealth > 0) ch.stealth = Math.max(0, ch.stealth - wdt);
+      if (ch.awake > 0) ch.awake = Math.max(0, ch.awake - wdt);
+      this.updateCrash(dt);
+      return;
+    }
+
     this.anim += dt;
     this.invuln = Math.max(0, this.invuln - dt);
     this.hurtFlash = Math.max(0, this.hurtFlash - dt);
@@ -2601,6 +2751,7 @@ class Player {
     // 所有队伍角色的技能冷却都持续计时，包括后台角色
     for (const c of this.characters) {
       c.eCd = Math.max(0, c.eCd - wdt);
+      c.qCd = Math.max(0, (c.qCd || 0) - wdt);
       if (c.sprout > 0) c.sprout = Math.max(0, c.sprout - wdt);
     }
     if (ch.stealth > 0) ch.stealth = Math.max(0, ch.stealth - wdt);
@@ -2753,6 +2904,82 @@ class Player {
       ch.eCd = e.cd;
       this.game.stats.shield++;
       this.game.toast('针男人 · 护盾 ' + this.shield);
+    } else if (e.id === 'crash') {
+      ch.eCd = e.cd;
+      this.startCrash();
+      this.game.stats.crash = (this.game.stats.crash || 0) + 1;
+    }
+  }
+
+  startCrash() {
+    let target = null;
+    let best = Infinity;
+    for (const e of this.game.enemies) {
+      if (e.dead) continue;
+      if (e.kind === 'totem' || e.kind === 'trans') continue;
+      const d = Math.abs(e.x - this.x);
+      if (d < best) { best = d; target = e; }
+    }
+    const lv = Math.max(1, this.ch.progress.e || 1);
+    this.crash = {
+      phase: 'up',
+      mult: 0.8 + 0.1 * (lv - 1),
+      x0: this.x,
+      x1: target ? target.x : this.x,
+      y0: this.y,
+      top: Math.max(80, LEVEL.floorY - 300)
+    };
+    this.attack = null;
+    this.queued = false;
+    this.blocking = false;
+    this.onLadder = false;
+    this.vx = 0;
+    this.vy = 0;
+    this.invuln = Math.max(this.invuln, 1.4);
+    this.game.effects.push({ type: 'ring', x: this.x, y: this.y - 25, t: 0, life: 0.4, r0: 8, r1: 70, width: 4, color: '#c9c9d6' });
+    this.game.toast('坠机！');
+  }
+
+  updateCrash(dt) {
+    const c = this.crash;
+    if (!c) return;
+    if (c.phase === 'up') {
+      this.y -= 500 * dt;
+      const span = Math.max(1, c.y0 - c.top);
+      const k = Math.min(1, Math.max(0, (c.y0 - this.y) / span));
+      this.x = c.x0 + (c.x1 - c.x0) * k;
+      if (this.y <= c.top) {
+        this.y = c.top;
+        c.phase = 'down';
+        this.game.effects.push({ type: 'ring', x: this.x, y: this.y + 10, t: 0, life: 0.3, r0: 8, r1: 60, width: 4, color: '#ffd166' });
+      }
+    } else {
+      this.y += 600 * dt;
+      if (this.y >= LEVEL.floorY) {
+        this.y = LEVEL.floorY;
+        this.grounded = true;
+        this.crash = null;
+        this.landCrash(c.mult);
+      }
+    }
+  }
+
+  landCrash(mult) {
+    const g = this.game;
+    const cx = this.x;
+    const cy = this.y - 25;
+    g.effects.push({ type: 'ring', x: cx, y: cy, t: 0, life: 0.45, r0: 12, r1: 118, width: 6, color: '#ffd166' });
+    g.effects.push({ type: 'ring', x: cx, y: cy, t: 0, life: 0.3, r0: 6, r1: 70, width: 4, color: '#efe6ff' });
+    g.shake = Math.max(g.shake, 8);
+    SFX.play('heavy');
+    for (const e of g.enemies) {
+      if (e.dead) continue;
+      if (!circleRect(cx, cy, 100, e.box())) continue;
+      const d = calcDamage(this.ch.atk, mult, e.def.def, this.ch.def.critRate, this.ch.def.critDmg);
+      e.hurt(d.dmg, Math.sign(e.x - cx) || this.dir, g);
+      g.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
+      g.gainUltFor(this.ch, CFG.ult.perHit);
+      g.onPlayerHitEnemy(e);
     }
   }
 
@@ -2760,12 +2987,17 @@ class Player {
     const ch = this.ch;
     const q = ch.def.q;
     if (q.id === 'none') { this.game.toast('该角色技能未设计'); return; }
+    if ((ch.qCd || 0) > 0) {
+      this.game.toast('终结技冷却中：' + Math.ceil(ch.qCd) + ' 秒');
+      return;
+    }
     if (ch.ult < ch.def.ultMax) {
       this.game.toast('终结技充能不足（' + Math.floor(ch.ult) + '/' + ch.def.ultMax + '）');
       return;
     }
     if (q.id === 'awake') {
       ch.ult = 0;
+      ch.qCd = q.cd || 0;
       ch.awake = q.duration;
       this.fireTimer = 0;
       this.paperCd = 0;
@@ -2774,9 +3006,16 @@ class Player {
       this.game.toast('睡醒了 · 普攻变为纸球');
     } else if (q.id === 'sprout') {
       ch.ult = 0;
+      ch.qCd = q.cd || 0;
       ch.sprout = CFG.sprout.duration;
       this.game.stats.ult++;
       this.game.toast('交际花 · 头顶 🌵 虚影');
+    } else if (q.id === 'book') {
+      ch.ult = 0;
+      ch.qCd = q.cd || 0;
+      this.game.projectiles.push(new BookShot(this));
+      this.game.stats.ult++;
+      this.game.toast('一心只读圣贤书 · 📖');
     }
   }
 
@@ -2948,6 +3187,7 @@ class Player {
 
       const d = calcDamage(this.ch.atk, mult, e.def.def, this.ch.def.critRate, this.ch.def.critDmg);
       e.hurt(d.dmg, this.dir, this.game);
+      this.game.onPlayerHitEnemy(e);
       if (e.dead) this.game.recordWeaponKill(a.weaponId || this.weapon.id);
       this.game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       this.game.gainUltFor(this.ch, CFG.ult.perHit);
@@ -3221,11 +3461,52 @@ class PaperBall {
       const p = this.owner;
       const d = calcDamage(p.atk, this.mult, e.def.def, p.def.critRate, p.def.critDmg);
       e.hurt(d.dmg, this.dir, game);
+      game.onPlayerHitEnemy(e);
       game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       game.gainUltFor(p, CFG.ult.perHit);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.2, color: '#ffffff' });
       this.dead = true;
       break;
+    }
+  }
+}
+
+/* ---------------- 📖 一心只读圣贤书 ---------------- */
+
+class BookShot {
+  constructor(player) {
+    this.kind = 'book';
+    this.owner = player.ch;
+    this.dir = player.dir;
+    this.x = player.x + this.dir * 46;
+    this.y = player.y - 40;
+    this.vx = this.dir * CFG.awake.projectileSpeed;
+    this.life = 2;
+    this.r = 40;
+    this.dead = false;
+    this.hits = [];
+  }
+
+  update(wdt, game) {
+    if (this.dead) return;
+    this.x += this.vx * wdt;
+    this.life -= wdt;
+    if (this.life <= 0 || this.x < -80 || this.x > LEVEL.width + 80) {
+      this.dead = true;
+      return;
+    }
+    if (game.projectileBlocked(this.x, this.y, 22)) {
+      this.dead = true;
+      return;
+    }
+    for (const e of game.enemies) {
+      if (e.dead || this.hits.includes(e)) continue;
+      if (!circleRect(this.x, this.y, this.r, e.box())) continue;
+      this.hits.push(e);
+      e.markT = 10;
+      game.spawnText(e.x, e.y - 92, '📖 印记', '#c9c9d6');
+      game.effects.push({ type: 'ring', x: e.x, y: e.y - 40, t: 0, life: 0.3, r0: 10, r1: 56, width: 3, color: '#c9c9d6' });
+      SFX.play('quest');
     }
   }
 }
@@ -3269,6 +3550,7 @@ class Spike {
       const owner = this.ownerState;
       const d = calcDamage(owner.atk, this.mult, e.def.def, owner.def.critRate, owner.def.critDmg);
       e.hurt(d.dmg, this.dir, game);
+      game.onPlayerHitEnemy(e);
       game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       game.gainUltFor(owner, CFG.ult.perHit);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.18, color: '#8ef0a0' });
@@ -3292,11 +3574,13 @@ class Enemy {
     this.a = spot.a;
     this.b = spot.b;
     this.dir = (this.x - this.a < this.b - this.x) ? -1 : 1;
-    this.hp = this.def.hp;
-    this.maxHp = this.def.hp;
+    this.hp = Math.round(this.def.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    this.maxHp = this.hp;
+    this.atk = this.def.atk * (Game.enemyScale ? Game.enemyScale() : 1);
     this.toughMax = this.def.toughness || 1;
     this.tough = this.toughMax;
     this.weak = 0;
+    this.markT = 0;
     this.state = 'patrol';
     this.t = 0;
     this.flash = 0;
@@ -3320,6 +3604,7 @@ class Enemy {
     const d = this.def;
     this.flash = Math.max(0, this.flash - wdt);
     this.t += wdt;
+    if (this.markT > 0) this.markT = Math.max(0, this.markT - wdt);
 
     // 韧性归零后的虚弱：原地不动，结束后恢复韧性
     if (this.weak > 0) {
@@ -3405,14 +3690,10 @@ class Enemy {
     if (Math.abs(p.x - this.x) > d.attackRange + 12) return;
     if (Math.abs(p.y - this.y) > 80) return;
     if (p.ch.stealth > 0) return;
-    p.takeDamage(d.atk * d.atkMult, this.x, this);
+    p.takeDamage((this.atk || d.atk) * d.atkMult, this.x, this);
     const px = this.x + this.dir * 46;
     const py = this.y - 26;
     game.effects.push({ type: 'bite', x: px, y: py, t: 0, life: 0.18, dir: this.dir });
-    game.effects.push({
-      type: 'cross', x: px, y: py, t: 0, life: 0.26,
-      size: 20, color: '#ffd166', width: 2.4
-    });
   }
 
   enterWeak(game) {
@@ -3464,11 +3745,13 @@ class Pig {
     this.a = spot.a;
     this.b = spot.b;
     this.dir = -1;
-    this.hp = this.def.hp;
-    this.maxHp = this.def.hp;
+    this.hp = Math.round(this.def.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    this.maxHp = this.hp;
+    this.atk = this.def.atk * (Game.enemyScale ? Game.enemyScale() : 1);
     this.toughMax = this.def.toughness || 1;
     this.tough = this.toughMax;
     this.weak = 0;
+    this.markT = 0;
     this.state = 'patrol';
     this.t = 0;
     this.flash = 0;
@@ -3494,6 +3777,7 @@ class Pig {
     const d = this.def;
     this.flash = Math.max(0, this.flash - wdt);
     this.t += wdt;
+    if (this.markT > 0) this.markT = Math.max(0, this.markT - wdt);
 
     if (this.weak > 0) {
       this.weak -= wdt;
@@ -3635,6 +3919,7 @@ class PenWeaponShot {
           if (!circleRect(this.x, this.y, this.r + 6, e.box())) continue;
           const d = calcDamage(this.owner.atk, 0.8, e.def.def, this.owner.def.critRate, this.owner.def.critDmg);
           e.hurt(d.dmg, this.dir, game);
+          game.onPlayerHitEnemy(e);
           if (e.dead) game.recordWeaponKill('pen');
           game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
           game.gainUltFor(this.owner, CFG.ult.perHit);
@@ -3673,13 +3958,14 @@ class BossSun {
     this.y = LEVEL.floorY;
     this.baseY = this.y;
     this.dir = -1;
-    this.hp = CFG.bossSun.hp;
-    this.maxHp = CFG.bossSun.hp;
-    this.atk = CFG.bossSun.atk;
-    this.def = { atk: CFG.bossSun.atk, def: CFG.bossSun.def, critRate: 0, critDmg: 1.5, w: CFG.bossSun.w, h: CFG.bossSun.h };
+    this.hp = Math.round(CFG.bossSun.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    this.maxHp = this.hp;
+    this.atk = CFG.bossSun.atk * (Game.enemyScale ? Game.enemyScale() : 1);
+    this.def = { atk: this.atk, def: CFG.bossSun.def, critRate: 0, critDmg: 1.5, w: CFG.bossSun.w, h: CFG.bossSun.h };
     this.toughMax = CFG.bossSun.toughness;
     this.tough = this.toughMax;
     this.weak = 0;
+    this.markT = 0;
     this.phase = 1;
     this.flown = false;
     this.flying = false;
@@ -3707,6 +3993,7 @@ class BossSun {
     if (this.dead) return;
     this.t += wdt;
     this.flash = Math.max(0, this.flash - wdt);
+    if (this.markT > 0) this.markT = Math.max(0, this.markT - wdt);
     if (this.introT > 0) { this.introT -= wdt; return; }
 
     // 半血时进入二阶段；若正处于虚弱，提前结束虚弱
@@ -4064,7 +4351,7 @@ class PenShot {
     const p = game.player;
     if (!p || p.dead) return;
     if (Math.abs(this.x - p.x) < 26 + this.r && Math.abs(this.y - (p.y - 25)) < 32 + this.r) {
-      p.takeDamage(this.owner.def.atk * CFG.enemy.pig.shotMult, this.x, this.owner);
+      p.takeDamage((this.owner.atk || this.owner.def.atk) * CFG.enemy.pig.shotMult, this.x, this.owner);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.18, color: '#333333' });
       this.dead = true;
     }
@@ -4093,7 +4380,7 @@ class WeldZone {
       const dodged = p.isDashing();
       const inRange = Math.hypot(p.x - this.x, (p.y - 25) - (this.y - 25)) <= this.radius;
       if (inRange && !dodged && p.invuln <= 0) {
-        p.takeDamage(this.owner.def.atk * CFG.enemy.pig.weldMult, this.x, this.owner);
+        p.takeDamage((this.owner.atk || this.owner.def.atk) * CFG.enemy.pig.weldMult, this.x, this.owner);
         p.paralyze(CFG.enemy.pig.para);
       }
       game.effects.push({ type: 'ring', x: this.x, y: this.y - 25, t: 0, life: 0.4, color: '#7fd0ff' });
@@ -4277,9 +4564,10 @@ const UI = {
       eCircle.classList.remove('full');
 
       qEl.querySelector('.skillLabel').textContent = q.name;
-      const qReady = q.id !== 'none' && ch.ult >= ch.def.ultMax;
+      const qCd = ch.qCd || 0;
+      const qReady = q.id !== 'none' && ch.ult >= ch.def.ultMax && qCd <= 0;
       qEl.querySelector('.skillNum').textContent =
-        q.id === 'none' ? '—' : (ch.ult > 0 ? String(Math.floor(ch.ult)) : '');
+        q.id === 'none' ? '—' : (qCd > 0 ? String(Math.ceil(qCd)) : (ch.ult > 0 ? String(Math.floor(ch.ult)) : ''));
       const ultColor = ch.def.ultColor || ch.def.edge;
       qCircle.style.background = themeBg;
       qCircle.style.borderColor = qReady ? ultColor : ch.def.edge;
@@ -4492,26 +4780,67 @@ const UI = {
   /* ---------------- 暂停 ---------------- */
 
   showPause(game) {
-    const nearCp = game.checkpointActive &&
-      game.player && Math.abs(game.player.x - game.checkpointX) <= 160;
+    const w = game.save;
+    const name = String(w.saveName || '控江异闻').replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+    const avatars = AVATARS.map(a =>
+      `<button class="avatarPick ${w.avatar === a ? 'on' : ''}" data-avatar="${a}">${a}</button>`
+    ).join('');
+    const exp = game.worldExp();
+    const need = 500;
+    const pct = Math.min(100, (exp / need) * 100);
 
     this.showOverlay(`
-      <h2>暂停</h2>
-      <div class="sub">${nearCp ? '检查点范围内，可保存存档文件' : '按 Esc 继续游戏'}</div>
+      <h2>存档主页</h2>
+      <div class="homeHead">
+        <div class="homeNameWrap">
+          <div class="homeLabel">存档名字</div>
+          <input id="saveNameInput" class="saveNameInput" maxlength="24" value="${name}">
+        </div>
+        <div class="homeAvatarWrap">
+          <div class="homeLabel">头像</div>
+          <div class="avatarRow">${avatars}</div>
+        </div>
+      </div>
+      <div class="worldRow">
+        <div class="worldBar"><i style="width:${pct}%"></i><span>世界经验 ${exp} / ${need}</span></div>
+        <div class="worldLv">世界等级 <b>${game.worldLevel()}</b></div>
+      </div>
       <div class="pauseMenu">
-        <button id="btnResume">继续游戏</button>
-        <button id="btnPauseSave" ${nearCp ? '' : 'disabled'}>保存存档（检查点）</button>
-        <button id="btnPauseSettings">设置</button>
+        <button id="btnHomeSave">存档</button>
         <button id="btnPauseTitle" class="ghost">返回标题</button>
+        <button id="btnResume">继续游戏</button>
+        <button id="btnPauseSettings">设定</button>
       </div>
     `);
 
+    const nameInput = document.getElementById('saveNameInput');
+    if (nameInput) {
+      nameInput.onchange = () => {
+        const v = nameInput.value.trim().slice(0, 24) || '控江异闻';
+        game.save.saveName = v;
+        nameInput.value = v;
+        game.saveGame();
+      };
+    }
+    document.querySelectorAll('[data-avatar]').forEach(btn => {
+      btn.onclick = () => {
+        game.save.avatar = btn.dataset.avatar;
+        game.saveGame();
+        SFX.play('click');
+        this.showPause(game);
+      };
+    });
+
     const resume = document.getElementById('btnResume');
-    const save = document.getElementById('btnPauseSave');
+    const save = document.getElementById('btnHomeSave');
     const settings = document.getElementById('btnPauseSettings');
     const title = document.getElementById('btnPauseTitle');
     if (resume) resume.onclick = () => { SFX.play('click'); game.resume(); };
-    if (save) save.onclick = () => { SFX.play('click'); game.openSavePanel(true); };
+    if (save) save.onclick = () => {
+      game.saveGame();
+      SFX.play('save');
+      this.toast('已保存', 1400);
+    };
     if (settings) settings.onclick = () => {
       SFX.play('click');
       game.settingsFrom = 'paused';
@@ -4889,19 +5218,19 @@ const UI = {
     return `
       <div class="detailTitle">升级 · 单击选中，再点击下方按钮</div>
       <div class="upgCard ${sel === 'level' ? 'sel' : ''}" data-sel="level">
-        <div class="upgCardHead"><span class="upgCardName">角色等级</span><b>Lv.${prog.level} / ${CFG.upgrade.level.max}</b></div>
+        <div class="upgCardHead"><span class="upgCardName">角色等级</span><b>Lv.${prog.level} / ${game.maxCharLevel()}</b></div>
       </div>
       <div class="upgCard ${sel === 'e' ? 'sel' : ''}" data-sel="e">
         <div class="upgCardHead">
           <span class="upgCardName">E · ${d.e.name}</span>
-          <b>Lv.${prog.e}${eUp ? '' : '<span class="upgNo">不可升级</span>'}</b>
+          <b>Lv.${prog.e}${eUp ? ' / ' + game.maxSkillLevel() : '<span class="upgNo">不可升级</span>'}</b>
         </div>
         <div class="upgCardDesc ${eOpen ? 'open' : ''}">${eOpen ? (d.e.desc || '暂无说明') + eNow : '点击展开技能介绍'}</div>
       </div>
       <div class="upgCard ${sel === 'q' ? 'sel' : ''}" data-sel="q">
         <div class="upgCardHead">
           <span class="upgCardName">Q · ${d.q.name}</span>
-          <b>Lv.${prog.q}${qUp ? '' : '<span class="upgNo">不可升级</span>'}</b>
+          <b>Lv.${prog.q}${qUp ? ' / ' + game.maxSkillLevel() : '<span class="upgNo">不可升级</span>'}</b>
         </div>
         <div class="upgCardDesc ${qOpen ? 'open' : ''}">${qOpen ? (d.q.desc || '暂无说明') + qNow : '点击展开技能介绍'}</div>
       </div>
@@ -4922,8 +5251,10 @@ const UI = {
     }
     const ok = game.canAfford(cost);
     const parts = [`💰 ${cost.gold}/${game.save.gold}`];
-    if (cost.dianmo) parts.push(`⚫️ ${cost.dianmo}/${game.save.materials.dianmo || 0}`);
-    if (cost.gear) parts.push(`⚙️ ${cost.gear}/${game.save.materials.gear || 0}`);
+    if (cost.mat) {
+      const info = game.materialInfo(cost.mat);
+      parts.push(`${info.emoji} ${cost.matN}/${game.save.materials[cost.mat] || 0}`);
+    }
     return `<div class="upgCost">升级消耗：${parts.join('　')}</div>
       <button class="upgBtn" id="btnUpgrade" ${ok ? '' : 'disabled'}>${ok ? '升级' : '资源不足'}</button>`;
   },
@@ -5111,6 +5442,8 @@ const Game = {
       version: SAVE_VERSION,
       unlocked: ['liuhanyi'],
       gold: 0,
+      saveName: '控江异闻',
+      avatar: '👻',
       materials: { goldenPythonSkin: 0, dianmo: 0, haochengji: 0, gear: 0, music: 0 },
       inventory: { equipment: [], items: [], materials: [] },
       itemCounts: {},
@@ -5118,7 +5451,7 @@ const Game = {
       equipped: {},
       quests: {
         main: [{
-          id: 'main1', name: '秘境试炼',
+          id: 'main1', name: '控江异闻',
           desc: '通过控江秘境的试炼，抵达高一十班的出口。', status: 'active'
         }],
         side: [],
@@ -5149,7 +5482,10 @@ const Game = {
         chestChocolateTaken: false,
         qianCleared: false,
         tutorialRedo: true,
-        itemsUsed: 0
+        itemsUsed: 0,
+        worldLevel: 1,
+        worldExp: 0,
+        liumoJoined: false
       },
       runtime: null,
       records: {
@@ -5167,6 +5503,20 @@ const Game = {
   normalizeSave(data) {
     const base = this.freshSave();
     if (!data || typeof data !== 'object') return base;
+
+    // 世界等级与上限（旧存档没有时按 1 级处理）
+    const wlvl = Math.max(1, Math.floor(Number(data.world && data.world.worldLevel) || 1));
+    const capLv = CFG.upgrade.level.maxPerWorld * wlvl;
+    const capSkill = CFG.upgrade.skillMaxPerWorld * wlvl;
+    let refundGold = 0;
+    const refundMats = {};
+
+    if (typeof data.saveName === 'string' && data.saveName.trim()) {
+      base.saveName = data.saveName.trim().slice(0, 24);
+    }
+    if (typeof data.avatar === 'string' && AVATARS.includes(data.avatar)) {
+      base.avatar = data.avatar;
+    }
 
     if (Array.isArray(data.unlocked) && data.unlocked.length) {
       base.unlocked = data.unlocked.filter(id => CFG.characters[id]);
@@ -5218,21 +5568,37 @@ const Game = {
         }
       }
     }
+    const mainQuest = base.quests.main.find(q => q && q.id === 'main1');
+    if (mainQuest) mainQuest.name = '控江异闻';
     if (data.progress && typeof data.progress === 'object') {
       for (const id in data.progress) {
         if (!CFG.characters[id]) continue;
         const p = data.progress[id] || {};
-        const maxLv = CFG.upgrade.level.max;
         const skillCfg = CFG.upgrade.skills[id] || {};
-        const qMax = (skillCfg.q && skillCfg.q.max) || 1;
-        const eMax = (skillCfg.e && skillCfg.e.max) || 1;
+        const oldLevel = Math.max(1, Math.floor(Number(p.level) || 1));
+        const oldE = Math.max(1, Math.floor(Number(p.e) || 1));
+        const oldQ = Math.max(1, Math.floor(Number(p.q) || 1));
+        // 世界等级降低后，超出上限的等级退回金币与材料
+        for (let l = capLv; l < oldLevel; l++) refundGold += l * CFG.upgrade.level.goldBase;
+        for (const kind of ['e', 'q']) {
+          const cfg = skillCfg[kind];
+          if (!cfg || cfg.upgradable === false) continue;
+          const old = kind === 'e' ? oldE : oldQ;
+          for (let l = capSkill; l < old; l++) {
+            refundGold += l * CFG.upgrade.skillGoldBase;
+            const mat = cfg.mat || 'dianmo';
+            refundMats[mat] = (refundMats[mat] || 0) + CFG.upgrade.skillMatStart + (l - 1) * CFG.upgrade.skillMatStep;
+          }
+        }
         base.progress[id] = {
-          level: Math.max(1, Math.min(maxLv, p.level || 1)),
-          e: Math.max(1, Math.min(eMax, p.e || 1)),
-          q: Math.max(1, Math.min(qMax, p.q || 1))
+          level: Math.min(capLv, oldLevel),
+          e: Math.min(capSkill, oldE),
+          q: Math.min(capSkill, oldQ)
         };
       }
     }
+    if (refundGold) base.gold += refundGold;
+    for (const m in refundMats) base.materials[m] = (base.materials[m] || 0) + refundMats[m];
     if (data.world && typeof data.world === 'object') {
       base.world.chestOpened = !!data.world.chestOpened;
       if (data.world.enemyRespawn && typeof data.world.enemyRespawn === 'object') {
@@ -5266,6 +5632,10 @@ const Game = {
       base.world.qianCleared = !!data.world.qianCleared || base.world.maps.includes('qian');
       base.world.chestChocolateTaken = !!data.world.chestChocolateTaken;
       base.world.itemsUsed = Math.max(0, Math.floor(Number(data.world.itemsUsed) || 0));
+      base.world.worldLevel = wlvl;
+      base.world.worldExp = Math.max(0, Math.floor(Number(data.world.worldExp) || 0));
+      base.world.liumoJoined = !!data.world.liumoJoined;
+      if (base.world.liumoJoined && !base.unlocked.includes('liumo')) base.unlocked.push('liumo');
       if (base.world.maps.includes('qian') && !base.world.maps.includes('zhong')) {
         base.world.maps.push('zhong');
       }
@@ -5338,6 +5708,13 @@ const Game = {
     }
     base.records.pigKills = Math.max(base.records.pigKills, base.world.pigDefeated.length);
     base.records.maxGold = Math.max(base.records.maxGold, base.gold);
+    if (base.world.worldExp >= 500 && wlvl === 1 &&
+        !base.quests.side.some(q => q.id === 'yuekao')) {
+      base.quests.side.push({
+        id: 'yuekao', name: '月考',
+        desc: '通过月考，提高世界等级', status: 'active'
+      });
+    }
     if (data.achievements && typeof data.achievements === 'object') {
       const valid = CFG.achievements.map(a => a.id);
       for (const id in data.achievements) {
@@ -5360,6 +5737,7 @@ const Game = {
             hp: num(c.hp, 0),
             ult: num(c.ult, 0),
             eCd: num(c.eCd, 0),
+            qCd: num(c.qCd, 0),
             stealth: num(c.stealth, 0),
             awake: num(c.awake, 0),
             sprout: num(c.sprout, 0),
@@ -5444,6 +5822,7 @@ const Game = {
       hp: c.hp,
       ult: c.ult,
       eCd: c.eCd,
+      qCd: c.qCd || 0,
       stealth: c.stealth,
       awake: c.awake,
       sprout: c.sprout,
@@ -5501,7 +5880,8 @@ const Game = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Emojiknight-save.json';
+    const safeName = String(this.save.saveName || '控江异闻').replace(/[\\/:*?"<>|]/g, '_').slice(0, 24) || '控江异闻';
+    a.download = safeName + '.json';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -5628,6 +6008,7 @@ const Game = {
       c.hp = Math.max(0, Math.min(c.hpMax, rc.hp));
       c.ult = Math.max(0, Math.min(c.def.ultMax, rc.ult));
       c.eCd = Math.max(0, rc.eCd);
+      c.qCd = Math.max(0, rc.qCd || 0);
       c.stealth = Math.max(0, rc.stealth);
       c.awake = Math.max(0, rc.awake);
       c.sprout = Math.max(0, rc.sprout);
@@ -5765,7 +6146,7 @@ const Game = {
       const main = this.save.quests.main.find(q => q.id === 'main1');
       if (main) {
         if (this.save.world.tearsQuest === 2) {
-          main.desc = '去寻找鎏知寞';
+          main.desc = '去高一十班（后）使用💧试试';
         } else if (this.save.world.tearsQuest === 1) {
           main.desc = '向荔头询问眼泪的信息';
         } else if (!this.save.world.houBossDefeated) {
@@ -6266,14 +6647,6 @@ const Game = {
     if (Math.hypot(p.x - cx, (p.y - 25) - cy) <= radius) {
       p.takeDamage(boss.atk * mult, boss.x, boss);
     }
-    this.effects.push({
-      type: 'cross', x: cx, y: cy, t: 0, life: 0.26,
-      size: 28, color: '#ffd166', width: 2.8
-    });
-    this.effects.push({
-      type: 'cross', x: cx, y: cy, t: 0, life: 0.18,
-      size: 13, color: '#fff3c4', width: 2, alpha: 0.8
-    });
   },
 
   bossLandHit(boss, x) {
@@ -6303,6 +6676,7 @@ const Game = {
 
   onBossDefeated(boss) {
     this.save.records.kills = (this.save.records.kills || 0) + 1;
+    this.gainWorldExp(50);
     for (const e of this.enemies) {
       if (e !== boss && (e.kind === 'totem' || e.kind === 'trans')) e.dead = true;
     }
@@ -6393,6 +6767,16 @@ const Game = {
     const item = CFG.items[itemId];
     if (!item) return;
 
+    if (itemId === 'tear') {
+      if (this.save.world.liumoJoined) { UI.toast('这里已经没有反应了'); return; }
+      if (this.levelId !== 'hou') { UI.toast('需要在 高一十班（后）使用'); return; }
+      if (this.enemies.some(e => !e.dead)) { UI.toast('先清理场上的敌人，再使用 💧'); return; }
+      if (this.state !== 'playing') return;
+      this.removeItem('tear');
+      this.startLiumoScene();
+      return;
+    }
+
     if (item.quest) {
       UI.toast('任务道具，暂时无法使用');
       return;
@@ -6475,6 +6859,41 @@ const Game = {
     }
   },
 
+  /* ---------------- 世界等级 ---------------- */
+
+  worldLevel() {
+    return Math.max(1, Math.floor((this.save && this.save.world && this.save.world.worldLevel) || 1));
+  },
+
+  worldExp() {
+    return Math.max(0, Math.floor((this.save && this.save.world && this.save.world.worldExp) || 0));
+  },
+
+  maxCharLevel() { return CFG.upgrade.level.maxPerWorld * this.worldLevel(); },
+  maxSkillLevel() { return CFG.upgrade.skillMaxPerWorld * this.worldLevel(); },
+
+  gainWorldExp(n) {
+    if (!n) return;
+    this.save.world.worldExp = this.worldExp() + n;
+    this.checkWorldQuest();
+  },
+
+  checkWorldQuest() {
+    if (this.worldLevel() > 1) return;
+    if (this.worldExp() < 500) return;
+    if (this.save.quests.side.some(q => q.id === 'yuekao')) return;
+    this.save.quests.side.push({
+      id: 'yuekao', name: '月考',
+      desc: '通过月考，提高世界等级', status: 'active'
+    });
+    UI.toast('⚠️ 已接取支线任务“月考”', 3000);
+    SFX.play('quest');
+  },
+
+  enemyScale() {
+    return 1 + 0.2 * (this.worldLevel() - 1);
+  },
+
   /* ---------------- 升级 ---------------- */
 
   stateOf(charId) {
@@ -6487,20 +6906,24 @@ const Game = {
     if (!this.save.progress[id]) this.save.progress[id] = { level: 1, e: 1, q: 1 };
     const lv = this.save.progress[id];
     if (kind === 'level') {
-      if (lv.level >= CFG.upgrade.level.max) return null;
-      return { gold: CFG.upgrade.level.gold, dianmo: 0 };
+      if (lv.level >= this.maxCharLevel()) return null;
+      return { gold: lv.level * CFG.upgrade.level.goldBase };
     }
     const cfg = CFG.upgrade.skills[id] && CFG.upgrade.skills[id][kind];
     if (!cfg || cfg.upgradable === false) return null;
-    if (lv[kind] >= cfg.max) return null;
-    return { gold: cfg.gold, dianmo: cfg.dianmo || 0, gear: cfg.gear || 0 };
+    if (lv[kind] >= this.maxSkillLevel()) return null;
+    const mat = cfg.mat || 'dianmo';
+    return {
+      gold: lv[kind] * CFG.upgrade.skillGoldBase,
+      mat: mat,
+      matN: CFG.upgrade.skillMatStart + (lv[kind] - 1) * CFG.upgrade.skillMatStep
+    };
   },
 
   canAfford(cost) {
     if (!cost) return false;
     if (this.save.gold < cost.gold) return false;
-    if (cost.dianmo && (this.save.materials.dianmo || 0) < cost.dianmo) return false;
-    if (cost.gear && (this.save.materials.gear || 0) < cost.gear) return false;
+    if (cost.mat && (this.save.materials[cost.mat] || 0) < cost.matN) return false;
     return true;
   },
 
@@ -6510,8 +6933,9 @@ const Game = {
     const cost = this.upgradeCost(kind, id);
     if (!cost || !this.canAfford(cost)) return false;
     this.save.gold -= cost.gold;
-    if (cost.dianmo) this.save.materials.dianmo -= cost.dianmo;
-    if (cost.gear) this.save.materials.gear -= cost.gear;
+    if (cost.mat && cost.matN) {
+      this.save.materials[cost.mat] = Math.max(0, (this.save.materials[cost.mat] || 0) - cost.matN);
+    }
     this.save.progress[id][kind]++;
     if (kind === 'level') {
       const st = this.stateOf(id);
@@ -6712,7 +7136,7 @@ const Game = {
       this.save.world.tearsQuest = 2;
       this.save.world.homeworkUnlocked = true;
       const main = this.save.quests.main.find(q => q.id === 'main1');
-      if (main) main.desc = '去寻找鎏知寞';
+      if (main) main.desc = '去高一十班（后）使用💧试试';
       this.saveGame();
       UI.toast('已解锁委托任务功能', 3000);
       SFX.play('quest');
@@ -6784,6 +7208,7 @@ const Game = {
     this.handleGlobalInput();
 
     if (this.state === 'playing' && !this.skipUpdate) this.update(dt);
+    else if (this.state === 'cutscene') this.updateScene(dt);
     else if (this.state === 'wipe') this.updateWipe(dt);
     this.skipUpdate = false;
 
@@ -6996,6 +7421,7 @@ const Game = {
     this.chestOpened = true;
     this.save.world.chestOpened = true;
     this.stats.chest++;
+    if (firstOpen) this.gainWorldExp(5);
 
     if (firstOpen) {
       this.save.gold += 10;
@@ -7041,6 +7467,7 @@ const Game = {
   openZhongChest(chest) {
     this.save.world.zhongChests.push(chest.id);
     this.stats.chest++;
+    this.gainWorldExp(5);
     const r = chest.rewards || {};
     const rows = [];
 
@@ -7081,6 +7508,7 @@ const Game = {
 
     this.save.world.houChestOpened = true;
     this.stats.chest++;
+    this.gainWorldExp(5);
     this.save.gold += 100;
     this.save.materials.dianmo = (this.save.materials.dianmo || 0) + 20;
     this.save.materials.gear = (this.save.materials.gear || 0) + 20;
@@ -7135,6 +7563,127 @@ const Game = {
       return;
     }
     UI.showStory(this, this.story.index);
+  },
+
+  /* ---------------- 鎏知寞剧情 ---------------- */
+
+  startLiumoScene() {
+    this.state = 'cutscene';
+    this.scene = {
+      phase: 'throw',
+      t: 0,
+      guard: performance.now(),
+      tear: {
+        x: this.player.x + this.player.dir * 40,
+        y: this.player.y - 30,
+        vx: this.player.dir * 190,
+        vy: -260,
+        landed: false
+      },
+      actor: {
+        x: this.camera.x + 1420,
+        y: LEVEL.floorY,
+        dir: -1,
+        walk: 0
+      },
+      line: 0,
+      lines: [
+        { who: 'liumo', text: '这是……' },
+        { who: 'player', text: '你应该认得' },
+        { who: 'liumo', text: '你杀了他吗' },
+        { who: 'player', text: '或许吧' },
+        { who: 'liumo', text: '……' },
+        { who: 'liumo', text: '其实我想过或许会有这一天，毕竟他是这样的人，注定会是这样的结局' },
+        { who: 'player', text: '我还以为你会打我呢' },
+        { who: 'liumo', text: '我不介意如你所愿' },
+        { who: 'player', text: '还是算了吧' },
+        { who: 'liumo', text: '你的目的是什么' },
+        { who: 'player', text: '打败烤鸡恶魔' },
+        { who: 'liumo', text: '就凭你吗' },
+        { who: 'player', text: '别瞧不起我' },
+        { who: 'liumo', text: '好吧，你想要我帮忙吗' },
+        { who: 'player', text: '那是最好的' }
+      ]
+    };
+    UI.hideOverlay();
+    SFX.play('talk');
+  },
+
+  updateScene(dt) {
+    const sc = this.scene;
+    if (!sc) { this.endLiumoScene(); return; }
+    sc.t += dt;
+
+    if (sc.phase === 'throw') {
+      const te = sc.tear;
+      if (!te.landed) {
+        te.vy += 1000 * dt;
+        te.x += te.vx * dt;
+        te.y += te.vy * dt;
+        if (te.y >= LEVEL.floorY - 8) {
+          te.y = LEVEL.floorY - 8;
+          te.vx = 0;
+          te.vy = 0;
+          te.landed = true;
+          sc.t = 0;
+          this.effects.push({ type: 'ring', x: te.x, y: te.y, t: 0, life: 0.5, r0: 6, r1: 42, width: 3, color: '#8fd7ff' });
+          SFX.play('pickup');
+        }
+      } else if (sc.t > 0.9) {
+        sc.phase = 'walk';
+        sc.t = 0;
+      }
+      return;
+    }
+
+    if (sc.phase === 'walk') {
+      sc.actor.x -= 230 * dt;
+      sc.actor.walk += dt;
+      const stopX = Math.min(this.player.x + 250, LEVEL.width - 140);
+      if (sc.actor.x <= stopX) {
+        sc.actor.x = stopX;
+        sc.actor.dir = this.player.x < sc.actor.x ? -1 : 1;
+        sc.phase = 'talk';
+        sc.t = 0;
+        sc.guard = performance.now();
+        SFX.play('talk');
+      }
+      return;
+    }
+
+    if (sc.phase === 'talk') {
+      if (Input.rawLeft.pressed && performance.now() - sc.guard > 200) {
+        sc.line++;
+        sc.guard = performance.now();
+        SFX.play('talk');
+        if (sc.line >= sc.lines.length) {
+          sc.phase = 'done';
+          this.endLiumoScene();
+        }
+      }
+    }
+  },
+
+  endLiumoScene() {
+    const sc = this.scene;
+    this.scene = null;
+    this.state = 'playing';
+    if (!this.save.world.liumoJoined) {
+      this.save.world.liumoJoined = true;
+      if (!this.save.unlocked.includes('liumo')) this.save.unlocked.push('liumo');
+      this.save.progress.liumo = { level: 1, e: 1, q: 1 };
+      if (this.player && !this.player.characters.some(c => c.def.id === 'liumo')) {
+        this.player.addCharacter('liumo');
+      }
+      const main = this.save.quests.main.find(q => q.id === 'main1');
+      if (main) main.desc = '与鎏知寞一起探索控江秘境';
+      UI.toast('获得新角色 🐱 鎏知寞', 3200);
+      UI.showLoot(['🐱 鎏知寞 加入队伍'], 3000, '新伙伴');
+      SFX.play('quest');
+      this.effects.push({ type: 'burst', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.6 });
+      this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.6, r0: 10, r1: 90, width: 5, color: '#c9c9d6' });
+    }
+    this.saveGame();
   },
 
   npcAvailable(npc) {
@@ -7303,11 +7852,31 @@ const Game = {
     state.ult = Math.min(state.def.ultMax, state.ult + amount);
   },
 
+  // 场上角色命中带 📖 印记的敌人：为鎏知寞回复 10% 生命上限（每秒最多一次）
+  onPlayerHitEnemy(enemy) {
+    if (!enemy || !(enemy.markT > 0)) return;
+    if (!this.player) return;
+    const liumo = this.player.characters.find(c => c.def.id === 'liumo');
+    if (!liumo || liumo.hp <= 0) return;
+    const now = performance.now();
+    if (now < (this.markHealAt || 0)) return;
+    this.markHealAt = now + 1000;
+    const heal = Math.max(1, Math.round(liumo.hpMax * 0.10));
+    const before = liumo.hp;
+    liumo.hp = Math.min(liumo.hpMax, liumo.hp + heal);
+    const gain = Math.round(liumo.hp - before);
+    if (gain > 0) {
+      this.spawnText(this.player.x, this.player.y - 96, '鎏知寞 +' + gain, '#8ef0a0');
+      this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.3, r0: 8, r1: 52, width: 3, color: '#8ef0a0' });
+    }
+  },
+
   onEnemyKilled(enemy) {
     this.stats.kills++;
     this.save.records.kills = (this.save.records.kills || 0) + 1;
     if (enemy.kind === 'dog') this.save.records.dogKills = (this.save.records.dogKills || 0) + 1;
     if (enemy.kind === 'pig') this.save.records.pigKills = (this.save.records.pigKills || 0) + 1;
+    this.gainWorldExp(enemy.kind === 'pig' ? 10 : 1);
     if (enemy.index && !enemy.homework) {
       // 通过教学关之前，被击败的敌人不会刷新
       const tutorialLock = this.levelId === 'qian' && !this.save.world.tutorialDone;
@@ -7487,6 +8056,7 @@ const Game = {
     this.drawProjectiles(cam);
     this.drawEffects(cam);
     this.drawTexts(cam);
+    if (this.state === 'cutscene') this.drawScene(cam);
     if (this.state === 'dialogue') this.drawDialogue(cam);
 
     ctx.restore();
@@ -8155,6 +8725,122 @@ const Game = {
     }
   },
 
+  /* ---------------- 剧情演出（鎏知寞） ---------------- */
+
+  drawScene(cam) {
+    const sc = this.scene;
+    if (!sc) return;
+    const ctx = this.ctx;
+    const emojiFont = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+
+    // 💧 被丢在地上
+    const te = sc.tear;
+    const tx = te.x - cam;
+    ctx.save();
+    ctx.fillStyle = 'rgba(20, 12, 8, .25)';
+    ctx.beginPath();
+    ctx.ellipse(tx, LEVEL.floorY - 3, 14, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '30px ' + emojiFont;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(12,16,24,.9)';
+    ctx.lineWidth = 3;
+    ctx.strokeText('💧', tx, te.y - 16);
+    ctx.fillText('💧', tx, te.y - 16);
+    ctx.restore();
+
+    // 🐱 鎏知寞
+    const a = sc.actor;
+    const ax = a.x - cam;
+    const bob = sc.phase === 'walk' ? Math.abs(Math.sin(a.walk * 9)) * 4 : 0;
+    const cy = a.y - 25 - bob;
+    ctx.save();
+    ctx.fillStyle = 'rgba(20, 12, 8, .3)';
+    ctx.beginPath();
+    ctx.ellipse(ax, a.y - 3, 22, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#4a4a52';
+    ctx.beginPath();
+    ctx.arc(ax, cy, 25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#2b2b30';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.font = '27px ' + emojiFont;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐱', ax, cy + 1);
+    ctx.restore();
+
+    // 头顶对话框
+    if (sc.phase === 'talk') {
+      const line = sc.lines[sc.line];
+      if (line) {
+        const isPlayer = line.who === 'player';
+        const cx = isPlayer ? this.player.x - cam : ax;
+        const top = isPlayer ? this.player.y - 66 : cy - 34;
+        this.drawBubble(line.text, cx, top, isPlayer ? '#9fd7ff' : '#ffd9a8');
+      }
+      ctx.save();
+      ctx.fillStyle = 'rgba(210, 228, 250, .65)';
+      ctx.font = '13px "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('左键继续', CFG.view.w / 2, 690);
+      ctx.restore();
+    }
+  },
+
+  drawBubble(text, cx, bottomY, color) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.font = 'bold 17px "Microsoft YaHei", sans-serif';
+    const maxW = 540;
+    const rows = [];
+    let cur = '';
+    for (const ch of String(text)) {
+      if (cur && ctx.measureText(cur + ch).width > maxW) {
+        rows.push(cur);
+        cur = ch;
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur) rows.push(cur);
+
+    let bw = 0;
+    for (const r of rows) bw = Math.max(bw, ctx.measureText(r).width);
+    const w = Math.min(CFG.view.w - 80, bw + 34);
+    const h = rows.length * 24 + 22;
+    let x = cx - w / 2;
+    x = Math.max(24, Math.min(CFG.view.w - w - 24, x));
+    const y = bottomY - h;
+
+    ctx.fillStyle = 'rgba(12, 16, 24, .92)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    // 小尾巴
+    ctx.fillStyle = 'rgba(12, 16, 24, .92)';
+    ctx.beginPath();
+    ctx.moveTo(cx - 8, y + h);
+    ctx.lineTo(cx + 8, y + h);
+    ctx.lineTo(cx, y + h + 12);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#f2f8ff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    rows.forEach((r, i) => ctx.fillText(r, x + w / 2, y + 20 + i * 24));
+    ctx.restore();
+  },
+
   drawDialogue(cam) {
     const d = this.dialogue;
     if (!d) return;
@@ -8257,21 +8943,6 @@ const Game = {
         const prog = 1 - Math.max(0, e.meleeT) / 0.5;
         const hx = sx + e.dir * (34 + prog * 38);
         const hy = cy + 6;
-        // 黄色十字闪光：一长一短，跟随 🤏 前戳
-        const cs = 15 + prog * 10;
-        const sw = cs * 0.32;
-        ctx.save();
-        ctx.translate(hx, hy);
-        ctx.lineCap = 'round';
-        ctx.globalAlpha = 0.5 + prog * 0.3;
-        ctx.strokeStyle = '#ffd166';
-        ctx.lineWidth = 2.6;
-        ctx.beginPath();
-        ctx.moveTo(0, -cs); ctx.lineTo(0, cs);
-        ctx.moveTo(-sw, 0); ctx.lineTo(sw, 0);
-        ctx.stroke();
-        ctx.restore();
-
         ctx.save();
         ctx.translate(hx, hy);
         if (e.dir < 0) ctx.scale(-1, 1);
@@ -8283,6 +8954,19 @@ const Game = {
         ctx.lineWidth = 3;
         ctx.strokeText('🤏', 0, 0);
         ctx.fillText('🤏', 0, 0);
+        ctx.restore();
+      }
+      if (e.markT > 0) {
+        ctx.save();
+        ctx.globalAlpha = e.markT < 2 ? (0.4 + 0.6 * Math.abs(Math.sin(performance.now() / 200))) : 0.95;
+        ctx.fillStyle = 'rgba(240, 240, 255, .18)';
+        ctx.beginPath();
+        ctx.arc(sx, cy - 66, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📖', sx, cy - 66);
         ctx.restore();
       }
       return;
@@ -8366,6 +9050,19 @@ const Game = {
       ctx.font = 'bold 11px "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('精英 · 王明猪', sx, cy - 63);
+      if (e.markT > 0) {
+        ctx.save();
+        ctx.globalAlpha = e.markT < 2 ? (0.4 + 0.6 * Math.abs(Math.sin(performance.now() / 200))) : 0.95;
+        ctx.fillStyle = 'rgba(240, 240, 255, .18)';
+        ctx.beginPath();
+        ctx.arc(sx, cy - 88, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📖', sx, cy - 88);
+        ctx.restore();
+      }
       if (e.weak > 0) {
         ctx.fillStyle = '#7fe0ff';
         ctx.fillText('虚弱 ' + e.weak.toFixed(1) + 's', sx, cy - 75);
@@ -8394,21 +9091,6 @@ const Game = {
       pawX = sx + e.dir * (14 + drop * 30);
       pawY = cy + 6 - 62 * lift;
       showPaw = true;
-
-      // 黄色十字闪光（一长一短，跟随 🐾）
-      const cs = 13 + p * 8;
-      const sw = cs * 0.32;
-      ctx.save();
-      ctx.translate(pawX, pawY);
-      ctx.lineCap = 'round';
-      ctx.globalAlpha = 0.45 + p * 0.3;
-      ctx.strokeStyle = '#ffd166';
-      ctx.lineWidth = 2.4;
-      ctx.beginPath();
-      ctx.moveTo(0, -cs); ctx.lineTo(0, cs);
-      ctx.moveTo(-sw, 0); ctx.lineTo(sw, 0);
-      ctx.stroke();
-      ctx.restore();
     } else if (e.state === 'recover' && e.t < 0.2) {
       pawX = sx + e.dir * 44;
       pawY = cy + 12;
@@ -8418,7 +9100,8 @@ const Game = {
     // 身体
     ctx.save();
     ctx.translate(sx, cy);
-    if (e.dir < 0) ctx.scale(-1, 1);
+    // 🐕 的 emoji 本身朝左，向右移动时才需要镜像
+    if (e.dir > 0) ctx.scale(-1, 1);
 
     ctx.fillStyle = e.flash > 0 ? '#8a3a48' : '#3b2d3a';
     ctx.beginPath();
@@ -8458,6 +9141,21 @@ const Game = {
     ctx.fillRect(sx - bw / 2, cy - 37, bw, 4);
     ctx.fillStyle = e.weak > 0 ? '#ffd166' : '#8fd7ff';
     ctx.fillRect(sx - bw / 2, cy - 37, bw * (Math.max(0, e.tough) / e.toughMax), 4);
+
+    // 📖 印记
+    if (e.markT > 0) {
+      ctx.save();
+      ctx.globalAlpha = e.markT < 2 ? (0.4 + 0.6 * Math.abs(Math.sin(performance.now() / 200))) : 0.95;
+      ctx.fillStyle = 'rgba(240, 240, 255, .18)';
+      ctx.beginPath();
+      ctx.arc(sx, cy - 60, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('📖', sx, cy - 60);
+      ctx.restore();
+    }
 
     // 状态标记
     if (e.weak > 0) {
@@ -8678,6 +9376,9 @@ const Game = {
       angle = p.dir * 0.9;
     }
 
+    // ✒️ 的笔尖朝向固定在左上：角色在右侧时翻转，保证笔尖始终朝外
+    if (W.id === 'pen' && p.dir > 0) angle += Math.PI;
+
     ctx.save();
     ctx.translate(fx, fy);
     ctx.rotate(angle);
@@ -8736,6 +9437,21 @@ const Game = {
         ctx.arc(x, b.y, 20, 0, Math.PI * 2);
         ctx.fill();
         emoji('🖋️', 24, x, b.y);
+        ctx.restore();
+        continue;
+      }
+      if (b.kind === 'book') {
+        ctx.save();
+        ctx.globalAlpha = 0.75;
+        const glow = ctx.createRadialGradient(x, b.y, 4, x, b.y, 58);
+        glow.addColorStop(0, 'rgba(200, 205, 235, .55)');
+        glow.addColorStop(1, 'rgba(160, 160, 200, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, b.y, 58, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 0.9;
+        emoji('📖', 58, x, b.y);
         ctx.restore();
         continue;
       }
