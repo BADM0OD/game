@@ -5148,7 +5148,8 @@ const Game = {
         zhongChests: [],
         chestChocolateTaken: false,
         qianCleared: false,
-        tutorialRedo: true
+        tutorialRedo: true,
+        itemsUsed: 0
       },
       runtime: null,
       records: {
@@ -5264,6 +5265,7 @@ const Game = {
       base.world.tutorialRedo = true;
       base.world.qianCleared = !!data.world.qianCleared || base.world.maps.includes('qian');
       base.world.chestChocolateTaken = !!data.world.chestChocolateTaken;
+      base.world.itemsUsed = Math.max(0, Math.floor(Number(data.world.itemsUsed) || 0));
       if (base.world.maps.includes('qian') && !base.world.maps.includes('zhong')) {
         base.world.maps.push('zhong');
       }
@@ -6360,6 +6362,11 @@ const Game = {
     return this.save.itemCounts[itemId] || 0;
   },
 
+  noteItemUsed() {
+    this.stats.itemUsed++;
+    this.save.world.itemsUsed = (this.save.world.itemsUsed || 0) + 1;
+  },
+
   equipItem(itemId, slot) {
     if (!CFG.items[itemId]) return;
     if (!this.save.inventory.items.includes(itemId)) return;
@@ -6402,7 +6409,7 @@ const Game = {
       this.gainUltFor(st, item.charge);
       this.itemCds.mathbook = item.cd;
       this.saveGame();
-      this.stats.itemUsed++;
+      this.noteItemUsed();
       UI.showLoot(['📕 数学书 · 充能 +' + item.charge], 1600);
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, color: '#ffd166' });
       SFX.play('quest');
@@ -6412,7 +6419,7 @@ const Game = {
     if (itemId === 'coffee') {
       this.player.haste = Math.max(this.player.haste, item.haste || 30);
       this.removeItem('coffee');
-      this.stats.itemUsed++;
+      this.noteItemUsed();
       UI.showLoot(['☕ 咖啡 · 30 秒内移速 +50%'], 2400);
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, color: '#ff9f6e' });
       SFX.play('quest');
@@ -6425,7 +6432,7 @@ const Game = {
       const before = st.hp;
       st.hp = Math.min(st.hpMax, st.hp + heal);
       this.removeItem('chocolate');
-      this.stats.itemUsed++;
+      this.noteItemUsed();
       UI.showLoot(['🍫 巧克力 · ' + st.def.name + ' 回复 ' + Math.round(st.hp - before) + ' 生命'], 2400);
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, r0: 8, r1: 60, width: 4, color: '#ff9f6e' });
       this.spawnText(this.player.x, this.player.y - 90, '+' + Math.round(st.hp - before), '#8ef0a0');
@@ -6444,7 +6451,7 @@ const Game = {
       if (!near) { UI.toast('附近没有上锁的门'); return; }
       this.save.world.lockOpened = true;
       this.removeItem('classroomKey');
-      this.stats.itemUsed++;
+      this.noteItemUsed();
       this.saveGame();
       UI.showLoot(['🔒 已开启 · 🔑 已消耗'], 2600, '开门');
       this.effects.push({ type: 'ring', x: door.x + door.w / 2, y: door.y + door.h / 2, t: 0, life: 0.6, color: '#ffd166' });
@@ -6894,7 +6901,14 @@ const Game = {
     if (this.tutorialIndex >= list.length) return;
     const step = list[this.tutorialIndex];
     if (!step) return;
-    if (step.key === 'ult') this.ensureTutorialEnemy();
+    const s = this.stats;
+    const needEnemy =
+      (step.key === 'block' && s.blocked <= 0 && s.perfectBlock <= 0) ||
+      (step.key === 'perfectDodge' && s.perfectDodge <= 0) ||
+      (step.key === 'perfectBlock' && s.perfectBlock <= 0) ||
+      (step.key === 'toughness' && s.kills <= 0) ||
+      (step.key === 'ult' && s.ult <= 0);
+    if (needEnemy) this.ensureTutorialEnemy();
 
     const now = performance.now();
     if (this.tutorialHoldUntil && now < this.tutorialHoldUntil) return;
@@ -6930,7 +6944,7 @@ const Game = {
       case 'clear':        return !this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'));
       case 'chest':        return this.chestOpened && this.save.world.checkpoints.includes('qian-cp');
       case 'bag':          return s.bag > 0;
-      case 'useItem':      return s.itemUsed > 0;
+      case 'useItem':      return s.itemUsed > 0 || (this.save.world.itemsUsed || 0) > 0;
       case 'char':         return s.panel > 0;
       case 'equip':        return s.weaponEquipped > 0;
       case 'upgrade':      return s.skillViewed > 0;
@@ -6945,7 +6959,6 @@ const Game = {
 
   // 终结技指引阶段：场上没有敌人时补一只黑犬，直到完成
   ensureTutorialEnemy() {
-    if (this.stats.ult > 0) return;
     if (this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'))) return;
     const now = performance.now();
     if (now < (this.tutorialSpawnAt || 0)) return;
