@@ -76,7 +76,7 @@ html, body {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 21px;
+  font-size: 30px;
   line-height: 1;
   border: 1px solid rgba(255,255,255,.35);
 }
@@ -136,25 +136,27 @@ html, body {
 #tutorial {
   position: absolute;
   left: 50%;
-  top: 86px;
+  top: 88px;
   transform: translateX(-50%);
-  max-width: 680px;
-  padding: 9px 20px;
-  border-radius: 999px;
-  background: rgba(8, 12, 20, .78);
-  border: 1px solid rgba(120, 200, 255, .35);
-  box-shadow: 0 0 20px rgba(60, 160, 255, .18);
-  font-size: 14px;
-  letter-spacing: .4px;
+  max-width: 880px;
+  padding: 13px 28px;
+  border-radius: 18px;
+  background: rgba(8, 12, 20, .86);
+  border: 2px solid rgba(120, 200, 255, .5);
+  box-shadow: 0 0 26px rgba(60, 160, 255, .28), inset 0 0 18px rgba(60, 160, 255, .08);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: .6px;
   text-align: center;
-  color: #eaf5ff;
+  color: #f2f9ff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
   transition: opacity .25s;
 }
 
-#tutorial b { color: #7fe0ff; }
-#tutorial .idx { color: #6f88ad; margin-right: 8px; font-size: 11px; }
-#tutorial .guideSub { display: block; margin-top: 4px; font-size: 11px; color: #7f9bbd; }
-#tutorial .guideSub b { color: #9fd7ff; }
+#tutorial b { color: #8fe9ff; font-weight: 800; }
+#tutorial .idx { color: #9fc0e6; margin-right: 10px; font-size: 15px; font-weight: 700; }
+#tutorial .guideSub { display: block; margin-top: 6px; font-size: 15px; font-weight: 500; color: #a9c4e2; }
+#tutorial .guideSub b { color: #b6e3ff; }
 
 /* ---------- 战利品提示 ---------- */
 #lootFeed {
@@ -1116,7 +1118,7 @@ button:disabled {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 15px;
+  font-size: 20px;
   border: 1px solid;
 }
 
@@ -1147,7 +1149,7 @@ button:disabled {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 64px;
+  font-size: 100px;
   border: 3px solid;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .4);
 }
@@ -1606,6 +1608,11 @@ const CFG = {
       id: 'techTool', name: '工具', emoji: '🔧',
       desc: '通技作业道具：在高一十班（后）使用，召唤王明猪',
       usable: true, oneTime: true, homework: 'tech'
+    },
+    chocolate: {
+      id: 'chocolate', name: '巧克力', emoji: '🍫',
+      desc: '一次性道具，使用后为当前角色回复50%生命值',
+      usable: true, oneTime: true, healRatio: 0.5
     }
   },
 
@@ -1629,7 +1636,7 @@ const CFG = {
     atk: 300,
     def: 200,
     toughness: 1000,
-    toughPerHit: 50,
+    toughPerHit: 20,
     toughPerTotem: 250,
     perfectBlockTough: 100,
     weak: 5,
@@ -1656,11 +1663,16 @@ const CFG = {
   respawnDelay: 2.2,
 
   enemy: {
+    // 所有敌人通用的韧性规则
+    toughPerHit: 20,
+    perfectBlockTough: 100,
     dog: {
       hp: 300,
       atk: 200,         // [占位]
       atkMult: 0.5,
       def: 100,
+      toughness: 200,
+      weakTime: 3,
       speed: 200,
       patrolSpeed: 100,
       detect: 420,      // [占位]
@@ -1675,6 +1687,8 @@ const CFG = {
       hp: 800,
       atk: 100,
       def: 150,
+      toughness: 500,
+      weakTime: 3,
       speed: 350,
       patrolSpeed: 130,
       detect: 640,
@@ -1700,6 +1714,7 @@ const CFG = {
       id: 'liuhanyi',
       name: '柳寒伊',
       emoji: '👻',
+      emojiScale: 1.0,
       bg: '#e9edf7',
       edge: '#aeb9d0',
       hpMax: 1000,
@@ -1724,6 +1739,7 @@ const CFG = {
       id: 'zhaojiayue',
       name: '昭珈月',
       emoji: '🥔',
+      emojiScale: 0.95,
       bg: '#f2e4c8',
       edge: '#cbb389',
       // [占位] 昭珈月的生命/攻击/防御未给出，暂与柳寒伊相同
@@ -1744,6 +1760,7 @@ const CFG = {
       id: 'nengrongze',
       name: '能荣泽',
       emoji: '🌵',
+      emojiScale: 0.85,
       bg: '#dff1d6',
       edge: '#8fb47c',
       // [占位] 能荣泽的生命/攻击/防御未给出，暂与柳寒伊相同
@@ -1854,23 +1871,30 @@ const LEVELS = {
     ],
 
     tutorial: [
-      { key: 'move',        text: '使用 <b>A / D</b> 移动' },
-      { key: 'jump',        text: '按 <b>W</b> 跳跃' },
-      { key: 'light',       text: '点击 <b>鼠标左键</b> 普攻（可连点三段）' },
-      { key: 'heavy',       text: '长按 <b>鼠标左键</b> 释放重击' },
-      { key: 'block',       text: '按住 <b>鼠标右键</b> 格挡' },
-      { key: 'perfectBlock',text: '攻击命中的瞬间格挡可触发 <b>完美格挡</b>，增加 10 点终结技充能' },
-      { key: 'dash',        text: '按 <b>Shift</b> 冲刺' },
-      { key: 'sprint',      text: '移动中按住 <b>Shift</b> 可以疾跑（消耗体力）' },
-      { key: 'perfectDodge',text: '在敌人攻击命中的瞬间冲刺，触发 <b>完美闪避</b>' },
-      { key: 'stealth',     text: '按 <b>E</b> 使用隐匿' },
-      { key: 'ult',         text: '命中敌人 +5 充能，完美格挡 +10 充能，充满后按 <b>Q</b> 释放终结技' },
-      { key: 'chest',       text: '打开宝箱获得 🔪 匕首，前往右侧新区域' },
-      { key: 'bag',         text: '按 <b>B</b> 打开背包查看物品' },
-      { key: 'quest',       text: '按 <b>J</b> 打开任务栏' },
-      { key: 'char',        text: '按 <b>T</b> 打开角色面板' },
-      { key: 'save',        text: '在检查点按 <b>P</b> 打开存档面板，按 <b>Esc</b> 暂停游戏' },
-      { key: 'talk',        text: '靠近 🌵 能荣泽，按 <b>F</b> 交谈' }
+      { key: 'move',         text: '使用 <b>A / D</b> 键左右移动' },
+      { key: 'jump',         text: '使用 <b>W</b> 键跳跃' },
+      { key: 'light',        text: '短按 <b>鼠标左键</b> 释放普攻' },
+      { key: 'heavy',        text: '长按 <b>鼠标左键</b> 释放重击，重击会消耗体力' },
+      { key: 'dash',         text: '短按 <b>Shift</b> 键进行冲刺' },
+      { key: 'sprint',       text: '长按 <b>Shift</b> 键进行疾跑，疾跑会消耗体力' },
+      { key: 'block',        text: '使用 <b>鼠标右键</b> 进行格挡' },
+      { key: 'perfectDodge', text: '被命中前恰好使用闪避可以触发 <b>完美闪避</b>，进入焦点时间，敌人动作减缓' },
+      { key: 'perfectBlock', text: '被命中前恰好使用格挡可以触发 <b>完美格挡</b>，削减敌人韧性并回复终结技能量' },
+      { key: 'toughness',    text: '攻击命中敌人也可以削减其韧性值，尝试击败一个敌人' },
+      { key: 'skill',        text: '按 <b>E</b> 释放基础技能' },
+      { key: 'ult',          text: '积攒能量，按 <b>Q</b> 释放终结技能' },
+      { key: 'clear',        text: '消灭全部敌人' },
+      { key: 'chest',        text: '获取宝箱，解锁第一个传送点' },
+      { key: 'bag',          text: '按 <b>B</b> 打开背包，查看物品' },
+      { key: 'useItem',      text: '进入道具背包，装备一个道具并使用' },
+      { key: 'char',         text: '按 <b>T</b> 进入角色界面，查看角色数值' },
+      { key: 'equip',        text: '按 <b>装备</b> 进入装备页面，为角色装备武器' },
+      { key: 'upgrade',      text: '按 <b>升级</b> 进入升级页面，查看角色技能介绍' },
+      { key: 'quest',        text: '按 <b>J</b> 打开任务栏，查看任务指引' },
+      { key: 'achieve',      text: '按 <b>Y</b> 打开成就面板，查看成就' },
+      { key: 'map',          text: '按 <b>M</b> 打开地图，进行一次传送' },
+      { key: 'talk',         text: '与 🌵 能荣泽交谈' },
+      { key: 'pass',         text: '通过教学关' }
     ]
   },
 
@@ -3090,12 +3114,12 @@ class Player {
     if (this.blocking) {
       if (this.blockTime <= CFG.block.perfectWindow) {
         this.game.gainUltFor(ch, CFG.ult.perPerfectBlock);
-        if (attacker && attacker.kind === 'boss' && !attacker.dead) {
+        if (attacker && typeof attacker.onPerfectBlocked === 'function') {
           attacker.onPerfectBlocked(this.game);
         }
         this.game.stats.perfectBlock++;
         this.game.spawnText(this.x, this.y - 90, '完美格挡', '#7fe0ff');
-        this.game.effects.push({ type: 'ring', x: this.x, y: this.y - 34, t: 0, life: 0.35, color: '#7fe0ff' });
+        this.game.effects.push({ type: 'ring', x: this.x, y: this.y - 34, t: 0, life: 0.35, r0: 10, r1: 62, width: 4, color: '#7fe0ff' });
         this.game.shake = Math.max(this.game.shake, 6);
         SFX.play('perfectBlock');
         return;
@@ -3270,6 +3294,9 @@ class Enemy {
     this.dir = (this.x - this.a < this.b - this.x) ? -1 : 1;
     this.hp = this.def.hp;
     this.maxHp = this.def.hp;
+    this.toughMax = this.def.toughness || 1;
+    this.tough = this.toughMax;
+    this.weak = 0;
     this.state = 'patrol';
     this.t = 0;
     this.flash = 0;
@@ -3293,6 +3320,19 @@ class Enemy {
     const d = this.def;
     this.flash = Math.max(0, this.flash - wdt);
     this.t += wdt;
+
+    // 韧性归零后的虚弱：原地不动，结束后恢复韧性
+    if (this.weak > 0) {
+      this.weak -= wdt;
+      if (this.weak <= 0) {
+        this.weak = 0;
+        this.tough = this.toughMax;
+        this.state = 'search';
+        this.t = 0;
+        game.spawnText(this.x, this.y - 80, '韧性恢复', '#ffd166');
+      }
+      return;
+    }
 
     const canSee = p.canBeSeen() &&
       Math.abs(p.x - this.x) < d.detect &&
@@ -3365,8 +3405,29 @@ class Enemy {
     if (Math.abs(p.x - this.x) > d.attackRange + 12) return;
     if (Math.abs(p.y - this.y) > 80) return;
     if (p.ch.stealth > 0) return;
-    p.takeDamage(d.atk * d.atkMult, this.x);
-    game.effects.push({ type: 'bite', x: this.x + this.dir * 34, y: this.y - 26, t: 0, life: 0.18, dir: this.dir });
+    p.takeDamage(d.atk * d.atkMult, this.x, this);
+    const px = this.x + this.dir * 46;
+    const py = this.y - 26;
+    game.effects.push({ type: 'bite', x: px, y: py, t: 0, life: 0.18, dir: this.dir });
+    game.effects.push({
+      type: 'ring', x: px, y: py, t: 0, life: 0.3,
+      r0: 10, r1: 66, width: 5, color: 'rgba(255, 209, 102, .95)'
+    });
+  }
+
+  enterWeak(game) {
+    this.tough = 0;
+    this.weak = this.def.weakTime || 3;
+    this.state = 'weak';
+    this.t = 0;
+    game.spawnText(this.x, this.y - 80, '虚弱', '#7fe0ff');
+    game.effects.push({ type: 'ring', x: this.x, y: this.y - 32, t: 0, life: 0.4, r0: 8, r1: 58, width: 4, color: '#7fe0ff' });
+  }
+
+  onPerfectBlocked(game) {
+    if (this.dead || this.weak > 0) return;
+    this.tough -= CFG.enemy.perfectBlockTough;
+    if (this.tough <= 0) this.enterWeak(game);
   }
 
   hurt(dmg, dir, game) {
@@ -3379,6 +3440,11 @@ class Enemy {
       this.hp = 0;
       this.dead = true;
       game.onEnemyKilled(this);
+      return;
+    }
+    if (this.weak <= 0) {
+      this.tough -= CFG.enemy.toughPerHit;
+      if (this.tough <= 0) this.enterWeak(game);
     }
   }
 }
@@ -3400,6 +3466,9 @@ class Pig {
     this.dir = -1;
     this.hp = this.def.hp;
     this.maxHp = this.def.hp;
+    this.toughMax = this.def.toughness || 1;
+    this.tough = this.toughMax;
+    this.weak = 0;
     this.state = 'patrol';
     this.t = 0;
     this.flash = 0;
@@ -3425,6 +3494,18 @@ class Pig {
     const d = this.def;
     this.flash = Math.max(0, this.flash - wdt);
     this.t += wdt;
+
+    if (this.weak > 0) {
+      this.weak -= wdt;
+      if (this.weak <= 0) {
+        this.weak = 0;
+        this.tough = this.toughMax;
+        this.state = 'search';
+        this.t = 0;
+        game.spawnText(this.x, this.y - 92, '韧性恢复', '#ffd166');
+      }
+      return;
+    }
 
     const dx = p.x - this.x;
     const adx = Math.abs(dx);
@@ -3500,7 +3581,27 @@ class Pig {
       this.hp = 0;
       this.dead = true;
       game.onEnemyKilled(this);
+      return;
     }
+    if (this.weak <= 0) {
+      this.tough -= CFG.enemy.toughPerHit;
+      if (this.tough <= 0) this.enterWeak(game);
+    }
+  }
+
+  enterWeak(game) {
+    this.tough = 0;
+    this.weak = this.def.weakTime || 3;
+    this.state = 'weak';
+    this.t = 0;
+    game.spawnText(this.x, this.y - 92, '虚弱', '#7fe0ff');
+    game.effects.push({ type: 'ring', x: this.x, y: this.y - 40, t: 0, life: 0.4, r0: 8, r1: 66, width: 4, color: '#7fe0ff' });
+  }
+
+  onPerfectBlocked(game) {
+    if (this.dead || this.weak > 0) return;
+    this.tough -= CFG.enemy.perfectBlockTough;
+    if (this.tough <= 0) this.enterWeak(game);
   }
 }
 
@@ -3716,6 +3817,7 @@ class BossSun {
       this.y = LEVEL.floorY;
     }
     game.spawnText(this.x, this.y - 120, '虚弱', '#7fe0ff');
+    game.effects.push({ type: 'ring', x: this.x, y: this.y - 40, t: 0, life: 0.45, r0: 12, r1: 110, width: 5, color: '#7fe0ff' });
   }
 
   onPerfectBlocked(game) {
@@ -3962,7 +4064,7 @@ class PenShot {
     const p = game.player;
     if (!p || p.dead) return;
     if (Math.abs(this.x - p.x) < 26 + this.r && Math.abs(this.y - (p.y - 25)) < 32 + this.r) {
-      p.takeDamage(this.owner.def.atk * CFG.enemy.pig.shotMult, this.x);
+      p.takeDamage(this.owner.def.atk * CFG.enemy.pig.shotMult, this.x, this.owner);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.18, color: '#333333' });
       this.dead = true;
     }
@@ -3991,7 +4093,7 @@ class WeldZone {
       const dodged = p.isDashing();
       const inRange = Math.hypot(p.x - this.x, (p.y - 25) - (this.y - 25)) <= this.radius;
       if (inRange && !dodged && p.invuln <= 0) {
-        p.takeDamage(this.owner.def.atk * CFG.enemy.pig.weldMult, this.x);
+        p.takeDamage(this.owner.def.atk * CFG.enemy.pig.weldMult, this.x, this.owner);
         p.paralyze(CFG.enemy.pig.para);
       }
       game.effects.push({ type: 'ring', x: this.x, y: this.y - 25, t: 0, life: 0.4, color: '#7fd0ff' });
@@ -4189,21 +4291,35 @@ const UI = {
     }
 
     let tip = '';
+    let tipKey = '';
+    let sticky = false;
     if (game.levelId === 'hou' && !game.save.world.sunGuideDone &&
         game.enemies.some(e => e.kind === 'boss' && !e.dead)) {
+      tipKey = 'sun';
       tip = `<span class="idx">BOSS</span>孙点黑的所有攻击都可以格挡　·　完美格挡 -100 韧性` +
         `<span class="guideSub">击破 🚹 / 🚺 -250 韧性　·　韧性归零虚弱 5 秒　·　半血进入二阶段</span>`;
     } else if (game.levelId === 'zhong' && !game.cleared && !game.save.world.zhongGuideDone) {
       tip = this.zhongGuide(game);
+      tipKey = 'zhong:' + tip;
     } else {
       const step = LEVEL.tutorial[game.tutorialIndex];
       if (step && !game.cleared && !game.save.world.tutorialDone) {
+        tipKey = 'tut:' + game.tutorialIndex;
+        sticky = true;
         tip = `<span class="idx">${game.tutorialIndex + 1}/${LEVEL.tutorial.length}</span>${step.text}`;
       }
     }
-    if (tip) {
+
+    // 非教学指引：显示 5 秒后自动消失
+    const now = performance.now();
+    if (tipKey !== this.tipKey) {
+      this.tipKey = tipKey;
+      this.tipUntil = tip ? (sticky ? Infinity : now + 5000) : 0;
+      if (tip) this.els.tutorial.innerHTML = tip;
+    }
+    const visible = !!tip && now < (this.tipUntil || 0);
+    if (visible) {
       this.els.tutorial.classList.remove('hidden');
-      this.els.tutorial.innerHTML = tip;
     } else {
       this.els.tutorial.classList.add('hidden');
     }
@@ -4495,8 +4611,8 @@ const UI = {
       const mats = [
         { id: 'goldenPythonSkin', emoji: '💩', name: '黄金巨蟒皮', desc: '稀有材料，可用于锻造' },
         { id: 'dianmo', emoji: '⚫️', name: '点墨', desc: '黑犬掉落的墨色结晶' },
-        { id: 'haochengji', emoji: '💯', name: '好成绩', desc: '升级材料，目前暂未使用' },
-        { id: 'gear', emoji: '⚙️', name: '齿轮', desc: '合成材料' },
+        { id: 'haochengji', emoji: '💯', name: '好成绩', desc: '等级突破材料' },
+        { id: 'gear', emoji: '⚙️', name: '齿轮', desc: '通技老师的遗产' },
         { id: 'music', emoji: '🎶', name: '音乐细菌', desc: '升级材料' }
       ].filter(m => (game.save.materials[m.id] || 0) > 0);
 
@@ -4727,7 +4843,10 @@ const UI = {
       card.onclick = () => {
         const kind = card.dataset.sel;
         this.upgSel = kind;
-        if (kind !== 'level') this.upgOpen[kind] = !this.upgOpen[kind];
+        if (kind !== 'level') {
+          this.upgOpen[kind] = !this.upgOpen[kind];
+          if (this.upgOpen[kind]) game.stats.skillViewed++;
+        }
         SFX.play('click');
         this.showCharacter(game);
       };
@@ -4914,6 +5033,8 @@ const Game = {
   shake: 0,
   hurtFlash: 0,
   tutorialIndex: 0,
+  tutorialHoldUntil: 0,
+  tutorialReplay: false,
   chestOpened: false,
   checkpointActive: false,
   checkpointId: null,
@@ -5024,7 +5145,10 @@ const Game = {
         homeworkUnlocked: false,
         sunGuideDone: false,
         pigDefeated: [],
-        zhongChests: []
+        zhongChests: [],
+        chestChocolateTaken: false,
+        qianCleared: false,
+        tutorialRedo: true
       },
       runtime: null,
       records: {
@@ -5132,7 +5256,14 @@ const Game = {
           .filter(id => valid.includes(id));
       }
       base.world.tutorialDone = !!data.world.tutorialDone;
-      if (base.world.maps.length) base.world.tutorialDone = true;
+      // 旧版本存档：已通过教学关的，强制重走一遍新指引（其他进度不变）
+      if (base.world.tutorialDone && !data.world.tutorialRedo) {
+        this.tutorialReplay = true;
+        base.world.tutorialDone = false;
+      }
+      base.world.tutorialRedo = true;
+      base.world.qianCleared = !!data.world.qianCleared || base.world.maps.includes('qian');
+      base.world.chestChocolateTaken = !!data.world.chestChocolateTaken;
       if (base.world.maps.includes('qian') && !base.world.maps.includes('zhong')) {
         base.world.maps.push('zhong');
       }
@@ -5396,7 +5527,8 @@ const Game = {
       stealth: 0, ult: 0, chest: 0, kills: 0, switchCount: 0, autoSwitch: 0,
       bag: 0, quest: 0, panel: 0, talk: 0,
       sprint: 0, save: 0, pause: 0, map: 0, mapUnlocked: 0,
-      upgrade: 0, spike: 0, shield: 0, respawned: 0
+      upgrade: 0, spike: 0, shield: 0, respawned: 0,
+      itemUsed: 0, teleport: 0, achieve: 0, weaponEquipped: 0, skillViewed: 0
     };
   },
 
@@ -5433,6 +5565,8 @@ const Game = {
     this.state = 'playing';
     this.last = 0;
     this.tutorialIndex = 0;
+    this.tutorialHoldUntil = 0;
+    this.tutorialReplay = false;
 
     this.enterLevel('qian', LEVELS.qian.spawn);
 
@@ -5474,10 +5608,13 @@ const Game = {
     this.state = 'playing';
     this.last = 0;
 
-    const levelId = LEVELS[rt.levelId] ? rt.levelId : 'qian';
+    const forceTutorial = !!this.tutorialReplay;
+    const levelId = forceTutorial ? 'qian' : (LEVELS[rt.levelId] ? rt.levelId : 'qian');
     const lvl = LEVELS[levelId];
-    const px = Math.max(26, Math.min(lvl.width - 26, rt.x));
-    const py = Number.isFinite(rt.y) ? rt.y : lvl.spawn.y;
+    const px = forceTutorial
+      ? lvl.spawn.x
+      : Math.max(26, Math.min(lvl.width - 26, rt.x));
+    const py = (!forceTutorial && Number.isFinite(rt.y)) ? rt.y : lvl.spawn.y;
     this.enterLevel(levelId, { x: px, y: py });
 
     // 恢复角色状态
@@ -5548,7 +5685,11 @@ const Game = {
     if (Number.isFinite(rt.checkpointX)) this.checkpointX = rt.checkpointX;
     if (Number.isFinite(rt.checkpointY)) this.checkpointY = rt.checkpointY;
     this.tutorialIndex = Math.max(0, Math.min(LEVEL.tutorial.length, rt.tutorialIndex | 0));
-    this.cleared = !!rt.cleared;
+    if (forceTutorial) {
+      this.tutorialIndex = 0;
+      this.cleared = false;
+    }
+    this.cleared = !!rt.cleared && !forceTutorial;
     this.camera.x = Math.max(0, Math.min(LEVEL.width - CFG.view.w, Number.isFinite(rt.cameraX) ? rt.cameraX : px - 480));
 
     this.state = 'playing';
@@ -5558,6 +5699,12 @@ const Game = {
     if (rt.state === 'clear' && this.cleared) {
       this.state = 'clear';
       UI.showClear(this, false);
+    }
+    if (forceTutorial) {
+      this.tutorialReplay = false;
+      this.state = 'playing';
+      UI.hideOverlay();
+      UI.toast('版本更新：教学指引已重做，请按新指引重新体验教学关', 4600);
     }
     this.checkAchievements(false);
     this.saveGame();
@@ -5606,8 +5753,10 @@ const Game = {
     this.cleared = false;
     this.dialogue = null;
     this.homeworkFight = null;
-    if (levelId === 'zhong' || this.save.world.tutorialDone) {
-      this.tutorialIndex = LEVEL.tutorial.length;
+    if (this.save.world.tutorialDone) {
+      this.tutorialIndex = LEVELS.qian.tutorial.length;
+    } else if (this.tutorialIndex > LEVELS.qian.tutorial.length) {
+      this.tutorialIndex = 0;
     }
 
     if (levelId === 'zhong') {
@@ -5726,8 +5875,8 @@ const Game = {
     this.state = 'clear';
     this.cleared = true;
 
-    const firstClear = this.levelId === 'qian' && !this.save.world.maps.includes('qian');
-    if (firstClear) {
+    const firstClear = this.levelId === 'qian' && !this.save.world.qianCleared;
+    if (this.levelId === 'qian') {
       if (!this.save.world.maps.includes('qian')) this.save.world.maps.push('qian');
       if (!this.save.world.maps.includes('zhong')) this.save.world.maps.push('zhong');
       if (!this.save.world.checkpoints.includes('qian-cp')) {
@@ -5736,7 +5885,8 @@ const Game = {
       if (!this.save.world.checkpoints.includes('zhong-start')) {
         this.save.world.checkpoints.push('zhong-start');
       }
-      this.stats.mapUnlocked++;
+      this.save.world.qianCleared = true;
+      if (firstClear) this.stats.mapUnlocked++;
     }
     this.save.world.tutorialDone = true;
     this.tutorialIndex = LEVEL.tutorial.length;
@@ -5911,6 +6061,7 @@ const Game = {
     this.player.combo = 0;
     this.player.comboIdle = 0;
     this.player.penOut = false;
+    if (id) this.stats.weaponEquipped++;
     this.saveGame();
     SFX.play('pickup');
     UI.showCharacter(this);
@@ -5970,7 +6121,7 @@ const Game = {
     if (name === 'bag') { this.stats.bag++; UI.showBag(this); }
     else if (name === 'quest') { this.stats.quest++; UI.showQuests(this); }
     else if (name === 'char') { this.stats.panel++; UI.showCharacter(this); }
-    else if (name === 'achieve') { this.stats.panel++; this.checkAchievements(false); UI.showAchievements(this); }
+    else if (name === 'achieve') { this.stats.panel++; this.stats.achieve++; this.checkAchievements(false); UI.showAchievements(this); }
     else if (name === 'map') { this.stats.map++; UI.showMap(this); }
   },
 
@@ -6073,6 +6224,7 @@ const Game = {
     }
     this.menuFrom = 'playing';
     this.closePanel();
+    this.stats.teleport++;
     SFX.play('pickup');
   },
 
@@ -6107,12 +6259,19 @@ const Game = {
 
   bossMelee(boss, radius, mult) {
     const p = this.player;
-    const cx = boss.x + boss.dir * 52;
-    const cy = boss.y - 25;
+    const cx = boss.x + boss.dir * 70;
+    const cy = boss.y - 38;
     if (Math.hypot(p.x - cx, (p.y - 25) - cy) <= radius) {
       p.takeDamage(boss.atk * mult, boss.x, boss);
     }
-    this.effects.push({ type: 'ring', x: cx, y: cy, t: 0, life: 0.18, color: '#ffd166' });
+    this.effects.push({
+      type: 'ring', x: cx, y: cy, t: 0, life: 0.36,
+      r0: 16, r1: 108, width: 7, color: '#ffd166'
+    });
+    this.effects.push({
+      type: 'ring', x: cx, y: cy, t: 0, life: 0.22,
+      r0: 6, r1: 58, width: 4, color: '#fff3c4'
+    });
   },
 
   bossLandHit(boss, x) {
@@ -6243,6 +6402,7 @@ const Game = {
       this.gainUltFor(st, item.charge);
       this.itemCds.mathbook = item.cd;
       this.saveGame();
+      this.stats.itemUsed++;
       UI.showLoot(['📕 数学书 · 充能 +' + item.charge], 1600);
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, color: '#ffd166' });
       SFX.play('quest');
@@ -6252,8 +6412,23 @@ const Game = {
     if (itemId === 'coffee') {
       this.player.haste = Math.max(this.player.haste, item.haste || 30);
       this.removeItem('coffee');
+      this.stats.itemUsed++;
       UI.showLoot(['☕ 咖啡 · 30 秒内移速 +50%'], 2400);
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, color: '#ff9f6e' });
+      SFX.play('quest');
+      return;
+    }
+
+    if (itemId === 'chocolate') {
+      const st = this.player.ch;
+      const heal = Math.max(1, Math.round(st.hpMax * (item.healRatio || 0.5)));
+      const before = st.hp;
+      st.hp = Math.min(st.hpMax, st.hp + heal);
+      this.removeItem('chocolate');
+      this.stats.itemUsed++;
+      UI.showLoot(['🍫 巧克力 · ' + st.def.name + ' 回复 ' + Math.round(st.hp - before) + ' 生命'], 2400);
+      this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.4, r0: 8, r1: 60, width: 4, color: '#ff9f6e' });
+      this.spawnText(this.player.x, this.player.y - 90, '+' + Math.round(st.hp - before), '#8ef0a0');
       SFX.play('quest');
       return;
     }
@@ -6269,6 +6444,7 @@ const Game = {
       if (!near) { UI.toast('附近没有上锁的门'); return; }
       this.save.world.lockOpened = true;
       this.removeItem('classroomKey');
+      this.stats.itemUsed++;
       this.saveGame();
       UI.showLoot(['🔒 已开启 · 🔑 已消耗'], 2600, '开门');
       this.effects.push({ type: 'ring', x: door.x + door.w / 2, y: door.y + door.h / 2, t: 0, life: 0.6, color: '#ffd166' });
@@ -6457,6 +6633,7 @@ const Game = {
 
   startDialogue(npc) {
     if (this.state !== 'playing' || !npc) return;
+    if (!this.npcAvailable(npc)) return;
     if (npc.id === 'nengrongze' && this.npcTalked) return;
 
     let lines;
@@ -6678,10 +6855,30 @@ const Game = {
     this.updateNpc();
 
     if (LEVEL.exit && this.player.x > LEVEL.exit.x - 30) {
-      const gate = this.levelId !== 'qian' ||
-        this.npcTalked || this.save.unlocked.includes('nengrongze');
-      if (gate) this.clearLevel();
+      if (this.levelObjectiveDone()) this.clearLevel();
+      else this.notifyExitLocked();
     }
+  },
+
+  levelObjectiveDone() {
+    if (this.levelId === 'qian') {
+      return this.save.world.tutorialDone ||
+        this.tutorialIndex >= LEVEL.tutorial.length - 1;
+    }
+    if (this.levelId === 'zhong') {
+      return !!this.save.world.litouTalked;
+    }
+    return true;
+  },
+
+  notifyExitLocked() {
+    const now = performance.now();
+    if (now < (this.exitLockedAt || 0)) return;
+    this.exitLockedAt = now + 2600;
+    let msg = '关卡目标尚未完成，出口暂未开放';
+    if (this.levelId === 'qian') msg = '先完成全部教学指引，出口才会开放';
+    else if (this.levelId === 'zhong') msg = '先在荔头办公室找到 👩🏻荔头交谈';
+    UI.toast(msg, 2200);
   },
 
   updateCamera(dt) {
@@ -6691,58 +6888,121 @@ const Game = {
   },
 
   updateTutorial() {
-    const step = LEVEL.tutorial[this.tutorialIndex];
+    if (this.levelId !== 'qian') return;
+    if (this.save.world.tutorialDone) return;
+    const list = LEVEL.tutorial;
+    if (this.tutorialIndex >= list.length) return;
+    const step = list[this.tutorialIndex];
     if (!step) return;
-    const s = this.stats;
-    let done = false;
+    if (step.key === 'ult') this.ensureTutorialEnemy();
 
-    switch (step.key) {
-      case 'move': done = Math.abs(this.player.x - LEVEL.spawn.x) > 110; break;
-      case 'jump': done = s.jump > 0; break;
-      case 'light': done = s.lightSwing > 0; break;
-      case 'heavy': done = s.heavySwing > 0; break;
-      case 'block': done = s.blocked > 0 || s.perfectBlock > 0; break;
-      case 'perfectBlock': done = s.perfectBlock > 0; break;
-      case 'dash': done = s.dash > 0; break;
-      case 'sprint': done = s.sprint > 0; break;
-      case 'perfectDodge': done = s.perfectDodge > 0; break;
-      case 'stealth': done = s.stealth > 0; break;
-      case 'ult': done = s.ult > 0; break;
-      case 'chest': done = s.chest > 0; break;
-      case 'bag': done = s.bag > 0; break;
-      case 'quest': done = s.quest > 0; break;
-      case 'char': done = s.panel > 0; break;
-      case 'save': done = s.save > 0 || s.pause > 0; break;
-      case 'talk': done = s.talk > 0; break;
-      case 'map': done = s.map > 0; break;
-    }
+    const now = performance.now();
+    if (this.tutorialHoldUntil && now < this.tutorialHoldUntil) return;
 
-    if (done) {
+    if (this.tutorialStepDone(step)) {
       this.tutorialIndex++;
+      this.tutorialHoldUntil = 0;
       this.shake = Math.max(this.shake, 2);
+      // 若下一条在之前就已经完成，先显示 5 秒，再自动推进
+      const nxt = list[this.tutorialIndex];
+      if (nxt && nxt.key !== 'pass' && this.tutorialStepDone(nxt)) {
+        this.tutorialHoldUntil = now + 5000;
+      }
+      this.saveGame();
     }
+  },
+
+  tutorialStepDone(step) {
+    const s = this.stats;
+    switch (step.key) {
+      case 'move':         return Math.abs(this.player.x - LEVEL.spawn.x) > 100;
+      case 'jump':         return s.jump > 0;
+      case 'light':        return s.lightSwing > 0;
+      case 'heavy':        return s.heavySwing > 0;
+      case 'dash':         return s.dash > 0;
+      case 'sprint':       return s.sprint > 0;
+      case 'block':        return s.blocked > 0 || s.perfectBlock > 0;
+      case 'perfectDodge': return s.perfectDodge > 0;
+      case 'perfectBlock': return s.perfectBlock > 0;
+      case 'toughness':    return s.kills > 0;
+      case 'skill':        return s.stealth > 0 || s.shield > 0 || s.sprout > 0;
+      case 'ult':          return s.ult > 0;
+      case 'clear':        return !this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'));
+      case 'chest':        return this.chestOpened && this.save.world.checkpoints.includes('qian-cp');
+      case 'bag':          return s.bag > 0;
+      case 'useItem':      return s.itemUsed > 0;
+      case 'char':         return s.panel > 0;
+      case 'equip':        return s.weaponEquipped > 0;
+      case 'upgrade':      return s.skillViewed > 0;
+      case 'quest':        return s.quest > 0;
+      case 'achieve':      return s.achieve > 0;
+      case 'map':          return s.teleport > 0;
+      case 'talk':         return !!this.npcTalked;
+      case 'pass':         return false;
+    }
+    return false;
+  },
+
+  // 终结技指引阶段：场上没有敌人时补一只黑犬，直到完成
+  ensureTutorialEnemy() {
+    if (this.stats.ult > 0) return;
+    if (this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'))) return;
+    const now = performance.now();
+    if (now < (this.tutorialSpawnAt || 0)) return;
+    this.tutorialSpawnAt = now + 1600;
+    const dir = this.player.dir >= 0 ? 1 : -1;
+    let x = this.player.x + dir * 300;
+    x = Math.max(120, Math.min(LEVEL.width - 120, x));
+    const spot = { x, a: Math.max(60, x - 200), b: Math.min(LEVEL.width - 60, x + 200) };
+    const e = new Enemy(spot, 'tut:' + Date.now());
+    e.homework = true;
+    this.enemies.push(e);
+    this.effects.push({ type: 'ring', x, y: LEVEL.floorY - 40, t: 0, life: 0.5, r0: 10, r1: 70, width: 4, color: '#ff9f6e' });
+    UI.toast('又一只黑犬出现了', 1600);
   },
 
   updateChest() {
     if (this.levelId !== 'qian') return;
-    if (!LEVEL.chest || this.chestOpened) return;
+    if (!LEVEL.chest) return;
+    if (this.chestOpened && this.save.world.chestChocolateTaken) return;
     if (Math.abs(this.player.x - LEVEL.chest.x) > 52) return;
 
+    // 教学关宝箱：消灭全部敌人后才开放
+    if (this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'))) {
+      const now = performance.now();
+      if (now > (this.chestLockedAt || 0)) {
+        this.chestLockedAt = now + 2800;
+        UI.toast('宝箱被封印：先消灭全部敌人', 2200);
+        this.effects.push({ type: 'ring', x: LEVEL.chest.x, y: LEVEL.floorY - 30, t: 0, life: 0.4, r0: 8, r1: 50, width: 3, color: '#8f7b5d' });
+      }
+      return;
+    }
+
+    const firstOpen = !this.chestOpened;
+    const loot = [];
     this.chestOpened = true;
     this.save.world.chestOpened = true;
     this.stats.chest++;
-    this.save.gold += 10;
-    this.save.materials.goldenPythonSkin = (this.save.materials.goldenPythonSkin || 0) + 1;
-    const gotDagger = !this.save.inventory.equipment.includes('dagger');
-    if (gotDagger) {
-      this.save.inventory.equipment.push('dagger');
+
+    if (firstOpen) {
+      this.save.gold += 10;
+      this.save.materials.goldenPythonSkin = (this.save.materials.goldenPythonSkin || 0) + 1;
+      loot.push('💰 金币×10', '💩 黄金巨蟒皮×1');
+      if (!this.save.inventory.equipment.includes('dagger')) {
+        this.save.inventory.equipment.push('dagger');
+        loot.push('🔪 匕首×1');
+      }
     }
+    if (!this.save.world.chestChocolateTaken) {
+      this.save.world.chestChocolateTaken = true;
+      this.addItem('chocolate');
+      loot.push('🍫 巧克力×1');
+    }
+
     this.saveGame();
-    const loot = ['💰 金币×10', '💩 黄金巨蟒皮×1'];
-    if (gotDagger) loot.splice(1, 0, '🔪 匕首×1');
-    UI.showLoot(loot, 3200, '🎁 宝箱');
+    UI.showLoot(loot, 3400, '🎁 宝箱');
     SFX.play('pickup');
-    this.effects.push({ type: 'ring', x: LEVEL.chest.x, y: LEVEL.floorY - 30, t: 0, life: 0.5, color: '#ffd166' });
+    this.effects.push({ type: 'ring', x: LEVEL.chest.x, y: LEVEL.floorY - 30, t: 0, life: 0.5, r0: 10, r1: 90, width: 5, color: '#ffd166' });
   },
 
   materialInfo(id) {
@@ -6864,6 +7124,15 @@ const Game = {
     UI.showStory(this, this.story.index);
   },
 
+  npcAvailable(npc) {
+    if (!npc) return false;
+    if (npc.id === 'nengrongze' && this.levelId === 'qian' &&
+        !this.save.world.tutorialDone && this.tutorialIndex < 22) {
+      return false;
+    }
+    return true;
+  },
+
   npcOptions(npc) {
     if (npc.id === 'litou') {
       const list = [{ key: 'talk', label: '交谈' }];
@@ -6911,6 +7180,7 @@ const Game = {
     if (this.state !== 'playing') return;
     const npcs = LEVEL.npcs || [];
     for (const npc of npcs) {
+      if (!this.npcAvailable(npc)) continue;
       if (npc.id === 'nengrongze' && this.npcTalked) continue;
       if (npc.id === 'sundianhei' && (this.save.world.houBossTalked || this.save.world.houBossDefeated)) continue;
       if (Math.abs(this.player.x - npc.x) > 76) continue;
@@ -6961,6 +7231,10 @@ const Game = {
 
       if (!this.save.world.checkpoints.includes(cp.id)) {
         this.save.world.checkpoints.push(cp.id);
+        // 教学关内也允许打开地图（用于教学指引里的传送）
+        if (this.levelId === 'qian' && !this.save.world.maps.includes('qian')) {
+          this.save.world.maps.push('qian');
+        }
         this.saveGame();
         UI.toast('检查点已激活 · 已解锁传送点：' + cp.name, 2400);
         this.effects.push({ type: 'ring', x: cp.x, y: cp.y - 40, t: 0, life: 0.5, color: '#7fe0ff' });
@@ -7022,7 +7296,11 @@ const Game = {
     if (enemy.kind === 'dog') this.save.records.dogKills = (this.save.records.dogKills || 0) + 1;
     if (enemy.kind === 'pig') this.save.records.pigKills = (this.save.records.pigKills || 0) + 1;
     if (enemy.index && !enemy.homework) {
-      this.save.world.enemyRespawn[enemy.index] = Date.now() + CFG.respawn.enemySeconds * 1000;
+      // 通过教学关之前，被击败的敌人不会刷新
+      const tutorialLock = this.levelId === 'qian' && !this.save.world.tutorialDone;
+      if (!tutorialLock) {
+        this.save.world.enemyRespawn[enemy.index] = Date.now() + CFG.respawn.enemySeconds * 1000;
+      }
       this.saveGame();
     }
     this.effects.push({ type: 'ring', x: enemy.x, y: enemy.y - 30, t: 0, life: 0.35, color: '#ffffff' });
@@ -7522,8 +7800,11 @@ const Game = {
     if (x < -80 || x > 1360) return;
 
     const isHou = !!LEVEL.chest.bossChest;
-    const opened = isHou ? this.save.world.houChestOpened : this.chestOpened;
-    const unlocked = !isHou || this.save.world.houBossDefeated;
+    const opened = isHou
+      ? this.save.world.houChestOpened
+      : (this.chestOpened && this.save.world.chestChocolateTaken);
+    const enemiesLeft = this.enemies.some(e => !e.dead && (e.kind === 'dog' || e.kind === 'pig'));
+    const unlocked = isHou ? this.save.world.houBossDefeated : !enemiesLeft;
     ctx.save();
     const bob = opened ? 0 : Math.sin(performance.now() / 420) * 3;
     if (!opened && unlocked) {
@@ -7550,7 +7831,12 @@ const Game = {
       ctx.fillText('🔒', x, LEVEL.floorY - 62 + bob);
       ctx.fillStyle = 'rgba(255, 209, 102, .85)';
       ctx.font = '11px "Microsoft YaHei", sans-serif';
-      ctx.fillText('击败孙点黑解锁', x, LEVEL.floorY - 80);
+      ctx.fillText(isHou ? '击败孙点黑解锁' : '消灭全部敌人解锁', x, LEVEL.floorY - 80);
+    } else if (!isHou && this.save.world.chestChocolateTaken === false && this.chestOpened) {
+      ctx.fillStyle = 'rgba(255, 233, 176, .9)';
+      ctx.font = '11px "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('还有 🍫 巧克力', x, LEVEL.floorY - 80);
     }
     ctx.restore();
   },
@@ -7560,6 +7846,7 @@ const Game = {
     const ctx = this.ctx;
     const x = LEVEL.exit.x - cam;
     if (x < -140 || x > 1420) return;
+    const locked = !this.levelObjectiveDone();
 
     ctx.save();
     ctx.fillStyle = '#3a2a1e';
@@ -7567,20 +7854,37 @@ const Game = {
     ctx.roundRect(x - 52, LEVEL.floorY - 116, 104, 116, 8);
     ctx.fill();
 
-    ctx.strokeStyle = this.chestOpened ? '#ffd166' : '#8f7b5d';
+    ctx.strokeStyle = locked ? '#b06a4a' : '#ffd166';
     ctx.lineWidth = 4;
     ctx.strokeRect(x - 46, LEVEL.floorY - 110, 92, 110);
 
-    ctx.fillStyle = this.chestOpened ? '#ffe6ac' : '#b9a98f';
-    ctx.font = 'bold 16px "Microsoft YaHei", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('出口 →', x + 10, LEVEL.floorY - 130);
+    if (locked) {
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = '#3a2a1e';
+      ctx.fillRect(x - 46, LEVEL.floorY - 110, 92, 110);
+      ctx.globalAlpha = 1;
+      ctx.font = '30px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🔒', x, LEVEL.floorY - 66);
+      ctx.fillStyle = '#e8b48f';
+      ctx.font = 'bold 13px "Microsoft YaHei", sans-serif';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('完成关卡目标后开启', x, LEVEL.floorY - 128);
+    } else {
+      ctx.fillStyle = '#ffe6ac';
+      ctx.font = 'bold 16px "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('出口 →', x + 10, LEVEL.floorY - 130);
+    }
     ctx.restore();
   },
 
   drawNpc(cam) {
     const ctx = this.ctx;
     for (const npc of (LEVEL.npcs || [])) {
+      if (!this.npcAvailable(npc)) continue;
       if (npc.id === 'nengrongze' && this.npcTalked) continue;
       if (npc.id === 'sundianhei' && (this.save.world.houBossTalked || this.save.world.houBossDefeated)) continue;
       const x = npc.x - cam;
@@ -7603,7 +7907,7 @@ const Game = {
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      ctx.font = (big ? 50 : 27) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.font = this.bodyEmojiSize(br) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(npc.emoji, x, cy + 1);
@@ -7930,7 +8234,7 @@ const Game = {
       ctx.strokeStyle = e.flying ? '#8fd7ff' : '#9b968d';
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.font = '52px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.font = this.bodyEmojiSize(42) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🙄', 0, 2);
@@ -7940,6 +8244,22 @@ const Game = {
         const prog = 1 - Math.max(0, e.meleeT) / 0.5;
         const hx = sx + e.dir * (34 + prog * 38);
         const hy = cy + 6;
+        // 黄色提示光圈：跟随 🤏 一起前戳
+        ctx.save();
+        ctx.globalAlpha = 0.35 + prog * 0.55;
+        ctx.strokeStyle = '#ffd166';
+        ctx.lineWidth = 4 + prog * 3;
+        ctx.beginPath();
+        ctx.arc(hx, hy, 18 + (1 - prog) * 46, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 0.22 + prog * 0.3;
+        ctx.strokeStyle = '#fff3c4';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(hx, hy, 8 + (1 - prog) * 26, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
         ctx.save();
         ctx.translate(hx, hy);
         if (e.dir < 0) ctx.scale(-1, 1);
@@ -8015,7 +8335,7 @@ const Game = {
       ctx.strokeStyle = e.state === 'chase' ? '#e88fa3' : '#c99aa6';
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.font = this.bodyEmojiSize(33) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🐷', 0, 2);
@@ -8023,14 +8343,21 @@ const Game = {
 
       const w = 84;
       ctx.fillStyle = 'rgba(0,0,0,.5)';
-      ctx.fillRect(sx - w / 2, cy - 52, w, 6);
+      ctx.fillRect(sx - w / 2, cy - 56, w, 6);
       ctx.fillStyle = '#ff6b76';
-      ctx.fillRect(sx - w / 2, cy - 52, w * (e.hp / e.maxHp), 6);
+      ctx.fillRect(sx - w / 2, cy - 56, w * (e.hp / e.maxHp), 6);
+      ctx.fillStyle = 'rgba(0,0,0,.5)';
+      ctx.fillRect(sx - w / 2, cy - 48, w, 5);
+      ctx.fillStyle = e.weak > 0 ? '#ffd166' : '#8fd7ff';
+      ctx.fillRect(sx - w / 2, cy - 48, w * (Math.max(0, e.tough) / e.toughMax), 5);
       ctx.fillStyle = '#ffd166';
       ctx.font = 'bold 11px "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('精英 · 王明猪', sx, cy - 58);
-      if (e.state === 'chase') {
+      ctx.fillText('精英 · 王明猪', sx, cy - 63);
+      if (e.weak > 0) {
+        ctx.fillStyle = '#7fe0ff';
+        ctx.fillText('虚弱 ' + e.weak.toFixed(1) + 's', sx, cy - 75);
+      } else if (e.state === 'chase') {
         ctx.fillStyle = '#ff9f6e';
         ctx.font = 'bold 18px "Microsoft YaHei", sans-serif';
         ctx.fillText('!', sx, cy - 70);
@@ -8046,14 +8373,35 @@ const Game = {
     ctx.ellipse(sx, e.y - 3, 24, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 攻击预警
+    // 普攻动作：举起 🐾 向下拍
+    let pawX = 0, pawY = 0, showPaw = false;
     if (e.state === 'windup') {
       const p = Math.min(1, e.t / e.def.windup);
-      ctx.strokeStyle = `rgba(255, 90, 90, ${0.25 + p * 0.55})`;
-      ctx.lineWidth = 3;
+      const lift = p < 0.55 ? p / 0.55 : 1 - (p - 0.55) / 0.45;
+      const drop = p < 0.55 ? 0 : (p - 0.55) / 0.45;
+      pawX = sx + e.dir * (14 + drop * 30);
+      pawY = cy + 6 - 62 * lift;
+      showPaw = true;
+
+      // 黄色提示光圈（跟随 🐾）
+      ctx.save();
+      ctx.globalAlpha = 0.35 + p * 0.5;
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.arc(sx + e.dir * 16, cy, 22 + p * 26, 0, Math.PI * 2);
+      ctx.arc(pawX, pawY, 14 + p * 34, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.globalAlpha = 0.25 + p * 0.35;
+      ctx.strokeStyle = '#fff3c4';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(pawX, pawY, 6 + p * 18, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    } else if (e.state === 'recover' && e.t < 0.2) {
+      pawX = sx + e.dir * 44;
+      pawY = cy + 12;
+      showPaw = true;
     }
 
     // 身体
@@ -8069,28 +8417,55 @@ const Game = {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    ctx.font = '30px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+    ctx.font = this.bodyEmojiSize(25) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('🐕', 0, 2);
     ctx.restore();
 
-    // 血条
-    if (e.hp < e.maxHp) {
-      const w = 46;
-      ctx.fillStyle = 'rgba(0,0,0,.5)';
-      ctx.fillRect(sx - w / 2, cy - 40, w, 5);
-      ctx.fillStyle = '#ff6b76';
-      ctx.fillRect(sx - w / 2, cy - 40, w * (e.hp / e.maxHp), 5);
+    // 🐾 只在普攻时显示
+    if (showPaw) {
+      ctx.save();
+      ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = 'rgba(12, 16, 24, .9)';
+      ctx.lineWidth = 3;
+      ctx.strokeText('🐾', pawX, pawY);
+      ctx.fillText('🐾', pawX, pawY);
+      ctx.restore();
     }
 
-    // 警戒标记
-    if (e.state === 'chase' || e.state === 'windup') {
+    // 血条 + 韧性条
+    const bw = 46;
+    ctx.fillStyle = 'rgba(0,0,0,.5)';
+    ctx.fillRect(sx - bw / 2, cy - 44, bw, 5);
+    ctx.fillStyle = '#ff6b76';
+    ctx.fillRect(sx - bw / 2, cy - 44, bw * (e.hp / e.maxHp), 5);
+    ctx.fillStyle = 'rgba(0,0,0,.5)';
+    ctx.fillRect(sx - bw / 2, cy - 37, bw, 4);
+    ctx.fillStyle = e.weak > 0 ? '#ffd166' : '#8fd7ff';
+    ctx.fillRect(sx - bw / 2, cy - 37, bw * (Math.max(0, e.tough) / e.toughMax), 4);
+
+    // 状态标记
+    if (e.weak > 0) {
+      ctx.fillStyle = '#7fe0ff';
+      ctx.font = 'bold 11px "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('虚弱 ' + e.weak.toFixed(1) + 's', sx, cy - 50);
+    } else if (e.state === 'chase' || e.state === 'windup') {
       ctx.fillStyle = '#ff9f6e';
       ctx.font = 'bold 18px "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('!', sx, cy - 46);
+      ctx.fillText('!', sx, cy - 50);
     }
+  },
+
+  // 圆形身体内的 emoji 字号：约填满 88% 直径，非圆形 emoji 用 scale 微调
+  bodyEmojiSize(r, scale) {
+    const s = (scale == null) ? 1 : scale;
+    return Math.max(10, Math.round(r * 2 * 0.88 * s));
   },
 
   drawPlayer(cam) {
@@ -8154,8 +8529,8 @@ const Game = {
       ctx.fill();
     }
 
-    // emoji
-    ctx.font = '27px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+    // emoji（尽量填满圆形身体；非圆形 emoji 不做强行拉伸）
+    ctx.font = this.bodyEmojiSize(25, ch.def.emojiScale) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(ch.def.emoji, sx, cy + 1);
@@ -8428,10 +8803,12 @@ const Game = {
           ctx.stroke();
         }
       } else if (fx.type === 'ring') {
+        const r0 = fx.r0 == null ? 12 : fx.r0;
+        const r1 = fx.r1 == null ? 52 : fx.r1;
         ctx.strokeStyle = fx.color || '#ffffff';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = fx.width || 3;
         ctx.beginPath();
-        ctx.arc(x, fx.y, 12 + k * 40, 0, Math.PI * 2);
+        ctx.arc(x, fx.y, r0 + k * (r1 - r0), 0, Math.PI * 2);
         ctx.stroke();
       } else if (fx.type === 'bite') {
         ctx.strokeStyle = '#ff6b76';
