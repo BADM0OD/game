@@ -8542,11 +8542,12 @@ const Game = {
       if (npc.id === 'sundianhei' && (this.save.world.houBossTalked || this.save.world.houBossDefeated)) continue;
       const x = npc.x - cam;
       if (x < -120 || x > 1400) continue;
-      const cy = npc.y - 25;
-
-      ctx.save();
       const big = !!npc.big;
       const br = big ? 42 : 25;
+      // 大体型 NPC（孙点黑）与 Boss 保持同一圆心与 emoji 尺寸
+      const cy = npc.y - (big ? 44 : 25);
+
+      ctx.save();
       ctx.fillStyle = 'rgba(20, 12, 8, .3)';
       ctx.beginPath();
       ctx.ellipse(x, npc.y - 3, big ? 42 : 20, big ? 11 : 6, 0, 0, Math.PI * 2);
@@ -8560,10 +8561,10 @@ const Game = {
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      ctx.font = (big ? 50 : 27) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.font = (big ? this.bodyEmojiSize(42) : 27) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(npc.emoji, x, cy + 1);
+      ctx.fillText(npc.emoji, x, cy + (big ? 6 : 1));
 
       ctx.fillStyle = 'rgba(220, 240, 220, .85)';
       ctx.font = '12px "Microsoft YaHei", sans-serif';
