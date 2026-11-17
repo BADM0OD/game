@@ -1934,7 +1934,7 @@ const CFG = {
       },
       q: {
         id: 'book', name: '一心只读圣贤书', cd: 20, duration: 2, icon: '📖',
-        desc: '向前方发射半径 40 的 📖 虚影，不会因命中而消失，可以持续穿过敌人，撞到障碍物会被阻挡，最多飞行 2 秒。命中敌人后在其头顶留下 📖 印记 10 秒；场上角色命中带印记的敌人时，为鎏知寞回复 10% 生命上限，每秒最多触发一次。<br><span class="mult">CD：20 秒</span>'
+        desc: '向前方发射半径 40 的 📖 虚影，不会因命中而消失，可以持续穿过敌人，撞到障碍物会被阻挡，最多飞行 2 秒。命中敌人后在其头顶留下 📖 印记 10 秒；场上角色命中带印记的敌人时，回复该角色鎏知寞生命上限的 10%（每级 +5%），每秒最多触发一次。<br><span class="mult">CD：20 秒</span>'
       },
       lightMult: 0.5,
       heavyMult: 0.75
@@ -3228,6 +3228,7 @@ class Player {
 
       const d = calcDamage(this.ch.atk, mult, e.def.def, this.ch.def.critRate, this.ch.def.critDmg);
       e.hurt(d.dmg, this.dir, this.game);
+      this.game.onPlayerHitEnemy(e);
       if (e.dead) this.game.recordWeaponKill(a.weaponId || this.weapon.id);
       this.game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       this.game.gainUltFor(this.ch, CFG.ult.perHit);
@@ -3501,6 +3502,7 @@ class PaperBall {
       const p = this.owner;
       const d = calcDamage(p.atk, this.mult, e.def.def, p.def.critRate, p.def.critDmg);
       e.hurt(d.dmg, this.dir, game);
+      game.onPlayerHitEnemy(e);
       game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       game.gainUltFor(p, CFG.ult.perHit);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.2, color: '#ffffff' });
@@ -3542,10 +3544,13 @@ class BookShot {
       if (e.dead || this.hits.includes(e)) continue;
       if (!circleRect(this.x, this.y, this.r, e.box())) continue;
       this.hits.push(e);
+      const wasMarked = e.markT > 0;
       e.markT = 10;
       game.spawnText(e.x, e.y - 92, '📖 印记', '#c9c9d6');
       game.effects.push({ type: 'ring', x: e.x, y: e.y - 40, t: 0, life: 0.3, r0: 10, r1: 56, width: 3, color: '#c9c9d6' });
       SFX.play('quest');
+      // 命中「已被标记」的敌人也触发回血（不依赖伤害）
+      if (wasMarked) game.onPlayerHitEnemy(e);
     }
   }
 }
@@ -3589,6 +3594,7 @@ class Spike {
       const owner = this.ownerState;
       const d = calcDamage(owner.atk, this.mult, e.def.def, owner.def.critRate, owner.def.critDmg);
       e.hurt(d.dmg, this.dir, game);
+      game.onPlayerHitEnemy(e);
       game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
       game.gainUltFor(owner, CFG.ult.perHit);
       game.effects.push({ type: 'ring', x: this.x, y: this.y, t: 0, life: 0.18, color: '#8ef0a0' });
@@ -3959,6 +3965,7 @@ class PenWeaponShot {
           if (!circleRect(this.x, this.y, this.r + 6, e.box())) continue;
           const d = calcDamage(this.owner.atk, 0.8, e.def.def, this.owner.def.critRate, this.owner.def.critDmg);
           e.hurt(d.dmg, this.dir, game);
+          game.onPlayerHitEnemy(e);
           if (e.dead) game.recordWeaponKill('pen');
           game.spawnDamage(e.x, e.y - 60, d.dmg, d.crit);
           game.gainUltFor(this.owner, CFG.ult.perHit);
@@ -7904,24 +7911,29 @@ const Game = {
     state.ult = Math.min(state.def.ultMax, state.ult + amount);
   },
 
-  // 场上角色命中带 📖 印记的敌人：为鎏知寞回复 10% 生命上限（每秒最多一次）
+  // 场上角色命中带 📖 印记的敌人：为当前场上角色回复（鎏知寞生命上限的 10%，每级 +5%）
   onPlayerHitEnemy(enemy) {
     if (!enemy || !(enemy.markT > 0)) return;
     if (!this.player) return;
     const liumo = this.player.characters.find(c => c.def.id === 'liumo');
-    if (!liumo || liumo.hp <= 0) return;
-    if (liumo.hp >= liumo.hpMax) return;
+    if (!liumo) return;
+    const target = this.player.ch;
+    if (!target || target.hp <= 0) return;
+    if (target.hp >= target.hpMax) return;
     const now = performance.now();
     if (now < (this.markHealAt || 0)) return;
     this.markHealAt = now + 1000;
-    const heal = Math.max(1, Math.round(liumo.hpMax * 0.10));
-    const before = liumo.hp;
-    liumo.hp = Math.min(liumo.hpMax, liumo.hp + heal);
-    const gain = Math.round(liumo.hp - before);
+
+    const qLv = Math.max(1, (liumo.progress && liumo.progress.q) || 1);
+    const ratio = 0.10 + 0.05 * (qLv - 1);
+    const heal = Math.max(1, Math.round(liumo.hpMax * ratio));
+    const before = target.hp;
+    target.hp = Math.min(target.hpMax, target.hp + heal);
+    const gain = Math.round(target.hp - before);
     if (gain > 0) {
-      this.spawnText(this.player.x, this.player.y - 96, '鎏知寞 +' + gain, '#8ef0a0');
+      this.spawnText(this.player.x, this.player.y - 96, target.def.name + ' +' + gain, '#8ef0a0');
       this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.3, r0: 8, r1: 52, width: 3, color: '#8ef0a0' });
-      const card = UI.cards && UI.cards.find(c => c.ch && c.ch.def.id === 'liumo');
+      const card = UI.cards && UI.cards[this.player.active];
       if (card && card.el) {
         card.el.classList.add('healFlash');
         setTimeout(() => card.el.classList.remove('healFlash'), 320);
