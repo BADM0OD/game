@@ -5500,7 +5500,7 @@ const UI = {
       const mats = [
         { id: 'goldenPythonSkin', emoji: '💩', name: '黄金巨蟒皮', desc: '稀有材料，可用于锻造' },
         { id: 'dianmo', emoji: '⚫️', name: '点墨', desc: '黑犬掉落的墨色结晶' },
-        { id: 'haochengji', emoji: '💯', name: '好成绩', desc: '等级突破材料' },
+        { id: 'haochengji', emoji: '💯', name: '好成绩', desc: '角色 10 → 11 级突破材料' },
         { id: 'gear', emoji: '⚙️', name: '齿轮', desc: '通技老师的遗产' },
         { id: 'music', emoji: '🎶', name: '音乐细菌', desc: '升级材料' }
       ].filter(m => (game.save.materials[m.id] || 0) > 0);
@@ -7597,8 +7597,8 @@ const Game = {
     if (kind === 'level') {
       if (lv.level >= this.maxCharLevel()) return null;
       const cost = { gold: lv.level * CFG.upgrade.level.goldBase };
-      // 世界等级 2：角色 10 级突破到 20 级，每级额外消耗 1 个好成绩
-      if (lv.level >= 10) {
+      // 世界等级 2：仅 10 → 11 级突破额外消耗 1 个好成绩，之后只消耗金币
+      if (lv.level === 10) {
         cost.mat = 'haochengji';
         cost.matN = 1;
       }
