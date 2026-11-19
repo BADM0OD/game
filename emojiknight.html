@@ -7781,19 +7781,23 @@ const Game = {
     this.exam = null;
     this.save.world.examDone = true;
     this.save.world.worldLevel = 2;
+    // 突破消耗世界等级 1 的 500 经验，超出部分继承到世界等级 2
+    const inherited = Math.max(0, this.worldExp() - CFG.world.expCap);
+    this.save.world.worldExp = inherited;
     this.grantQuestExp('yuekao', 200);
-    this.save.world.worldExp = Math.max(this.worldExp(), CFG.world.expCap);
     const q = this.save.quests.side.find(x => x && x.id === 'yuekao');
     if (q) q.status = 'done';
     this.homeworkFight = null;
     this.saveGame();
-    UI.showLoot([
+    const loot = [
       '🌍 世界等级 → 2',
       '🌍 世界经验 +200',
       '角色等级上限 → 20',
       '技能等级上限 → 10',
       '荔头处新增：体育作业'
-    ], 5200, '月考完成');
+    ];
+    if (inherited > 0) loot.splice(2, 0, '🌍 溢出经验继承 +' + inherited);
+    UI.showLoot(loot, 5200, '月考完成');
     UI.toast('世界等级提升至 2', 3600);
     SFX.play('quest');
     this.effects.push({ type: 'burst', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.8 });
