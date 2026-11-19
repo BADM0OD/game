@@ -1648,7 +1648,7 @@ const CFG = {
   },
 
   awake: {
-    paperMult: 0.6,
+    paperMult: 0.8,
     fireInterval: 0.5,
     projectileSpeed: 780,
     projectileLife: 2.0
@@ -1669,7 +1669,7 @@ const CFG = {
     skills: {
       liuhanyi: {
         e: { upgradable: false },
-        q: { mat: 'dianmo', multStep: 0.05 }
+        q: { mat: 'dianmo', multStep: 0.10 }
       },
       nengrongze: {
         e: { mat: 'gear', hpRatioStep: 0.05, splashStep: 0.05 },
@@ -1741,6 +1741,16 @@ const CFG = {
       desc: '通技作业道具：在高一十班（后）使用，召唤王明猪',
       usable: true, oneTime: true, homework: 'tech'
     },
+    examPaper: {
+      id: 'examPaper', name: '月考试卷', emoji: '📄',
+      desc: '在高一十班（后）中进行考试',
+      usable: true, oneTime: true
+    },
+    alarmClock: {
+      id: 'alarmClock', name: '闹钟', emoji: '⏰',
+      desc: '体育作业道具：在高一十班（后）使用，召唤时间恶魔',
+      usable: true, oneTime: true, homework: 'sport'
+    },
     chocolate: {
       id: 'chocolate', name: '巧克力', emoji: '🍫',
       desc: '一次性道具，使用后为当前角色回复50%生命值',
@@ -1760,6 +1770,10 @@ const CFG = {
     tech: {
       name: '通技作业', desc: '挑战王明猪先生',
       item: 'techTool', fight: 'tech'
+    },
+    sport: {
+      name: '体育作业', desc: '与时间赛跑',
+      item: 'alarmClock', fight: 'sport'
     }
   },
 
@@ -1778,6 +1792,40 @@ const CFG = {
     rainbowSpeed: 300,
     transSpeed: 200,
     transHp: 200
+  },
+
+  timeDemon: {
+    hp: 6000,
+    atk: 200,
+    def: 400,
+    toughness: 1000,
+    toughPerHit: 20,
+    perfectBlockTough: 100,
+    weak: 5,
+    w: 82,
+    h: 92,
+    slamRadius: 150,
+    slamMult: 1.0,
+    dashSpeed: 700,
+    dashMult: 1.0,
+    hourglassHp: 200,
+    hourglassCd: 15,
+    hourglassMax: 3,
+    hourglassSpeed: 1000,
+    hourglassMult: 1.2,
+    rewindHp: 200,
+    rewindCd: 10,
+    rewindMax: 3,
+    rewindHeal: 200,
+    pauseMult: 0.5,
+    pauseRoot: 3,
+    healDelay: 10,
+    healPerSec: 20
+  },
+
+  world: {
+    expCap: 500,
+    expCap2: 800
   },
 
   achievements: [
@@ -1862,7 +1910,7 @@ const CFG = {
       },
       q: {
         id: 'awake', name: '睡醒了', duration: 10, icon: '😴', cd: 15,
-        desc: '10 秒内普攻变为纸球，每 0.5 秒发射一发，纸球存在 2 秒；持续期间无法获得终结点，切换角色会提前结束，且不显示武器。<br><span class="mult">倍率：纸球 60%（每级 +5%）</span><br><span class="mult">CD：15 秒</span>'
+        desc: '10 秒内普攻变为纸球，每 0.5 秒发射一发，纸球存在 2 秒；持续期间无法获得终结点，切换角色会提前结束，且不显示武器。<br><span class="mult">倍率：纸球 80%（每级 +10%）</span><br><span class="mult">CD：15 秒</span>'
       },
       lightMult: 0.5,
       heavyMult: 0.75
@@ -2908,6 +2956,16 @@ class Player {
     this.game.spawnText(this.x, this.y - 98, '麻痹', '#8fd7ff');
   }
 
+  // 定身：无法进行任何行动（与麻痹同一套停止逻辑，仅表现不同）
+  root(seconds) {
+    this.paralyzed = Math.max(this.paralyzed, seconds);
+    this.attack = null;
+    this.blocking = false;
+    this.queued = false;
+    this.vx = 0;
+    this.game.spawnText(this.x, this.y - 98, '定身 ' + seconds.toFixed(0) + 's', '#c9a6ff');
+  }
+
   castE() {
     const ch = this.ch;
     const e = ch.def.e;
@@ -3610,7 +3668,15 @@ class Enemy {
   constructor(spot, index) {
     this.kind = 'dog';
     this.type = 'dog';
-    this.def = CFG.enemy.dog;
+    // 复制一份配置，方便世界等级 2 对单体数值做覆盖
+    this.def = Object.assign({}, CFG.enemy.dog);
+    const wl = (typeof Game !== 'undefined' && Game.worldLevel) ? Game.worldLevel() : 1;
+    if (wl >= 2) {
+      // 世界等级 2：血量 600，攻击力提升到 150（atkMult 0.5 后正好 150），防御 120
+      this.def.hp = 600;
+      this.def.atk = 300;
+      this.def.def = 120;
+    }
     this.index = index;
     this.x = spot.x;
     this.y = spot.y || LEVEL.floorY;
@@ -3618,9 +3684,9 @@ class Enemy {
     this.a = spot.a;
     this.b = spot.b;
     this.dir = (this.x - this.a < this.b - this.x) ? -1 : 1;
-    this.hp = Math.round(this.def.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    this.hp = Math.round(this.def.hp);
     this.maxHp = this.hp;
-    this.atk = this.def.atk * (Game.enemyScale ? Game.enemyScale() : 1);
+    this.atk = this.def.atk;
     this.toughMax = this.def.toughness || 1;
     this.tough = this.toughMax;
     this.weak = 0;
@@ -3781,7 +3847,13 @@ class Pig {
   constructor(spot, key) {
     this.kind = 'pig';
     this.type = 'pig';
-    this.def = CFG.enemy.pig;
+    this.def = Object.assign({}, CFG.enemy.pig);
+    const wl = (typeof Game !== 'undefined' && Game.worldLevel) ? Game.worldLevel() : 1;
+    if (wl >= 2) {
+      // 世界等级 2：生命 +500，攻击 +50，防御不变
+      this.def.hp += 500;
+      this.def.atk += 50;
+    }
     this.index = key;
     this.x = spot.x;
     this.y = spot.y || LEVEL.floorY;
@@ -3790,9 +3862,9 @@ class Pig {
     this.a = spot.a;
     this.b = spot.b;
     this.dir = -1;
-    this.hp = Math.round(this.def.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    this.hp = Math.round(this.def.hp);
     this.maxHp = this.hp;
-    this.atk = this.def.atk * (Game.enemyScale ? Game.enemyScale() : 1);
+    this.atk = this.def.atk;
     this.toughMax = this.def.toughness || 1;
     this.tough = this.toughMax;
     this.weak = 0;
@@ -4004,10 +4076,15 @@ class BossSun {
     this.y = LEVEL.floorY;
     this.baseY = this.y;
     this.dir = -1;
-    this.hp = Math.round(CFG.bossSun.hp * (Game.enemyScale ? Game.enemyScale() : 1));
+    const wl = (typeof Game !== 'undefined' && Game.worldLevel) ? Game.worldLevel() : 1;
+    // 世界等级 2：生命 +1000，攻击 +50，防御 +50
+    const hpBonus = wl >= 2 ? 1000 : 0;
+    const atkBonus = wl >= 2 ? 50 : 0;
+    const defBonus = wl >= 2 ? 50 : 0;
+    this.hp = CFG.bossSun.hp + hpBonus;
     this.maxHp = this.hp;
-    this.atk = CFG.bossSun.atk * (Game.enemyScale ? Game.enemyScale() : 1);
-    this.def = { atk: this.atk, def: CFG.bossSun.def, critRate: 0, critDmg: 1.5, w: CFG.bossSun.w, h: CFG.bossSun.h };
+    this.atk = CFG.bossSun.atk + atkBonus;
+    this.def = { atk: this.atk, def: CFG.bossSun.def + defBonus, critRate: 0, critDmg: 1.5, w: CFG.bossSun.w, h: CFG.bossSun.h };
     this.toughMax = CFG.bossSun.toughness;
     this.tough = this.toughMax;
     this.weak = 0;
@@ -4309,6 +4386,436 @@ class RainbowShot {
     if (Math.abs(this.x - p.x) < 26 + this.r && Math.abs(this.y - (p.y - 25)) < 34 + this.r) {
       p.takeDamage(this.boss.atk * 2.0, this.x, this.boss);
       this.dead = true;
+    }
+  }
+}
+
+/* ---------------- ⏰ 时间恶魔 ---------------- */
+
+class TimeDemon {
+  constructor(x, opts) {
+    opts = opts || {};
+    this.kind = 'boss';
+    this.type = 'timedemon';
+    this.index = opts.index || ('time:' + Date.now());
+    this.x = x;
+    this.y = LEVEL.floorY;
+    this.baseY = this.y;
+    this.dir = -1;
+    const wl = (typeof Game !== 'undefined' && Game.worldLevel) ? Game.worldLevel() : 1;
+    // 世界等级 2：首领同样获得生命 +1000 / 攻击 +50 / 防御 +50
+    const hpBonus = wl >= 2 ? 1000 : 0;
+    const atkBonus = wl >= 2 ? 50 : 0;
+    const defBonus = wl >= 2 ? 50 : 0;
+    this.hp = CFG.timeDemon.hp + hpBonus;
+    this.maxHp = this.hp;
+    this.atk = CFG.timeDemon.atk + atkBonus;
+    this.def = { atk: this.atk, def: CFG.timeDemon.def + defBonus, critRate: 0, critDmg: 1.5, w: CFG.timeDemon.w, h: CFG.timeDemon.h };
+    this.toughMax = CFG.timeDemon.toughness;
+    this.tough = this.toughMax;
+    this.weak = 0;
+    this.markT = 0;
+    this.phase = 1;
+    this.phase2 = false;
+    this.state = 'idle';
+    this.introT = 1.0;
+    this.atkTimer = 2.4;
+    this.dashCd = 8;
+    this.skill1T = 5;
+    this.skill4T = 7;
+    this.skill5T = 11;
+    this.meleeT = 0;
+    this.meleeHit = false;
+    this.dashWindT = 0;
+    this.dashT = 0;
+    this.dashDir = 1;
+    this.dashHit = false;
+    this.noDmgT = 0;
+    this.healing = false;
+    this.healAcc = 0;
+    this.healTick = 0;
+    this.t = 0;
+    this.flash = 0;
+    this.dead = false;
+    this.w = CFG.timeDemon.w;
+    this.h = CFG.timeDemon.h;
+  }
+
+  box() {
+    return { x: this.x - this.w / 2, y: this.y - this.h, w: this.w, h: this.h };
+  }
+
+  enterPhase2(game) {
+    if (this.phase2) return;
+    this.phase2 = true;
+    this.phase = 2;
+    this.skill4T = 1.2;
+    this.skill5T = 3;
+    this.skill1T = Math.min(this.skill1T, 3);
+    game.spawnText(this.x, this.y - 120, '二阶段', '#ff9f6e');
+    game.effects.push({ type: 'ring', x: this.x, y: this.y - 44, t: 0, life: 0.6, r0: 20, r1: 150, width: 6, color: '#ff9f6e' });
+    game.shake = Math.max(game.shake, 10);
+  }
+
+  triggerWeak(game) {
+    this.tough = 0;
+    this.weak = CFG.timeDemon.weak;
+    this.state = 'idle';
+    this.dashT = 0;
+    this.dashWindT = 0;
+    game.spawnText(this.x, this.y - 120, '虚弱', '#7fe0ff');
+    game.effects.push({ type: 'ring', x: this.x, y: this.y - 40, t: 0, life: 0.45, r0: 12, r1: 110, width: 5, color: '#7fe0ff' });
+  }
+
+  onPerfectBlocked(game) {
+    if (this.dead || this.weak > 0) return;
+    this.tough -= CFG.timeDemon.perfectBlockTough;
+    if (this.tough <= 0) this.triggerWeak(game);
+  }
+
+  hurt(dmg, dir, game) {
+    if (this.dead) return;
+    this.hp -= dmg;
+    this.noDmgT = 0;
+    this.healing = false;
+    game.onPlayerHitEnemy(this);
+    this.flash = 0.14;
+    this.x += dir * 3;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.dead = true;
+      game.onBossDefeated(this);
+      return;
+    }
+    if (!this.phase2 && this.hp <= this.maxHp * 0.5) {
+      this.enterPhase2(game);
+      return;
+    }
+    if (this.weak <= 0) {
+      this.tough -= CFG.timeDemon.toughPerHit;
+      if (this.tough <= 0) this.triggerWeak(game);
+    }
+  }
+
+  update(wdt, game) {
+    if (this.dead) return;
+    this.t += wdt;
+    this.flash = Math.max(0, this.flash - wdt);
+    if (this.markT > 0) this.markT = Math.max(0, this.markT - wdt);
+    if (this.introT > 0) { this.introT -= wdt; return; }
+
+    if (!this.phase2 && this.hp <= this.maxHp * 0.5) this.enterPhase2(game);
+
+    // 技能 3：连续 10 秒未受伤则每秒回复 20，直到再次受伤
+    this.noDmgT += wdt;
+    if (!this.healing && this.noDmgT >= CFG.timeDemon.healDelay && this.hp < this.maxHp) {
+      this.healing = true;
+      this.healAcc = 0;
+      this.healTick = 0;
+      game.spawnText(this.x, this.y - 120, '时间回溯 · 回复中', '#8ef0a0');
+    }
+    if (this.healing) {
+      if (this.hp >= this.maxHp) {
+        this.healing = false;
+      } else {
+        this.healAcc += CFG.timeDemon.healPerSec * wdt;
+        if (this.healAcc >= 1) {
+          const n = Math.floor(this.healAcc);
+          this.healAcc -= n;
+          this.hp = Math.min(this.maxHp, this.hp + n);
+          this.healTick += n;
+          if (this.healTick >= 20) {
+            this.healTick = 0;
+            game.spawnText(this.x, this.y - 110, '+' + 20, '#8ef0a0');
+          }
+        }
+      }
+    }
+
+    if (this.weak > 0) {
+      this.weak -= wdt;
+      if (this.weak <= 0) {
+        this.weak = 0;
+        this.tough = this.toughMax;
+        game.spawnText(this.x, this.y - 120, '韧性恢复', '#ffd166');
+      }
+      return;
+    }
+
+    const p = game.player;
+    const dx = p.x - this.x;
+    this.dir = Math.sign(dx) || this.dir;
+
+    // 技能 2：冲撞
+    if (this.state === 'dashwind') {
+      this.dashWindT -= wdt;
+      if (this.dashWindT <= 0) {
+        this.state = 'dash';
+        this.dashT = 0.75;
+        this.dashDir = this.dir;
+        this.dashHit = false;
+      }
+      return;
+    }
+    if (this.state === 'dash') {
+      this.x += this.dashDir * CFG.timeDemon.dashSpeed * wdt;
+      this.x = Math.max(40, Math.min(LEVEL.width - 40, this.x));
+      if (!this.dashHit &&
+          Math.abs(p.x - this.x) < 70 && Math.abs(p.y - this.y) < 120) {
+        this.dashHit = true;
+        p.takeDamage(this.atk * CFG.timeDemon.dashMult, this.x, this);
+      }
+      this.dashT -= wdt;
+      if (this.dashT <= 0) {
+        this.state = 'idle';
+        this.atkTimer = 1.2;
+      }
+      return;
+    }
+
+    // 普攻 1：举起 ⏳ 向下砸（半径 150）
+    if (this.state === 'melee') {
+      this.meleeT -= wdt;
+      if (!this.meleeHit && this.meleeT <= 0.3) {
+        this.meleeHit = true;
+        game.bossMelee(this, CFG.timeDemon.slamRadius, CFG.timeDemon.slamMult);
+      }
+      if (this.meleeT <= 0) this.state = 'idle';
+      return;
+    }
+
+    // 地面移动
+    if (Math.abs(dx) > 340) game.moveEnemy(this, this.dir * 230 * wdt);
+    else if (Math.abs(dx) < 210) game.moveEnemy(this, -this.dir * 170 * wdt);
+
+    // 普攻计时
+    this.atkTimer -= wdt;
+    if (this.atkTimer <= 0) {
+      this.atkTimer = 2.4;
+      if (Math.abs(dx) < 420) {
+        this.state = 'melee';
+        this.meleeT = 0.65;
+        this.meleeHit = false;
+      }
+    }
+
+    // 技能 2 冷却
+    this.dashCd -= wdt;
+    if (this.dashCd <= 0 && Math.abs(dx) < 700) {
+      this.dashCd = 9;
+      this.state = 'dashwind';
+      this.dashWindT = 0.6;
+    }
+
+    // 技能 1：召唤 ⌛
+    this.skill1T -= wdt;
+    if (this.skill1T <= 0) {
+      this.skill1T = 8;
+      game.spawnHourglass(this);
+    }
+
+    // 二阶段技能
+    if (this.phase2) {
+      this.skill4T -= wdt;
+      if (this.skill4T <= 0) {
+        this.skill4T = 9;
+        game.firePauseShot(this);
+      }
+      this.skill5T -= wdt;
+      if (this.skill5T <= 0) {
+        this.skill5T = 11;
+        game.spawnRewind(this);
+      }
+    }
+  }
+}
+
+/* ---------------- ⌛ 时间恶魔的沙漏 ---------------- */
+
+class TimeHourglass {
+  constructor(game, boss, x) {
+    this.kind = 'hourglass';
+    this.type = 'hourglass';
+    this.boss = boss;
+    this.index = 'time:hg:' + Date.now() + ':' + Math.floor(Math.random() * 10000);
+    this.x = x;
+    this.y = LEVEL.floorY;
+    this.hp = CFG.timeDemon.hourglassHp;
+    this.maxHp = this.hp;
+    this.life = CFG.timeDemon.hourglassCd;
+    this.flying = false;
+    this.vx = 0;
+    this.vy = 0;
+    this.dead = false;
+    this.flash = 0;
+    this.def = { def: 100 };
+    this.r = 18;
+  }
+
+  box() {
+    return { x: this.x - 18, y: this.y - 42, w: 36, h: 42 };
+  }
+
+  update(wdt, game) {
+    if (this.dead) return;
+    this.flash = Math.max(0, this.flash - wdt);
+    if (!this.flying) {
+      this.life -= wdt;
+      if (this.life <= 0) {
+        this.flying = true;
+        const p = game.player;
+        const dx = p.x - this.x;
+        const dy = (p.y - 25) - (this.y - 25);
+        const d = Math.hypot(dx, dy) || 1;
+        this.vx = (dx / d) * CFG.timeDemon.hourglassSpeed;
+        this.vy = (dy / d) * CFG.timeDemon.hourglassSpeed;
+        game.spawnText(this.x, this.y - 70, '时间到！', '#ff6b76');
+        SFX.play('heavy');
+      }
+      return;
+    }
+    // 轻度追踪：每次只把速度方向朝玩家偏转一点
+    const p = game.player;
+    const dx = p.x - this.x;
+    const dy = (p.y - 25) - (this.y - 25);
+    const d = Math.hypot(dx, dy) || 1;
+    const sp = CFG.timeDemon.hourglassSpeed;
+    this.vx += ((dx / d) * sp - this.vx) * Math.min(1, 2.2 * wdt);
+    this.vy += ((dy / d) * sp - this.vy) * Math.min(1, 2.2 * wdt);
+    const v = Math.hypot(this.vx, this.vy) || 1;
+    this.vx = (this.vx / v) * sp;
+    this.vy = (this.vy / v) * sp;
+    this.x += this.vx * wdt;
+    this.y += this.vy * wdt;
+    if (this.x < -40 || this.x > LEVEL.width + 40 || this.y < -80 || this.y > 780) {
+      this.dead = true;
+      return;
+    }
+    if (Math.abs(this.x - p.x) < 22 + this.r && Math.abs((this.y - 25) - (p.y - 25)) < 30 + this.r) {
+      p.takeDamage(this.boss.atk * CFG.timeDemon.hourglassMult, this.x, this.boss);
+      this.dead = true;
+    }
+  }
+
+  hurt(dmg, dir, game) {
+    if (this.dead || this.flying) return;
+    this.hp -= dmg;
+    this.flash = 0.14;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.dead = true;
+      game.spawnText(this.x, this.y - 54, '破坏', '#7fe0ff');
+    }
+  }
+}
+
+/* ---------------- ⏪ 被时间恶魔吸收的倒带 ---------------- */
+
+class TimeRewind {
+  constructor(game, boss, x) {
+    this.kind = 'rewind';
+    this.type = 'rewind';
+    this.boss = boss;
+    this.index = 'time:rw:' + Date.now() + ':' + Math.floor(Math.random() * 10000);
+    this.x = x;
+    this.y = LEVEL.floorY;
+    this.hp = CFG.timeDemon.rewindHp;
+    this.maxHp = this.hp;
+    this.life = CFG.timeDemon.rewindCd;
+    this.flying = false;
+    this.vx = 0;
+    this.vy = 0;
+    this.dead = false;
+    this.flash = 0;
+    this.def = { def: 100 };
+    this.r = 18;
+  }
+
+  box() {
+    return { x: this.x - 18, y: this.y - 42, w: 36, h: 42 };
+  }
+
+  update(wdt, game) {
+    if (this.dead) return;
+    this.flash = Math.max(0, this.flash - wdt);
+    if (!this.flying) {
+      this.life -= wdt;
+      if (this.life <= 0) {
+        this.flying = true;
+        game.spawnText(this.x, this.y - 70, '倒带！', '#c9a6ff');
+        SFX.play('quest');
+      }
+      return;
+    }
+    const b = this.boss;
+    if (!b || b.dead) { this.dead = true; return; }
+    const tx = b.x;
+    const ty = b.y - 44;
+    const dx = tx - this.x;
+    const dy = ty - this.y;
+    const d = Math.hypot(dx, dy) || 1;
+    const sp = 900;
+    this.x += (dx / d) * sp * wdt;
+    this.y += (dy / d) * sp * wdt;
+    if (d < 34) {
+      this.dead = true;
+      b.hp = Math.min(b.maxHp, b.hp + CFG.timeDemon.rewindHeal);
+      game.spawnText(b.x, b.y - 120, '+' + CFG.timeDemon.rewindHeal, '#8ef0a0');
+      game.effects.push({ type: 'ring', x: b.x, y: b.y - 44, t: 0, life: 0.4, r0: 10, r1: 80, width: 4, color: '#8ef0a0' });
+    }
+  }
+
+  hurt(dmg, dir, game) {
+    if (this.dead || this.flying) return;
+    this.hp -= dmg;
+    this.flash = 0.14;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.dead = true;
+      game.spawnText(this.x, this.y - 54, '破坏', '#7fe0ff');
+    }
+  }
+}
+
+/* ---------------- ⏸️ 时间恶魔的定身弹 ---------------- */
+
+class PauseShot {
+  constructor(boss) {
+    this.kind = 'pause';
+    this.boss = boss;
+    this.x = boss.x + boss.dir * 40;
+    this.y = boss.y - 44;
+    this.vx = boss.dir * 520;
+    this.vy = 0;
+    this.life = 4;
+    this.dead = false;
+    this.r = 16;
+  }
+
+  update(wdt, game) {
+    if (this.dead) return;
+    this.x += this.vx * wdt;
+    this.y += this.vy * wdt;
+    this.life -= wdt;
+    if (this.life <= 0 || this.x < 0 || this.x > LEVEL.width) {
+      this.dead = true;
+      return;
+    }
+    if (game.projectileBlocked(this.x, this.y, this.r)) {
+      this.dead = true;
+      return;
+    }
+    const p = game.player;
+    if (Math.abs(this.x - p.x) < 24 + this.r && Math.abs(this.y - (p.y - 25)) < 32 + this.r) {
+      this.dead = true;
+      if (p.isDashing()) {
+        // 完美闪避：不受伤害，也不被定身
+        p.perfectDodge();
+      } else {
+        // 完美格挡：不受伤害，但依然会被定身
+        p.takeDamage(this.boss.atk * CFG.timeDemon.pauseMult, this.x, this.boss);
+        p.root(CFG.timeDemon.pauseRoot);
+      }
     }
   }
 }
@@ -4628,11 +5135,17 @@ const UI = {
     let tip = '';
     let tipKey = '';
     let sticky = false;
-    if (game.levelId === 'hou' && !game.save.world.sunGuideDone &&
-        game.enemies.some(e => e.kind === 'boss' && !e.dead)) {
-      tipKey = 'sun';
-      tip = `<span class="idx">BOSS</span>孙点黑的所有攻击都可以格挡　·　完美格挡 -100 韧性` +
-        `<span class="guideSub">击破 🚹 / 🚺 -250 韧性　·　韧性归零虚弱 5 秒　·　半血进入二阶段</span>`;
+    if (game.levelId === 'hou' && game.enemies.some(e => e.kind === 'boss' && !e.dead)) {
+      const boss = game.enemies.find(e => e.kind === 'boss' && !e.dead);
+      if (boss && boss.type === 'timedemon') {
+        tipKey = 'timedemon';
+        tip = `<span class="idx">BOSS</span>时间恶魔：所有攻击都可以格挡　·　完美格挡 -100 韧性` +
+          `<span class="guideSub">打碎 ⌛ / ⏪ 阻止倒计时　·　连续 10 秒不受伤会开始回血　·　半血进入二阶段</span>`;
+      } else if (!game.save.world.sunGuideDone) {
+        tipKey = 'sun';
+        tip = `<span class="idx">BOSS</span>孙点黑的所有攻击都可以格挡　·　完美格挡 -100 韧性` +
+          `<span class="guideSub">击破 🚹 / 🚺 -250 韧性　·　韧性归零虚弱 5 秒　·　半血进入二阶段</span>`;
+      }
     } else if (game.levelId === 'zhong' && !game.cleared && !game.save.world.zhongGuideDone) {
       tip = this.zhongGuide(game);
       tipKey = 'zhong:' + tip;
@@ -4833,7 +5346,7 @@ const UI = {
       `<button class="avatarPick ${w.avatar === a ? 'on' : ''}" data-avatar="${a}">${a}</button>`
     ).join('');
     const exp = game.worldExp();
-    const need = 500;
+    const need = game.worldExpCap();
     const pct = Math.min(100, (exp / need) * 100);
 
     this.showOverlay(`
@@ -5030,6 +5543,8 @@ const UI = {
 
   showHomework(game) {
     const order = ['psych', 'math', 'tech'];
+    // 完成月考（世界等级 2）后，荔头处自动多出体育作业
+    if (game.worldLevel() >= 2) order.push('sport');
     if (!order.includes(this.hwSel)) this.hwSel = 'psych';
     const sel = this.hwSel;
     const cfg = CFG.homework[sel];
@@ -5255,8 +5770,12 @@ const UI = {
 
     let qNow = '';
     if (d.id === 'liuhanyi') {
-      const mult = CFG.awake.paperMult + CFG.upgrade.skills.liuhanyi.q.multStep * (prog.q - 1);
-      qNow = `<div class="upgNow">当前纸球倍率：${Math.round(mult * 100)}%</div>`;
+      const step = CFG.upgrade.skills.liuhanyi.q.multStep;
+      const cur = CFG.awake.paperMult + step * (prog.q - 1);
+      const maxLv = game.maxSkillLevel();
+      const next = prog.q < maxLv ? cur + step : null;
+      qNow = `<div class="upgNow">当前倍率：${Math.round(cur * 100)}%</div>` +
+        `<div class="upgNow">下一级倍率：${next ? Math.round(next * 100) + '%' : '已满级'}</div>`;
     } else if (d.id === 'nengrongze') {
       const mult = CFG.sprout.spikeMult + CFG.sprout.spikeStep * (prog.q - 1);
       qNow = `<div class="upgNow">当前尖刺倍率：${Math.round(mult * 100)}%</div>`;
@@ -5532,7 +6051,9 @@ const Game = {
         itemsUsed: 0,
         worldLevel: 1,
         worldExp: 0,
-        liumoJoined: false
+        questExp: {},
+        liumoJoined: false,
+        examDone: false
       },
       runtime: null,
       records: {
@@ -5682,6 +6203,9 @@ const Game = {
       base.world.worldLevel = wlvl;
       base.world.worldExp = Math.max(0, Math.floor(Number(data.world.worldExp) || 0));
       base.world.liumoJoined = !!data.world.liumoJoined;
+      base.world.examDone = !!data.world.examDone || wlvl >= 2;
+      base.world.questExp = (data.world.questExp && typeof data.world.questExp === 'object')
+        ? Object.assign({}, data.world.questExp) : {};
       if (base.world.liumoJoined && !base.unlocked.includes('liumo')) base.unlocked.push('liumo');
       if (base.world.maps.includes('qian') && !base.world.maps.includes('zhong')) {
         base.world.maps.push('zhong');
@@ -5755,12 +6279,43 @@ const Game = {
     }
     base.records.pigKills = Math.max(base.records.pigKills, base.world.pigDefeated.length);
     base.records.maxGold = Math.max(base.records.maxGold, base.gold);
-    if (base.world.worldExp >= 500 && wlvl === 1 &&
-        !base.quests.side.some(q => q.id === 'yuekao')) {
-      base.quests.side.push({
-        id: 'yuekao', name: '月考',
-        desc: '通过月考，提高世界等级', status: 'active'
-      });
+    // 已完成任务的补充经验（一次性，旧存档自动补上）
+    const qe = base.world.questExp;
+    let questExpAdd = 0;
+    const backfill = (key, n, done) => {
+      if (!done || qe[key]) return;
+      qe[key] = true;
+      questExpAdd += n;
+    };
+    backfill('tutorial', 50, base.world.qianCleared || base.world.tutorialDone);
+    backfill('litou', 100, base.world.litouTalked);
+    backfill('sundianhei', 100, base.world.houBossDefeated);
+    backfill('liumo', 100, base.world.liumoJoined);
+    backfill('yuekao', 200, base.world.examDone);
+    if (questExpAdd > 0) {
+      base.world.worldExp = Math.max(0, Math.floor(Number(base.world.worldExp) || 0)) + questExpAdd;
+    }
+
+    // 世界经验满 500（世界等级 1 满）→ 自动接取「月考」并发放 📄 月考试卷
+    const examQ = base.quests.side.find(q => q && q.id === 'yuekao');
+    if (base.world.worldExp >= CFG.world.expCap && base.world.worldLevel === 1 && !base.world.examDone) {
+      if (examQ) {
+        examQ.desc = '前往高一十班（后）进行考试';
+        examQ.status = 'active';
+      } else {
+        base.quests.side.push({
+          id: 'yuekao', name: '月考',
+          desc: '前往高一十班（后）进行考试', status: 'active'
+        });
+      }
+      if (!base.inventory.items.includes('examPaper')) {
+        base.inventory.items.push('examPaper');
+        base.itemCounts.examPaper = 1;
+      }
+    } else if (examQ && (base.world.examDone || base.world.worldLevel >= 2)) {
+      examQ.status = 'done';
+    } else if (examQ) {
+      examQ.desc = '前往高一十班（后）进行考试';
     }
     if (data.achievements && typeof data.achievements === 'object') {
       const valid = CFG.achievements.map(a => a.id);
@@ -5997,6 +6552,7 @@ const Game = {
     this.cleared = false;
     this.dialogue = null;
     this.panel = null;
+    this.exam = null;
     this.state = 'playing';
     this.last = 0;
     this.tutorialIndex = 0;
@@ -6040,6 +6596,7 @@ const Game = {
     this.cleared = false;
     this.dialogue = null;
     this.panel = null;
+    this.exam = null;
     this.state = 'playing';
     this.last = 0;
 
@@ -6195,6 +6752,7 @@ const Game = {
     this.cleared = false;
     this.dialogue = null;
     this.homeworkFight = null;
+    this.exam = null;
     if (this.save.world.tutorialDone) {
       this.tutorialIndex = LEVELS.qian.tutorial.length;
     } else if (this.tutorialIndex > LEVELS.qian.tutorial.length) {
@@ -6226,6 +6784,7 @@ const Game = {
       const main = this.save.quests.main.find(q => q.id === 'main1');
       if (main && !this.save.world.houBossDefeated) main.desc = '去会会孙点黑';
     }
+    this.checkWorldQuest();
     this.panel = null;
     this.saveGame();
   },
@@ -6277,6 +6836,7 @@ const Game = {
   },
 
   respawn() {
+    const examWasActive = !!this.exam;
     this.player.resetAt(this.checkpointX, this.checkpointY);
     this.player.active = 0;
     for (const c of this.player.characters) {
@@ -6300,9 +6860,11 @@ const Game = {
     this.focusTimer = 0;
     this.wipeTimer = 0;
     this.homeworkFight = null;
+    this.exam = null;
     this.state = 'playing';
     UI.hideOverlay();
     UI.toast('已在检查点复活');
+    if (examWasActive) this.startExam(true);
   },
 
   onWipe() {
@@ -6331,6 +6893,7 @@ const Game = {
       if (firstClear) this.stats.mapUnlocked++;
     }
     this.save.world.tutorialDone = true;
+    this.grantQuestExp('tutorial', 50);
     this.tutorialIndex = LEVEL.tutorial.length;
     if (this.levelId === 'zhong') {
       this.save.world.zhongGuideDone = true;
@@ -6737,15 +7300,40 @@ const Game = {
     this.save.records.kills = (this.save.records.kills || 0) + 1;
     this.gainWorldExp(50);
     for (const e of this.enemies) {
-      if (e !== boss && (e.kind === 'totem' || e.kind === 'trans')) e.dead = true;
+      if (e === boss) continue;
+      if (e.kind === 'totem' || e.kind === 'trans' ||
+          e.kind === 'hourglass' || e.kind === 'rewind' || e.kind === 'pause') {
+        e.dead = true;
+      }
     }
-    this.projectiles = this.projectiles.filter(p => p.boss !== boss);
+    this.projectiles = this.projectiles.filter(p => p.boss !== boss && p.kind !== 'pause');
+
+    if (boss.exam) {
+      this.completeExam();
+      return;
+    }
+
+    if (boss.sport) {
+      this.save.gold += 100;
+      const loot = ['💰 金币×100'];
+      if (Math.random() < 0.5) {
+        this.save.materials.haochengji = (this.save.materials.haochengji || 0) + 1;
+        loot.push('💯 好成绩×1');
+      }
+      UI.showLoot(loot, 3200, '体育作业完成');
+      UI.toast('体育作业完成', 2600);
+      this.completeHomework('sport');
+      this.homeworkFight = null;
+      this.saveGame();
+      return;
+    }
 
     if (boss.summoned) {
-      this.save.gold += 100;
+      const reward = this.worldLevel() >= 2 ? 300 : 100;
+      this.save.gold += reward;
       const music = 3 + Math.floor(Math.random() * 3);
       this.save.materials.music = (this.save.materials.music || 0) + music;
-      const loot = ['💰 金币×100', `🎶 音乐细菌×${music}`];
+      const loot = ['💰 金币×' + reward, `🎶 音乐细菌×${music}`];
       UI.showLoot(loot, 3000, '作业完成');
       UI.toast('心理作业完成', 2600);
       this.completeHomework('psych');
@@ -6755,6 +7343,7 @@ const Game = {
     }
 
     this.save.world.houBossDefeated = true;
+    this.grantQuestExp('sundianhei', 100);
     this.save.world.sunGuideDone = true;
     const main = this.save.quests.main.find(q => q.id === 'main1');
     if (main) main.desc = '打开孙点黑留下的宝箱';
@@ -6836,6 +7425,18 @@ const Game = {
       return;
     }
 
+    if (itemId === 'examPaper') {
+      if (this.save.world.examDone || this.worldLevel() >= 2) { UI.toast('月考已经结束了'); return; }
+      if (this.levelId !== 'hou') { UI.toast('需要在 高一十班（后）使用'); return; }
+      if (this.exam) { UI.toast('考试正在进行中'); return; }
+      if (this.enemies.some(e => !e.dead)) { UI.toast('先清理场上的敌人，再使用 📄'); return; }
+      if (this.state !== 'playing') return;
+      this.removeItem('examPaper');
+      this.startExam(false);
+      this.saveGame();
+      return;
+    }
+
     if (item.quest) {
       UI.toast('任务道具，暂时无法使用');
       return;
@@ -6911,6 +7512,11 @@ const Game = {
         UI.toast('先完成当前的作业战斗');
         return;
       }
+      if (item.homework === 'sport' && this.enemies.some(e => !e.dead)) {
+        UI.toast('先清理场上的敌人，再使用 ⏰');
+        return;
+      }
+      if (this.state !== 'playing') return;
       this.removeItem(itemId, 1);
       this.startHomeworkFight(item.homework);
       this.saveGame();
@@ -6931,26 +7537,50 @@ const Game = {
   maxCharLevel() { return CFG.upgrade.level.maxPerWorld * this.worldLevel(); },
   maxSkillLevel() { return CFG.upgrade.skillMaxPerWorld * this.worldLevel(); },
 
+  worldExpCap() {
+    return this.worldLevel() >= 2 ? CFG.world.expCap2 : CFG.world.expCap;
+  },
+
   gainWorldExp(n) {
     if (!n) return;
     this.save.world.worldExp = this.worldExp() + n;
     this.checkWorldQuest();
   },
 
+  // 任务经验：每个任务只发放一次（存档里用 questExp 记录）
+  grantQuestExp(key, n) {
+    if (!this.save.world.questExp) this.save.world.questExp = {};
+    if (this.save.world.questExp[key]) return false;
+    this.save.world.questExp[key] = true;
+    this.save.world.worldExp = this.worldExp() + n;
+    UI.toast('🌍 世界经验 +' + n, 2200);
+    this.checkWorldQuest();
+    return true;
+  },
+
   checkWorldQuest() {
-    if (this.worldLevel() > 1) return;
-    if (this.worldExp() < 500) return;
-    if (this.save.quests.side.some(q => q.id === 'yuekao')) return;
-    this.save.quests.side.push({
-      id: 'yuekao', name: '月考',
-      desc: '通过月考，提高世界等级', status: 'active'
-    });
-    UI.toast('⚠️ 已接取支线任务“月考”', 3000);
-    SFX.play('quest');
+    if (this.worldLevel() >= 2 || this.save.world.examDone) return;
+    if (this.worldExp() < CFG.world.expCap) return;
+    let q = this.save.quests.side.find(x => x && x.id === 'yuekao');
+    if (!q) {
+      q = { id: 'yuekao', name: '月考', desc: '前往高一十班（后）进行考试', status: 'active' };
+      this.save.quests.side.push(q);
+    }
+    q.desc = '前往高一十班（后）进行考试';
+    q.status = 'active';
+    if (this.exam) return;
+    if (!this.save.inventory.items.includes('examPaper')) {
+      this.addItem('examPaper', 1);
+      UI.toast('⚠️ 已接取支线任务“月考”', 3000);
+      UI.showLoot(['📄 月考试卷×1', '在高一十班（后）使用，开始考试'], 4000, '新任务 · 月考');
+      SFX.play('quest');
+      this.saveGame();
+    }
   },
 
   enemyScale() {
-    return 1 + 0.2 * (this.worldLevel() - 1);
+    // 怪物强度改为按世界等级显式配置，保留此函数以兼容旧调用
+    return 1;
   },
 
   /* ---------------- 升级 ---------------- */
@@ -6966,7 +7596,13 @@ const Game = {
     const lv = this.save.progress[id];
     if (kind === 'level') {
       if (lv.level >= this.maxCharLevel()) return null;
-      return { gold: lv.level * CFG.upgrade.level.goldBase };
+      const cost = { gold: lv.level * CFG.upgrade.level.goldBase };
+      // 世界等级 2：角色 10 级突破到 20 级，每级额外消耗 1 个好成绩
+      if (lv.level >= 10) {
+        cost.mat = 'haochengji';
+        cost.matN = 1;
+      }
+      return cost;
     }
     const cfg = CFG.upgrade.skills[id] && CFG.upgrade.skills[id][kind];
     if (!cfg || cfg.upgradable === false) return null;
@@ -7069,8 +7705,136 @@ const Game = {
       e.role = 'tech';
       this.enemies.push(e);
       UI.toast('通技作业：王明猪出现了', 2400);
+    } else if (type === 'sport') {
+      const x = Math.max(180, Math.min(LEVEL.width - 200, p.x + 460));
+      const boss = new TimeDemon(x, { index: 'hw:sport:' + Date.now() });
+      boss.sport = true;
+      this.enemies.push(boss);
+      UI.toast('体育作业：时间恶魔出现了', 2600);
     }
     SFX.play('quest');
+  },
+
+  /* ---------------- 月考 ---------------- */
+
+  startExam(restart) {
+    this.exam = { wave: 0, timer: 0, restart: !!restart };
+    this.homeworkFight = null;
+    if (!restart) {
+      UI.showLoot(['📄 月考试卷已使用', '三波敌人 · 请做好准备'], 3200, '月考开始');
+      UI.toast('月考开始：第一波', 2400);
+    } else {
+      UI.toast('月考重新开始：第一波', 2400);
+    }
+    SFX.play('quest');
+    this.spawnExamWave(1);
+  },
+
+  spawnExamWave(n) {
+    const p = this.player;
+    const baseX = p ? p.x : 300;
+    this.exam.wave = n;
+    this.exam.timer = 0;
+    if (n === 1) {
+      for (let i = 0; i < 5; i++) {
+        const x = Math.max(120, Math.min(LEVEL.width - 120, baseX + 220 + i * 130));
+        const e = new Enemy({ x, a: x - 160, b: x + 160 }, 'exam:dog:' + Date.now() + ':' + i);
+        e.exam = true;
+        e.examRole = 'dog';
+        this.enemies.push(e);
+      }
+      UI.toast('第一波：5 只黑犬', 2200);
+    } else if (n === 2) {
+      for (let i = 0; i < 2; i++) {
+        const x = Math.max(140, Math.min(LEVEL.width - 140, baseX + 320 + i * 320));
+        const e = new Pig({ x, a: x - 200, b: x + 200 }, 'exam:pig:' + Date.now() + ':' + i);
+        e.exam = true;
+        e.examRole = 'pig';
+        this.enemies.push(e);
+      }
+      UI.toast('第二波：2 只王明猪', 2200);
+    } else if (n === 3) {
+      const x = Math.max(200, Math.min(LEVEL.width - 200, baseX + 520));
+      const boss = new TimeDemon(x, { index: 'exam:boss:' + Date.now() });
+      boss.exam = true;
+      this.enemies.push(boss);
+      UI.toast('第三波：⏰ 时间恶魔', 2800);
+      UI.showLoot(['⏰ 时间恶魔出现了'], 2600, '最终波');
+    }
+    SFX.play('quest');
+  },
+
+  updateExam(dt) {
+    if (!this.exam) return;
+    const threats = this.enemies.filter(e => !e.dead &&
+      (e.kind === 'dog' || e.kind === 'pig' || e.kind === 'boss'));
+    if (threats.length) { this.exam.timer = 0; return; }
+    if (this.exam.wave >= 3) return;
+    this.exam.timer += dt;
+    if (this.exam.timer >= 1.5) {
+      this.exam.timer = 0;
+      this.spawnExamWave(this.exam.wave + 1);
+    }
+  },
+
+  completeExam() {
+    this.exam = null;
+    this.save.world.examDone = true;
+    this.save.world.worldLevel = 2;
+    this.grantQuestExp('yuekao', 200);
+    this.save.world.worldExp = Math.max(this.worldExp(), CFG.world.expCap);
+    const q = this.save.quests.side.find(x => x && x.id === 'yuekao');
+    if (q) q.status = 'done';
+    this.homeworkFight = null;
+    this.saveGame();
+    UI.showLoot([
+      '🌍 世界等级 → 2',
+      '🌍 世界经验 +200',
+      '角色等级上限 → 20',
+      '技能等级上限 → 10',
+      '荔头处新增：体育作业'
+    ], 5200, '月考完成');
+    UI.toast('世界等级提升至 2', 3600);
+    SFX.play('quest');
+    this.effects.push({ type: 'burst', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.8 });
+    this.effects.push({ type: 'ring', x: this.player.x, y: this.player.y - 40, t: 0, life: 0.8, r0: 10, r1: 160, width: 6, color: '#ffd166' });
+  },
+
+  spawnHourglass(boss) {
+    const list = this.enemies.filter(e => !e.dead &&
+      (e.kind === 'hourglass' || e.kind === 'rewind'));
+    if (list.filter(e => e.kind === 'hourglass').length >= CFG.timeDemon.hourglassMax) return;
+    if (list.length >= 5) return;
+    const p = this.player;
+    let x = p.x + (Math.random() < 0.5 ? -1 : 1) * (90 + Math.random() * 90);
+    x = Math.max(80, Math.min(LEVEL.width - 80, x));
+    this.enemies.push(new TimeHourglass(this, boss, x));
+    this.spawnText(x, LEVEL.floorY - 80, '⌛ 倒计时 15s', '#ff6b76');
+  },
+
+  spawnRewind(boss) {
+    const list = this.enemies.filter(e => !e.dead &&
+      (e.kind === 'hourglass' || e.kind === 'rewind'));
+    if (list.filter(e => e.kind === 'rewind').length >= CFG.timeDemon.rewindMax) return;
+    if (list.length >= 5) return;
+    let x = boss.x + (Math.random() < 0.5 ? -1 : 1) * (150 + Math.random() * 160);
+    x = Math.max(80, Math.min(LEVEL.width - 80, x));
+    this.enemies.push(new TimeRewind(this, boss, x));
+    this.spawnText(x, LEVEL.floorY - 80, '⏪ 倒计时 10s', '#ff6b76');
+  },
+
+  firePauseShot(boss) {
+    if (this.projectiles.some(p => p.kind === 'pause' && !p.dead)) return;
+    const shot = new PauseShot(boss);
+    const p = this.player;
+    const dx = p.x - shot.x;
+    const dy = (p.y - 25) - shot.y;
+    const d = Math.hypot(dx, dy) || 1;
+    const sp = 520;
+    shot.vx = (dx / d) * sp;
+    shot.vy = (dy / d) * sp;
+    this.projectiles.push(shot);
+    this.spawnText(boss.x, boss.y - 120, '⏸️', '#c9a6ff');
   },
 
   /* ---------------- 成就 ---------------- */
@@ -7214,6 +7978,7 @@ const Game = {
       }
     } else if (npcId === 'litou') {
       this.save.world.litouTalked = true;
+      this.grantQuestExp('litou', 100);
       const main = this.save.quests.main.find(q => q.id === 'main1');
       if (main && this.save.world.tearsQuest === 0 && !this.save.world.houBossDefeated) {
         main.desc = '去会会孙点黑';
@@ -7304,6 +8069,7 @@ const Game = {
 
     for (const e of this.enemies) e.update(wdt, this);
     this.enemies = this.enemies.filter(e => !e.dead);
+    this.updateExam(wdt);
 
     for (const p of this.projectiles) p.update(wdt, this);
     this.projectiles = this.projectiles.filter(p => !p.dead);
@@ -7729,6 +8495,7 @@ const Game = {
     this.state = 'playing';
     if (!this.save.world.liumoJoined) {
       this.save.world.liumoJoined = true;
+      this.grantQuestExp('liumo', 100);
       if (!this.save.unlocked.includes('liumo')) this.save.unlocked.push('liumo');
       this.save.progress.liumo = { level: 1, e: 1, q: 1 };
       if (this.player && !this.player.characters.some(c => c.def.id === 'liumo')) {
@@ -7947,7 +8714,7 @@ const Game = {
     if (enemy.kind === 'dog') this.save.records.dogKills = (this.save.records.dogKills || 0) + 1;
     if (enemy.kind === 'pig') this.save.records.pigKills = (this.save.records.pigKills || 0) + 1;
     this.gainWorldExp(enemy.kind === 'pig' ? 10 : 1);
-    if (enemy.index && !enemy.homework) {
+    if (enemy.index && !enemy.homework && !enemy.exam) {
       // 通过教学关之前，被击败的敌人不会刷新
       const tutorialLock = this.levelId === 'qian' && !this.save.world.tutorialDone;
       if (!tutorialLock) {
@@ -7962,7 +8729,12 @@ const Game = {
     this.save.gold += gold;
     SFX.play('coin');
     const loot = [`💰 金币×${gold}`];
-    if (Math.random() < 0.5) {
+    if (this.worldLevel() >= 2) {
+      // 世界等级 2：黑犬必定掉落 3-6 个点墨
+      const n = 3 + Math.floor(Math.random() * 4);
+      this.save.materials.dianmo = (this.save.materials.dianmo || 0) + n;
+      loot.push(`⚫️ 点墨×${n}`);
+    } else if (Math.random() < 0.5) {
       this.save.materials.dianmo = (this.save.materials.dianmo || 0) + 1;
       loot.push('⚫️ 点墨×1');
     }
@@ -7973,8 +8745,13 @@ const Game = {
       this.save.gold += bonusGold;
       loot.push(`💰 金币×${bonusGold}`);
       loot.push(`⚙️ 齿轮×${gears}`);
+      if (this.worldLevel() >= 2) {
+        const n = 5 + Math.floor(Math.random() * 6);
+        this.save.materials.dianmo = (this.save.materials.dianmo || 0) + n;
+        loot.push(`⚫️ 点墨×${n}`);
+      }
 
-      if (!enemy.homework) {
+      if (!enemy.homework && !enemy.exam) {
         const chest = (LEVEL.chests || []).find(c => c.pigKey === enemy.index);
         const alreadyDefeated = this.save.world.pigDefeated.includes(enemy.index);
         const chestOpened = chest && this.save.world.zhongChests.includes(chest.id);
@@ -8980,6 +9757,80 @@ const Game = {
 
     if (e.kind === 'boss') {
       const cy = e.y - 44;
+
+      if (e.type === 'timedemon') {
+        ctx.fillStyle = 'rgba(20, 12, 8, .28)';
+        ctx.beginPath();
+        ctx.ellipse(sx, LEVEL.floorY - 4, 42, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if (e.weak > 0) {
+          ctx.strokeStyle = 'rgba(120, 220, 255, .8)';
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 3; i++) {
+            const a = performance.now() / 150 + i * 2.1;
+            ctx.beginPath();
+            ctx.arc(sx, cy, 48 + i * 6, a, a + 0.8);
+            ctx.stroke();
+          }
+        }
+        if (e.state === 'dashwind') {
+          ctx.save();
+          ctx.globalAlpha = 0.6;
+          ctx.fillStyle = '#ff6b76';
+          ctx.beginPath();
+          ctx.moveTo(sx, cy + 10);
+          ctx.lineTo(sx + e.dir * 150, cy - 14);
+          ctx.lineTo(sx + e.dir * 150, cy + 34);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.save();
+        ctx.translate(sx, cy);
+        if (e.dir < 0) ctx.scale(-1, 1);
+        ctx.globalAlpha = e.flash > 0 ? 0.75 : 1;
+        ctx.font = this.bodyEmojiSize(42) + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = 'rgba(12, 16, 24, .9)';
+        ctx.lineWidth = 3;
+        if (e.phase2) {
+          ctx.shadowColor = 'rgba(255, 120, 90, .85)';
+          ctx.shadowBlur = 22;
+        }
+        ctx.strokeText('⏰', 0, 6);
+        ctx.fillText('⏰', 0, 6);
+        ctx.restore();
+
+        if (e.state === 'melee') {
+          const p = 1 - Math.max(0, e.meleeT) / 0.65;
+          const drop = p < 0.65 ? 0 : (p - 0.65) / 0.35;
+          const gx = sx + e.dir * (20 + drop * 46);
+          const gy = cy - 72 + drop * 100;
+          ctx.save();
+          ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.lineJoin = 'round';
+          ctx.strokeStyle = 'rgba(12, 16, 24, .95)';
+          ctx.lineWidth = 3;
+          ctx.strokeText('⏳', gx, gy);
+          ctx.fillText('⏳', gx, gy);
+          ctx.restore();
+        }
+        if (e.markT > 0) {
+          ctx.save();
+          ctx.globalAlpha = e.markT < 2 ? (0.4 + 0.6 * Math.abs(Math.sin(performance.now() / 200))) : 0.95;
+          ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('📖', sx, cy - 66);
+          ctx.restore();
+        }
+        return;
+      }
+
       ctx.fillStyle = 'rgba(20, 12, 8, .28)';
       ctx.beginPath();
       ctx.ellipse(sx, LEVEL.floorY - 4, 42, 11, 0, 0, Math.PI * 2);
@@ -9039,6 +9890,47 @@ const Game = {
         ctx.textBaseline = 'middle';
         ctx.fillText('📖', sx, cy - 66);
         ctx.restore();
+      }
+      return;
+    }
+
+    if (e.kind === 'hourglass' || e.kind === 'rewind') {
+      const cy = e.y - 22;
+      ctx.fillStyle = 'rgba(20, 12, 8, .25)';
+      ctx.beginPath();
+      ctx.ellipse(sx, LEVEL.floorY - 3, 16, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      if (e.flying) {
+        const glow = ctx.createRadialGradient(sx, cy, 2, sx, cy, 26);
+        glow.addColorStop(0, e.kind === 'rewind' ? 'rgba(200, 160, 255, .8)' : 'rgba(255, 120, 110, .8)');
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(sx, cy, 26, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.save();
+      ctx.font = '36px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = 'rgba(12, 16, 24, .95)';
+      ctx.lineWidth = 3;
+      const sym = e.kind === 'rewind' ? '⏪' : '⌛';
+      ctx.globalAlpha = e.flash > 0 ? 0.7 : 1;
+      ctx.strokeText(sym, sx, cy);
+      ctx.fillText(sym, sx, cy);
+      ctx.restore();
+      if (!e.flying) {
+        ctx.fillStyle = '#ff5d6c';
+        ctx.font = 'bold 12px "Microsoft YaHei", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(Math.ceil(e.life) + 's', sx, cy - 30);
+        ctx.fillStyle = 'rgba(0,0,0,.5)';
+        ctx.fillRect(sx - 18, cy - 22, 36, 4);
+        ctx.fillStyle = e.kind === 'rewind' ? '#c79cff' : '#ff9f6e';
+        ctx.fillRect(sx - 18, cy - 22, 36 * (Math.max(0, e.hp) / e.maxHp), 4);
       }
       return;
     }
@@ -9498,6 +10390,19 @@ const Game = {
         ctx.restore();
         continue;
       }
+      if (b.kind === 'pause') {
+        ctx.save();
+        const glow = ctx.createRadialGradient(x, b.y, 2, x, b.y, 26);
+        glow.addColorStop(0, 'rgba(200, 160, 255, .85)');
+        glow.addColorStop(1, 'rgba(160, 120, 255, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, b.y, 26, 0, Math.PI * 2);
+        ctx.fill();
+        emoji('⏸️', 34, x, b.y);
+        ctx.restore();
+        continue;
+      }
       if (b.kind === 'pen') {
         ctx.save();
         const glow = ctx.createRadialGradient(x, b.y, 1, x, b.y, 20);
@@ -9679,7 +10584,10 @@ const Game = {
     ctx.font = 'bold 13px "Microsoft YaHei", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('孙点黑' + (boss.phase === 2 ? ' · 二阶段' : ''), x, y + 7);
+    const bossName = boss.type === 'timedemon'
+      ? ('时间恶魔' + (boss.phase2 ? ' · 二阶段' : ''))
+      : ('孙点黑' + (boss.phase === 2 ? ' · 二阶段' : ''));
+    ctx.fillText(bossName, x, y + 7);
     if (boss.weak > 0) {
       ctx.fillStyle = '#7fe0ff';
       ctx.textAlign = 'right';
@@ -9688,6 +10596,16 @@ const Game = {
       ctx.fillStyle = '#8fd7ff';
       ctx.textAlign = 'right';
       ctx.fillText('飞空', x + w, y + 7);
+    } else if (boss.type === 'timedemon') {
+      ctx.textAlign = 'right';
+      if (boss.healing) {
+        ctx.fillStyle = '#8ef0a0';
+        ctx.fillText('回复中 +' + CFG.timeDemon.healPerSec + '/s', x + w, y + 7);
+      } else {
+        const left = Math.max(0, CFG.timeDemon.healDelay - boss.noDmgT);
+        ctx.fillStyle = left <= 3 ? '#ff9f6e' : '#9fb3d1';
+        ctx.fillText('回血倒计时 ' + left.toFixed(1) + 's', x + w, y + 7);
+      }
     }
 
     // HP
